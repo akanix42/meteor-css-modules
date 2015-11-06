@@ -27,7 +27,7 @@ If you don't want the **import ... from** syntax for JavaScript files, you can j
 meteor add nathantreid:css-modules-mss
 ```
 
-##Usage
+## Usage
 
 Because Meteor 1.2 doesn't allow build plugins to handle CSS files, you will need to use the .mss (Modular Style Sheet) extension.
 
@@ -69,7 +69,7 @@ Template.hello.helpers({
 });
 ```
 
-###Relative Imports
+### Relative Imports
 Relative imports are supported when using the **import ... from** syntax.
 Given the structure:
 ```
@@ -100,10 +100,14 @@ Template.hello.helpers({
 });
 ```
 
-##Todo
+## History
 
-1. Shorter generated class names
-1. Source Maps
+* 11/2015: Implementation of CSS Modules for Meteor released
+* 11/2015: Shortened auto-generated class names by excluding irrelevant path information
 
-##Acknowledgements
-This plugin was developed using the CSS modules implemenation found here: https://github.com/css-modules/css-modules-loader-core
+## Todo
+
+* Source Maps
+
+## Acknowledgements
+This plugin was developed using the CSS modules implementation found here: https://github.com/css-modules/css-modules-loader-core
