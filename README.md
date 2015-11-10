@@ -100,15 +100,47 @@ Template.hello.helpers({
 });
 ```
 
+## PostCSS Plugins
+The following PostCSS plugins are used:
+
+* postcss-modules-values
+* postcss-modules-local-by-default
+* postcss-modules-extract-imports
+* postcss-modules-scope
+* postcss-nested
+* postcss-nested-props
+* postcss-media-minmax
+* postcss-color-hex-alpha
+* postcss-pseudo-class-any-link
+* postcss-selector-not
+
+They can be referenced by the following variables:
+
+* CssProcessor.values
+* CssProcessor.localByDefault
+* CssProcessor.extractImports
+* CssProcessor.scope
+* CssProcessor.mediaMinMax
+* CssProcessor.nestedProps
+* CssProcessor.nested
+* CssProcessor.colorHexAlpha
+* CssProcessor.anyLink
+* CssProcessor.notSelector
+
+The first four are **required** for basic CSS modules; the rest are plugins I like to use.
+If you wish to remove their functionality, you can do so by creating a [config/css-modules.json](https://github.com/nathantreid/meteor-css-modules-test/blob/master/config/css-modules.json) file.
+
 ## History
 
 * 11/2015: Implementation of CSS Modules for Meteor released
 * 11/2015: Shortened auto-generated class names by excluding irrelevant path information
 * 11/2015: Implemented source maps
+* 11/2015: Added additional postcss plugins (nested, nested props, media min/max, colorHexAlpha, anyLink, and notSelector.
 
 ## Todo
 
-* add additional postcss plugins (nesting, variables)
+* consider replacing Meteor's .css processor (replace standard-minifiers)
+* allow custom selection of postcss plugins, similar to https://github.com/juliancwirko/meteor-postcss
 
 ## Acknowledgements
 This plugin was developed using the CSS modules implementation found here: https://github.com/css-modules/css-modules-loader-core
