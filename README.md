@@ -104,10 +104,11 @@ Template.hello.helpers({
 
 * 11/2015: Implementation of CSS Modules for Meteor released
 * 11/2015: Shortened auto-generated class names by excluding irrelevant path information
+* 11/2015: Implemented source maps
 
 ## Todo
 
-* Source Maps
+* add additional postcss plugins (nesting, variables)
 
 ## Acknowledgements
 This plugin was developed using the CSS modules implementation found here: https://github.com/css-modules/css-modules-loader-core
