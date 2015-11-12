@@ -34,8 +34,8 @@ Because Meteor 1.2 doesn't allow build plugins to handle CSS files, you will nee
 ***hello.mss***
 ``` css
 .hello {
-    color: red;
     composes: b from "./b.mss";
+    color: red;
 }
 ```
 
