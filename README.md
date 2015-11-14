@@ -121,7 +121,7 @@ The first four are **required** for core CSS module functionality; the rest are 
 You can do so by modifying the [config/css-modules.json](https://github.com/nathantreid/meteor-css-modules-test/blob/master/config/css-modules.json) file.
 Any package you list will be loaded via NPM. If a plugin you added is causing the build step to fail, carefully consider it's placement as the plugins are loaded in the order they are specified in css-modules.json.
 For example, the postcss-nested-props plugin needs to come before both the postcss-modules-values plugin and the postcss-nested plugin.
-  
+
 
 ## Global Variables
 
@@ -193,6 +193,7 @@ Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) fo
 * 11/2015: Implemented source maps
 * 11/2015: Added additional postcss plugins (nested, nested props, media min/max, colorHexAlpha, anyLink, and notSelector.
 * 11/2015: Implemented global variables via the postcss-simple-vars plugin
+* 11/2015: **Any** PostCSS plugin specified in css-modules.json will be loaded via NPM. Freedom!
 
 ## Todo
 
@@ -200,4 +201,6 @@ Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) fo
 * allow custom selection of postcss plugins, similar to https://github.com/juliancwirko/meteor-postcss
 
 ## Acknowledgements
+
 This plugin was developed using the CSS modules implementation found here: https://github.com/css-modules/css-modules-loader-core
+Also, thanks to the meteorhacks:npm package, which I leaned on heavily for dynamic plugin loading via NPM.
