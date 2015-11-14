@@ -101,7 +101,7 @@ Template.hello.helpers({
 ```
 
 ## PostCSS Plugins
-The following PostCSS plugins are used:
+Any PostCSS plugins can be used (as long they don't conflict with the CSS modules core plugins), but the following PostCSS plugins are used by default:
 
 * postcss-modules-values
 * postcss-modules-local-by-default
@@ -116,31 +116,52 @@ The following PostCSS plugins are used:
 * postcss-selector-not
 
 The first four are **required** for core CSS module functionality; the rest are plugins I like to use.
-If you wish to remove their functionality, you can do so by creating a [config/css-modules.json](https://github.com/nathantreid/meteor-css-modules-test/blob/master/config/css-modules.json) file.
+
+**Want to load other PostCSS plugins or customize plugin options?**
+You can do so by modifying the [config/css-modules.json](https://github.com/nathantreid/meteor-css-modules-test/blob/master/config/css-modules.json) file.
+Any package you list will be loaded via NPM. If a plugin you added is causing the build step to fail, carefully consider it's placement as the plugins are loaded in the order they are specified in css-modules.json.
+For example, the postcss-nested-props plugin needs to come before both the postcss-modules-values plugin and the postcss-nested plugin.
+  
 
 ## Global Variables
 
 While explicit composition is a very good thing, sometimes global variables are a good thing, such as for colors which are constant throughout the app.
-Reimporting the variables every time you need them can get tiresome, so now there is a solution!
+Reimporting the variables every time you need them can get tiresome, but thankfully you can do so by passing your variables in to the postcss-simple-vars plugin!
+
 First, create a json file to hold your global variables. For the sake of this example, create a colors.json file containing the following data:
 
 **colors.json**
 
 ``` JSON
 {
-  "primary": "green"
+  "variables": {
+    "primary": "green"
+  }
 }
 ```
 This defines your first variable, *primary*.
-Now create or update your config/css-modules.json with the following data:
+Now update your config/css-modules.json with the following data:
 
 **config/css-modules.json**
 
 ``` JSON
 {
-  "globalVariableFiles": [
-	"colors.json"
-  ]
+  "postcssPlugins": [
+	{
+	  "package": "postcss-simple-vars",
+	  "version": "1.1.0",
+	  // Pass options variables directly here:
+	  //	  "options": {
+	  //		"variables": {
+	  //		}
+	  //	  },
+	  //
+	  // And/Or load them via files
+	  "optionsFiles": [
+		"colors.json"
+		// "path/to/options/file.json"
+	  ]
+	}
 }
 ```
 This is an array, so you can specify as many files as you like. If the file is in a subdirectory, you can use either of these 2 forms to reference it:
@@ -153,7 +174,7 @@ If the file is in a local package, you can use either of these 2 forms to refere
 * {author:package}/path/to/file.json
 * packages/[package-folder]/path/to/file.json
 
-Now use your variable in any of your .mss files:
+Now use the variable you created in any of your .mss files:
 
 **example.mss**
 
