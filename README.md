@@ -193,12 +193,11 @@ Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) fo
 * 11/2015: Implemented source maps
 * 11/2015: Added additional postcss plugins (nested, nested props, media min/max, colorHexAlpha, anyLink, and notSelector.
 * 11/2015: Implemented global variables via the postcss-simple-vars plugin
-* 11/2015: **Any** PostCSS plugin specified in css-modules.json will be loaded via NPM. Freedom!
+* 11/2015: **Any** NPM-listed PostCSS plugin specified in packages.json and css-modules.json will be loaded. Freedom!
 
 ## Todo
 
 * consider replacing Meteor's .css processor (replace standard-minifiers)
-* allow custom selection of postcss plugins, similar to https://github.com/juliancwirko/meteor-postcss
 
 ## Acknowledgements
 
