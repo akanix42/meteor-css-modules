@@ -10,5 +10,5 @@ Plugin.registerCompiler({
 	extensions: ["mss"],
 	archMatching: 'web'
 }, function () {
-	return new CssModulesCompiler(Plugin);
+	return new CssModulesBuildPlugin(Plugin);
 });
