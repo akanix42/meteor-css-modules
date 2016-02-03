@@ -17,14 +17,7 @@ Install using Meteor's package management system:
 
 ```bash
 meteor remove ecmascript
-meteor add nathantreid:css-modules
-```
-
-In order to support the **import ... from** syntax, this plugin will need to handle your JS files. **This plugin includes the meteor ecmasscript compiler, so you still get all of the ES6 goodness!**
-If you don't want the **import ... from** syntax for JavaScript files, you can just install the MSS processor. In this case you will need to use the alternative JS import syntax shown in the Usage section below.
-
-```bash
-meteor add nathantreid:css-modules-mss
+meteor add nathantreid:css-modules@1.0.0-beta.1
 ```
 
 ## Usage
