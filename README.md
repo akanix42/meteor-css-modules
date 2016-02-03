@@ -101,27 +101,73 @@ Template.hello.helpers({
 ```
 
 ## PostCSS Plugins
-Any PostCSS plugins can be used (as long they don't conflict with the CSS modules core plugins), but the following PostCSS plugins are used by default:
+Any PostCSS plugins can be used (as long they don't conflict with the CSS modules core plugins); the following PostCSS plugins are the core CSS modules plugins and therefore used by default:
 
 * postcss-modules-values
 * postcss-modules-local-by-default
 * postcss-modules-extract-imports
 * postcss-modules-scope
+
+Here is my standard plugin list (in load order):
+
 * postcss-simple-vars
+* postcss-modules-values
 * postcss-nested
-* postcss-nested-props
-* postcss-media-minmax
-* postcss-color-hex-alpha
-* postcss-pseudo-class-any-link
-* postcss-selector-not
+* postcss-modules-local-by-default
+* postcss-modules-extract-imports
+* postcss-modules-scope
+* autoprefixer
 
-The first four are **required** for core CSS module functionality; the rest are plugins I like to use.
+**How to load other PostCSS plugins or customize plugin options**
+You can load plugins by adding them to the dependencies or devDependencies in the [package.json](https://github.com/nathantreid/css-modules-demo-meteor-1.3/blob/master/package.json#L13) file,
+then also listing them under a cssModules { plugins { } } entry in the [same file](https://github.com/nathantreid/css-modules-demo-meteor-1.3/blob/master/package.json#L26).
 
-**Want to load other PostCSS plugins or customize plugin options?**
-You can do so by modifying the [config/css-modules.json](https://github.com/nathantreid/meteor-css-modules-test/blob/master/config/css-modules.json) file.
-Any package you list will be loaded via NPM. If a plugin you added is causing the build step to fail, carefully consider it's placement as the plugins are loaded in the order they are specified in css-modules.json.
-For example, the postcss-nested-props plugin needs to come before both the postcss-modules-values plugin and the postcss-nested plugin.
+``` js
+{
+  "devDependencies": {
+    "postcss-simple-vars": "1.1.0"
+  },
+  "cssModules": {
+    "plugins": {
+      "postcss-simple-vars": {}
+    }
+  }
+}
+```
 
+If a plugin you added is causing the build step to fail, carefully consider it's placement as the plugins are loaded in the order they are specified under the cssModules entry.
+
+Plugin options can be set in 2 ways:
+1. inline in the package.json
+2. in files referenced from the package.json
+
+To set inline options, specify them under the plugin entry like so:
+
+``` js
+  "cssModules": {
+    "plugins": {
+      "my-postcss-plugin": {
+        "inlineOptions": {
+          "option1": true
+      }
+    }
+  }
+```
+
+To reference options from a file, specify them under the plugin entry like so:
+``` js
+  "cssModules": {
+    "plugins": {
+      "my-postcss-plugin": {
+        "fileOptions": [
+          "path/to/file1",
+          "path/to/file2"
+        ]
+    }
+  }
+```
+
+If you set inline and file options, they will be combined.
 
 ## Global Variables
 
@@ -140,30 +186,24 @@ First, create a json file to hold your global variables. For the sake of this ex
 }
 ```
 This defines your first variable, *primary*.
-Now update your config/css-modules.json with the following data:
+Now update your package.json with the following data:
 
-**config/css-modules.json**
+**package.json**
 
 ``` JSON
 {
-  "postcssPlugins": [
-	{
-	  "package": "postcss-simple-vars",
-	  "version": "1.1.0",
-	  // Pass options variables directly here:
-	  //	  "options": {
-	  //		"variables": {
-	  //		}
-	  //	  },
-	  //
-	  // And/Or load them via files
-	  "optionsFiles": [
-		"colors.json"
-		// "path/to/options/file.json"
-	  ]
-	}
+  "cssModules": {
+    "plugins": {
+      "postcss-simple-vars": {
+        "fileOptions": [
+          "colors.json"
+        ]
+      }
+    }
+  }
 }
 ```
+
 This is an array, so you can specify as many files as you like. If the file is in a subdirectory, you can use either of these 2 forms to reference it:
 
 * path/to/file.json
@@ -184,7 +224,7 @@ Now use the variable you created in any of your .mss files:
 }
 ```
 
-Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) for a working example.
+Please [see the demo](https://github.com/nathantreid/css-modules-demo-meteor-1.3) for a working example.
 
 ## History
 
@@ -194,6 +234,7 @@ Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) fo
 * 11/2015: Added additional postcss plugins (nested, nested props, media min/max, colorHexAlpha, anyLink, and notSelector.
 * 11/2015: Implemented global variables via the postcss-simple-vars plugin
 * 11/2015: **Any** NPM-listed PostCSS plugin specified in packages.json and css-modules.json will be loaded. Freedom!
+* 02/2016: Updates for Meteor 1.3; css-modules.json is now combined with package.json
 
 ## Todo
 
@@ -202,4 +243,5 @@ Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) fo
 ## Acknowledgements
 
 This plugin was developed using the CSS modules implementation found here: https://github.com/css-modules/css-modules-loader-core
-Also, thanks to the meteorhacks:npm package, which I leaned on heavily for dynamic plugin loading via NPM.
+The Meteor 1.3 implementation drew inspiration from the excellent [juliancwirko:postcss](https://github.com/juliancwirko/meteor-postcss) plugin.
+
