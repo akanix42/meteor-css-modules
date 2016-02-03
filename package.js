@@ -24,4 +24,12 @@ Package.registerBuildPlugin({
 
 Package.onUse(function (api) {
 	api.use('isobuild:compiler-plugin@1.0.0');
+
+	api.imply('modules@0.5.0-modules.5');
+	api.imply('ecmascript-runtime@0.2.7-modules.5');
+	api.imply('babel-runtime@0.1.5-modules.5');
+	api.imply('promise@0.5.2-modules.5');
+
+	api.export('ECMAScript');
+
 });
