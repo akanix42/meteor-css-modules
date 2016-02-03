@@ -1,5 +1,7 @@
 # [CSS Modules](https://github.com/css-modules/css-modules) for Meteor
 
+**Meteor 1.3:** A beta version is now available for Meteor 1.3, [see here for instructions](https://github.com/nathantreid/meteor-css-modules/tree/meteor-1.3).
+
 **What are CSS Modules?**
 "A CSS Module is a CSS file in which all class names and animation names are scoped locally by default." - CSS modules github
 
