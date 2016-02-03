@@ -10,8 +10,8 @@ meteorhacks:async@1.0.0
 meteorhacks:npm@1.5.0
 nathantreid:css-modules@0.6.0
 nathantreid:css-modules-import-path-helpers@0.0.1
-nathantreid:css-modules-js-compiler@0.0.1
-nathantreid:css-modules-mss-compiler@0.6.0
+nathantreid:css-modules-js-compiler@0.0.2
+nathantreid:css-modules-mss-compiler@0.6.1
 promise@0.5.1
-ramda:ramda@0.17.1
+ramda:ramda@0.19.0
 underscore@1.0.4
