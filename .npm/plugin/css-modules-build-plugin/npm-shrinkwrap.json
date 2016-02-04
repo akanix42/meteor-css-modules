@@ -82,7 +82,7 @@
       }
     },
     "postcss": {
-      "version": "5.0.10",
+      "version": "5.0.14",
       "dependencies": {
         "supports-color": {
           "version": "3.1.2",
@@ -104,7 +104,7 @@
       "version": "1.0.0"
     },
     "postcss-modules-local-by-default": {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "dependencies": {
         "css-selector-tokenizer": {
           "version": "0.5.4",
