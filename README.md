@@ -186,6 +186,24 @@ Now use the variable you created in any of your .mss files:
 }
 ```
 
+PostCSS simple variables are also exposed for use in JavaScript:
+
+**example.mss**
+
+``` css
+$brandColor: red;
+```
+
+**example.js**
+
+``` js
+import styles from './example.mss';
+console.log(styles.$brandColor); // red
+```
+
+This feature can be disabled by adding "extractSimpleVars": false to css-modules.json.
+
+
 Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) for a working example.
 
 ## History
@@ -196,6 +214,7 @@ Please [see the demo](https://github.com/nathantreid/meteor-css-modules-test) fo
 * 11/2015: Added additional postcss plugins (nested, nested props, media min/max, colorHexAlpha, anyLink, and notSelector.
 * 11/2015: Implemented global variables via the postcss-simple-vars plugin
 * 11/2015: **Any** NPM-listed PostCSS plugin specified in packages.json and css-modules.json will be loaded. Freedom!
+* 02/2015: When used with postcss-simple-vars, $variables are now extracted and made available for use in JS.
 
 ## Todo
 
