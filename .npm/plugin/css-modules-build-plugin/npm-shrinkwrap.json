@@ -1,0 +1,147 @@
+{
+  "dependencies": {
+    "app-module-path": {
+      "version": "1.0.4"
+    },
+    "cjson": {
+      "version": "0.3.3",
+      "dependencies": {
+        "json-parse-helpfulerror": {
+          "version": "1.0.3",
+          "dependencies": {
+            "jju": {
+              "version": "1.2.1"
+            }
+          }
+        }
+      }
+    },
+    "css-modules-loader-core": {
+      "version": "1.0.0",
+      "dependencies": {
+        "icss-replace-symbols": {
+          "version": "1.0.2"
+        },
+        "postcss": {
+          "version": "5.0.10",
+          "dependencies": {
+            "supports-color": {
+              "version": "3.1.2",
+              "dependencies": {
+                "has-flag": {
+                  "version": "1.0.0"
+                }
+              }
+            },
+            "source-map": {
+              "version": "0.5.3"
+            },
+            "js-base64": {
+              "version": "2.1.9"
+            }
+          }
+        },
+        "postcss-modules-values": {
+          "version": "1.1.0"
+        },
+        "postcss-modules-extract-imports": {
+          "version": "1.0.0"
+        },
+        "postcss-modules-local-by-default": {
+          "version": "1.0.0",
+          "dependencies": {
+            "css-selector-tokenizer": {
+              "version": "0.5.4",
+              "dependencies": {
+                "cssesc": {
+                  "version": "0.1.0"
+                },
+                "fastparse": {
+                  "version": "1.1.1"
+                }
+              }
+            }
+          }
+        },
+        "postcss-modules-scope": {
+          "version": "1.0.0",
+          "dependencies": {
+            "css-selector-tokenizer": {
+              "version": "0.5.4",
+              "dependencies": {
+                "cssesc": {
+                  "version": "0.1.0"
+                },
+                "fastparse": {
+                  "version": "1.1.1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "postcss": {
+      "version": "5.0.10",
+      "dependencies": {
+        "supports-color": {
+          "version": "3.1.2",
+          "dependencies": {
+            "has-flag": {
+              "version": "1.0.0"
+            }
+          }
+        },
+        "source-map": {
+          "version": "0.5.3"
+        },
+        "js-base64": {
+          "version": "2.1.9"
+        }
+      }
+    },
+    "postcss-modules-extract-imports": {
+      "version": "1.0.0"
+    },
+    "postcss-modules-local-by-default": {
+      "version": "1.0.0",
+      "dependencies": {
+        "css-selector-tokenizer": {
+          "version": "0.5.4",
+          "dependencies": {
+            "cssesc": {
+              "version": "0.1.0"
+            },
+            "fastparse": {
+              "version": "1.1.1"
+            }
+          }
+        }
+      }
+    },
+    "postcss-modules-scope": {
+      "version": "1.0.0",
+      "dependencies": {
+        "css-selector-tokenizer": {
+          "version": "0.5.4",
+          "dependencies": {
+            "cssesc": {
+              "version": "0.1.0"
+            },
+            "fastparse": {
+              "version": "1.1.1"
+            }
+          }
+        }
+      }
+    },
+    "postcss-modules-values": {
+      "version": "1.1.1",
+      "dependencies": {
+        "icss-replace-symbols": {
+          "version": "1.0.2"
+        }
+      }
+    }
+  }
+}

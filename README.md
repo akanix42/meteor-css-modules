@@ -41,7 +41,7 @@ Because Meteor 1.2 doesn't allow build plugins to handle CSS files, you will nee
 
 ***hello.js***
 ``` js
-import * as styles from "{}/hello.mss";
+import styles from "{}/hello.mss";
 
 Template.hello.helpers({
     styles: styles
@@ -76,7 +76,7 @@ you can do the following:
 
 ***hello.js***
 ``` js
-import * as styles from "./hello.mss";
+import styles from "./hello.mss";
 
 Template.hello.helpers({
     styles: styles

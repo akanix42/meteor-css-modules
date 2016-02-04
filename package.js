@@ -14,22 +14,30 @@ Package.describe({
 Package.registerBuildPlugin({
 	name: 'css-modules-build-plugin',
 	use: [
-		'nathantreid:css-modules-js-compiler@1.0.0-beta.3',
-		'nathantreid:css-modules-mss-compiler@1.0.0-beta.1'
+		'babel-compiler@6.4.0-modules.5',
+		'ecmascript@0.4.0-modules.5',
+		'nathantreid:css-modules-import-path-helpers@0.0.1',
+		'ramda:ramda@0.19.0',
 	],
+	npmDependencies: {
+		"app-module-path": "1.0.4",
+		"cjson": "0.3.3",
+		"css-modules-loader-core": "1.0.0",
+		"postcss": "5.0.10",
+		"postcss-modules-local-by-default": "1.0.0",
+		"postcss-modules-extract-imports": "1.0.0",
+		"postcss-modules-scope": "1.0.0",
+		"postcss-modules-values": "1.1.1",
+	},
 	sources: [
+		'plugins-loader.js',
+		'css-modules-processor.js',
+		'css-modules-build-plugin.js',
 		'plugins.js'
 	]
 });
 
 Package.onUse(function (api) {
 	api.use('isobuild:compiler-plugin@1.0.0');
-
-	api.imply('modules@0.5.0-modules.5');
-	api.imply('ecmascript-runtime@0.2.7-modules.5');
-	api.imply('babel-runtime@0.1.5-modules.5');
-	api.imply('promise@0.5.2-modules.5');
-
-	api.export('ECMAScript');
 
 });
