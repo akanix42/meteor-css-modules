@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'nathantreid:css-modules',
-	version: '1.0.0-beta.4',
+	version: '1.0.0-beta.5',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules implementation. CSS for components!',
 	// URL to the Git repository containing the source code for this package.
