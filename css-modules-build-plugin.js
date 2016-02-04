@@ -29,7 +29,7 @@ function processFiles(files, processor) {
 				file.addJavaScript({
 					data: Babel.compile('' +
 						`var styles = ${JSON.stringify(result.tokens)};\n` +
-						'export { styles as default };').code,
+						'export { styles as default, styles };').code,
 					path: file.getPathInPackage() + '.js'
 				});
 			}).await();
