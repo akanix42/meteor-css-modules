@@ -16,8 +16,7 @@ Or, as stated on the main CSS modules page:
 Install using Meteor's package management system:
 
 ```bash
-meteor remove ecmascript
-meteor add nathantreid:css-modules@1.0.0-beta.2
+meteor add nathantreid:css-modules@1.0.0-beta.4
 ```
 
 ## Usage
