@@ -15,7 +15,7 @@ Package.registerBuildPlugin({
 	name: 'css-modules-build-plugin',
 	use: [
 		'nathantreid:css-modules-js-compiler@0.0.3',
-		'nathantreid:css-modules-mss-compiler@0.7.0'
+		'nathantreid:css-modules-mss-compiler@0.8.0'
 	],
 	sources: [
 		'plugins.js'
