@@ -20,18 +20,20 @@ function processFiles(files, processor) {
 		};
 		return processor.process(source, './', allFiles)
 			.then((result)=> {
-				file.addStylesheet({
-					data: result.source,
-					path: file.getPathInPackage().replace('\.mss$', '.css'),
-					sourceMap: JSON.stringify(result.sourceMap)
-				});
+				if (result.source)
+					file.addStylesheet({
+						data: result.source,
+						path: file.getPathInPackage().replace('\.mss$', '.css'),
+						sourceMap: JSON.stringify(result.sourceMap)
+					});
 
-				file.addJavaScript({
-					data: Babel.compile('' +
-						`var styles = ${JSON.stringify(result.tokens)};\n` +
-						'export { styles as default, styles };').code,
-					path: file.getPathInPackage() + '.js'
-				});
+				if (result.tokens)
+					file.addJavaScript({
+						data: Babel.compile('' +
+							`var styles = ${JSON.stringify(result.tokens)};\n` +
+							'export { styles as default, styles };').code,
+						path: file.getPathInPackage() + '.js'
+					});
 			}).await();
 	}
 }
