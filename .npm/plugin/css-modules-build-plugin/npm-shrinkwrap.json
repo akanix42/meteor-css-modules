@@ -44,26 +44,7 @@
         "postcss-modules-values": {
           "version": "1.1.0"
         },
-        "postcss-modules-extract-imports": {
-          "version": "1.0.0"
-        },
         "postcss-modules-local-by-default": {
-          "version": "1.0.0",
-          "dependencies": {
-            "css-selector-tokenizer": {
-              "version": "0.5.4",
-              "dependencies": {
-                "cssesc": {
-                  "version": "0.1.0"
-                },
-                "fastparse": {
-                  "version": "1.1.1"
-                }
-              }
-            }
-          }
-        },
-        "postcss-modules-scope": {
           "version": "1.0.0",
           "dependencies": {
             "css-selector-tokenizer": {

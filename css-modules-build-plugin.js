@@ -10,7 +10,7 @@ CssModulesBuildPlugin = class CssModulesBuildPlugin {
 
 
 function processFiles(files, processor) {
-	const  allFiles = createAllFilesMap(files);
+	const allFiles = createAllFilesMap(files);
 	files.forEach(processFile.bind(this));
 
 	function processFile(file) {
