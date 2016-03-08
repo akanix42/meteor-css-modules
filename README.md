@@ -103,7 +103,7 @@ Template.hello.helpers({
 ```
 
 ## PostCSS Plugins
-Any PostCSS plugins can be used (as long they don't conflict with the CSS modules core plugins), but the following PostCSS plugins are used by default:
+Any PostCSS plugins can be used (as long as they don't conflict with the CSS modules core plugins), but the following PostCSS plugins are used by default:
 
 * postcss-modules-values
 * postcss-modules-local-by-default
