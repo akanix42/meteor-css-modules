@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'nathantreid:css-modules',
-	version: '1.0.0-beta.6',
+	version: '1.0.0-beta.7',
 	// Brief, one-line summary of the package.
 	summary: 'CSS modules implementation. CSS for components!',
 	// URL to the Git repository containing the source code for this package.
@@ -14,8 +14,8 @@ Package.describe({
 Package.registerBuildPlugin({
 	name: 'css-modules-build-plugin',
 	use: [
-		'babel-compiler@6.4.0-modules.5',
-		'ecmascript@0.4.0-modules.5',
+		'babel-compiler@6.5.0-beta.12',
+		'ecmascript@0.4.0-beta.12',
 		'nathantreid:css-modules-import-path-helpers@0.0.1',
 		'ramda:ramda@0.19.0',
 	],
