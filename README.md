@@ -16,7 +16,7 @@ Or, as stated on the main CSS modules page:
 Install using Meteor's package management system:
 
 ```bash
-meteor add nathantreid:css-modules@1.0.0-beta.5
+meteor add nathantreid:css-modules@1.0.0-beta.7
 ```
 
 ## Usage
