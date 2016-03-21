@@ -46,8 +46,7 @@ export default class CssModulesBuildPlugin {
 
 			function compileScssFile(file) {
 				const contents = file.contents = file.getContentsAsString();
-				if (contents && contents.length)
-					file.contents = `${globalVariablesCode}\n\n${contents}`;
+				file.contents = `${globalVariablesCode || ''}\n\n${contents || ''}`;
 
 				file.getContentsAsString = function getContentsAsStringWithGlobalVariables() {
 					return file.contents;
