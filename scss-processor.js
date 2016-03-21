@@ -1,7 +1,9 @@
 import Future from 'fibers/future';
 //import sass from 'node-sass';
 import path from 'path';
+import fs from 'fs';
 const sass = Npm.require('node-sass');
+import IncludedFile from './included-file';
 
 export default class ScssProcessor {
 	constructor(root, allFiles) {
@@ -23,7 +25,7 @@ export default class ScssProcessor {
 			if (cachedResult)
 				return cachedResult;
 
-			const { sourceContent, sourceMap } = this.load(sourceFile, processInternal.bind(this));
+			const { sourceContent, sourceMap } = this.load(sourceFile);
 			return this.fileCache[sourceFile.path] = {contents: sourceContent, source: sourceContent, sourceMap: sourceMap};
 		}
 
@@ -43,8 +45,7 @@ export default class ScssProcessor {
 				let file = allFiles.get(importPath);
 				if (!file && path.basename(file).indexOf('_' === -1))
 					file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
-				if (!file)
-					console.log('\n\nimport: importPath');
+
 				return {path: importPath, contents: file.getContentsAsString(), file: file};
 			} catch (err) {
 				console.error(err);
@@ -58,8 +59,7 @@ export default class ScssProcessor {
 
 	}
 
-	load(sourceFile, importer) {
-		const sassFuture = new Future();
+	load(sourceFile) {
 		const allFiles = this.allFiles;
 		const options = {
 			sourceMap: true,
@@ -79,8 +79,10 @@ export default class ScssProcessor {
 		if (!options.data.trim())
 			options.data = '$fakevariable : blue;';
 
-		let output = sass.renderSync(options, sassFuture.resolver());
-		//output = sassFuture.wait();
+		//const sassFuture = new Future();
+
+		const output = sass.renderSync(options);//, sassFuture.resolver());
+		//const output = sassFuture.wait();
 
 		const compileResult = {sourceContent: output.css.toString('utf-8'), sourceMap: output.map};
 		return compileResult;
@@ -96,9 +98,6 @@ export default class ScssProcessor {
 
 		function getSourceContents(fileCache, source, relativeTo) {
 			if (source instanceof String || typeof source === "string") {
-				console.log(JSON.stringify(fileCache))
-				console.log(source)
-				console.log(relativeTo)
 				const sourcePath = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
 				const cachedResult = fileCache[sourcePath];
 				if (cachedResult)
@@ -111,15 +110,33 @@ export default class ScssProcessor {
 
 		function importModule(importPath) {
 			try {
+				const originalImportPath = importPath;
 				if (!path.extname(importPath))
 					importPath += '.scss';
 
 				let file = allFiles.get(importPath);
 				if (!file && path.basename(file).indexOf('_' === -1))
 					file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
-				if (!file)
-					console.log('\n\nimport: importPath');
-				return {contents: file.getContentsAsString()};
+				if (!file) {
+					file = new IncludedFile(discoverImportPath(originalImportPath), sourceFile);
+					allFiles.set(originalImportPath, file);
+				}
+
+				return {contents: file.getContentsAsString(), file: importPath};
+
+				function discoverImportPath(importPath) {
+					const potentialPaths = [importPath];
+					if (!path.extname(importPath))
+						['scss', 'sass'].forEach(extension=>potentialPaths.push(`${importPath}.${extension}`));
+					if (path.basename(importPath)[0] !== '_')
+						[].concat(potentialPaths).forEach(potentialPath=>potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
+
+					for (let i = 0, potentialPath = potentialPaths[i]; i < potentialPaths.length; i++, potentialPath = potentialPaths[i])
+						if (fs.existsSync(potentialPaths[i]))
+							return potentialPath;
+
+					throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths)}`);
+				}
 			} catch (err) {
 				console.error(err);
 				sourceFile.file.error({

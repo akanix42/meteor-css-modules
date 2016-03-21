@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'nathantreid:css-modules',
-	version: '1.0.0-beta.7',
+	version: '1.0.0-beta.8',
 	summary: 'CSS modules implementation. CSS for components!',
 	git: 'https://github.com/nathantreid/meteor-css-modules.git',
 	documentation: 'README.md'
@@ -8,11 +8,11 @@ Package.describe({
 
 
 Package.registerBuildPlugin({
-	name: 'css-modules-build-plugin',
+	name: 'mss',
 	use: [
-		'babel-compiler@6.5.0-beta.12',
-		'ecmascript@0.4.0-beta.12',
-		'nathantreid:css-modules-import-path-helpers@0.0.1',
+		'babel-compiler@6.5.2-rc.4',
+		'ecmascript@0.4.1-rc.4',
+		'nathantreid:css-modules-import-path-helpers@0.0.2',
 		'ramda:ramda@0.19.0',
 	],
 	npmDependencies: {
@@ -25,9 +25,11 @@ Package.registerBuildPlugin({
 		"postcss-modules-extract-imports": "1.0.0",
 		"postcss-modules-scope": "1.0.0",
 		"postcss-modules-values": "1.1.1",
+		"recursive-readdir": "1.3.0",
 		"string-template": "1.0.0"
 	},
 	sources: [
+		'included-file.js',
 		'get-output-path.js',
 		'options.js',
 		'postcss-plugins.js',

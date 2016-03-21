@@ -1,17 +1,45 @@
 import path from 'path';
+import Future from 'fibers/future';
 import ScssProcessor from './scss-processor';
 import CssModulesProcessor from './css-modules-processor';
+import IncludedFile from './included-file';
 import pluginOptions from './options';
 import plugins from './postcss-plugins';
 import getOutputPath from './get-output-path';
+const recursive = Npm.require('recursive-readdir');
+//import recursive from 'recursive-readdir';
 
 export default class CssModulesBuildPlugin {
 	processFilesForTarget(files) {
+		files = addFilesFromIncludedFolders(files);
 		const allFiles = createAllFilesMap(files);
 		const globalVariablesCode = getGlobalVariables(pluginOptions, plugins);
+
 		compileScssFiles.call(this, files);
 		compileCssModules.call(this, files);
 
+		function addFilesFromIncludedFolders(files) {
+			pluginOptions.explicitIncludes.map(folderPath=> {
+				const recursiveFuture = new Future();
+				recursive(folderPath, [onlyAllowExtensionsHandledByPlugin], function (err, includedFiles) {
+					if (err)
+						recursiveFuture.throw(err);
+					if (includedFiles)
+						files = files.concat(includedFiles.map(filePath=>new IncludedFile(filePath.replace(/\\/g, '/'), files[0])));
+					recursiveFuture.return();
+				});
+
+				function onlyAllowExtensionsHandledByPlugin(file, stats) {
+					let extension = path.extname(file);
+					if (extension)
+						extension = extension.substring(1);
+					return !stats.isDirectory() && pluginOptions.extensions.indexOf(extension) === -1;
+				}
+
+				recursiveFuture.wait();
+			});
+			return files;
+		}
 
 		function getGlobalVariables(options, plugins) {
 			if (options.extractSimpleVars === false) return;
@@ -30,7 +58,6 @@ export default class CssModulesBuildPlugin {
 			const isScssRoot = (file)=>isScss(file) && isRoot(file);
 			const compileFile = compileScssFile.bind(this);
 			files.filter(isScssRoot).forEach(compileFile);
-			console.log(`scss files: ${files.filter(isScssRoot).length}`);
 			function isScss(file) {
 				const extension = path.extname(file.getPathInPackage()).substring(1);
 				return ['scss', 'sass'].indexOf(extension) !== -1;
@@ -70,8 +97,6 @@ export default class CssModulesBuildPlugin {
 				}
 
 				file.getContentsAsString = function getContentsAsString() {
-					//console.log(`\n\n\n!!!!!!!!!!\n${source.path}`)
-					//console.dir(processor.fileCache)
 					return result.source;
 				};
 			}
@@ -80,30 +105,32 @@ export default class CssModulesBuildPlugin {
 		function compileCssModules(files) {
 			const processor = new CssModulesProcessor('./');
 			const compileFile = processFile.bind(this);
-			files.forEach(compileFile);
+			const isNotScssImport = (file) => !hasUnderscore(file.getPathInPackage());
+
+			files.filter(isNotScssImport).forEach(compileFile);
 
 			function processFile(file) {
 				const source = {
 					path: ImportPathHelpers.getImportPathInPackage(file),
 					contents: file.getContentsAsString()
 				};
+
 				return processor.process(source, './', allFiles)
 					.then(result => {
 						if (result.source)
 							file.addStylesheet({
 								data: result.source,
-								//path: 'yikes.css',//getOutputPath(file.getPathInPackage(), pluginOptions.outputCssFilePath) + '.css',
 								path: getOutputPath(file.getPathInPackage(), pluginOptions.outputCssFilePath) + '.css',
 								sourceMap: JSON.stringify(result.sourceMap)
 							});
-						//console.log(getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js')
+
 						if (result.tokens)
 							file.addJavaScript({
 								data: Babel.compile('' +
 									`const styles = ${JSON.stringify(result.tokens)};
 							 export { styles as default, styles };`).code,
 								path: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
-								//sourcePath: 'test'
+								sourcePath: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
 							});
 					}).await();
 			}

@@ -53,9 +53,7 @@ export default class CssModulesProcessor {
 
 	load(sourceString, sourcePath, trace, pathFetcher) {
 		const parser = new Parser(pathFetcher, trace);
-//console.log('\n\n************')
-//console.log(sourcePath)
-//		console.log(sourceString)
+
 		return postcss(postcssPlugins.concat([parser.plugin]))
 			.process(sourceString, {
 				from: sourcePath,
