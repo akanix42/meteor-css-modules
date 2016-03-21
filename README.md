@@ -121,7 +121,7 @@ The first four are **required** for core CSS module functionality; the rest are 
 
 **Want to load other PostCSS plugins or customize plugin options?**
 You can do so by modifying the [config/css-modules.json](https://github.com/nathantreid/meteor-css-modules-test/blob/master/config/css-modules.json) file.
-Any package you list will be loaded via NPM. If a plugin you added is causing the build step to fail, carefully consider it's placement as the plugins are loaded in the order they are specified in css-modules.json.
+Any package you list in config/css-modules.json will be loaded via NPM, as long as it has been installed by adding it to the packages.json file. If a plugin you added is causing the build step to fail, carefully consider it's placement as the plugins are loaded in the order they are specified in css-modules.json.
 For example, the postcss-nested-props plugin needs to come before both the postcss-modules-values plugin and the postcss-nested plugin.
 
 
