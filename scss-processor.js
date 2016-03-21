@@ -1,6 +1,7 @@
 import Future from 'fibers/future';
-import sass from 'node-sass';
+//import sass from 'node-sass';
 import path from 'path';
+const sass = Npm.require('node-sass');
 
 export default class ScssProcessor {
 	constructor(root, allFiles) {
