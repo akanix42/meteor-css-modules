@@ -1,11 +1,14 @@
-var postcss = Npm.require('postcss');
-var Parser = Npm.require('css-modules-loader-core/lib/parser');
+import postcssPlugins from './postcss-plugins';
+import pluginOptions from './options';
+import getOutputPath from './get-output-path';
 
-CssModulesProcessor = class CssModulesProcessor {
+const postcss = Npm.require('postcss');
+const Parser = Npm.require('css-modules-loader-core/lib/parser');
+
+export default class CssModulesProcessor {
 	constructor(root, plugins) {
 		this.root = root;
-		this.importNr = 0;
-		this.plugins = plugins;
+		this.importNumber = 0;
 		this.tokensByFile = {};
 	}
 
@@ -15,7 +18,7 @@ CssModulesProcessor = class CssModulesProcessor {
 		function processInternal(source, relativeTo, _trace) {
 			relativeTo = relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
 			source = getSourceContents(source, relativeTo);
-			var trace = _trace || String.fromCharCode(this.importNr++);
+			let trace = _trace || String.fromCharCode(this.importNumber++);
 
 			return new Promise((resolve, reject) => {
 				const tokens = this.tokensByFile[source.path];
@@ -40,9 +43,8 @@ CssModulesProcessor = class CssModulesProcessor {
 
 		function importModule(importPath) {
 			try {
-				var file = allFiles.get(importPath);
-				var contents = file.getContentsAsString();
-				return contents;
+				const file = allFiles.get(importPath);
+				return file.getContentsAsString();
 			} catch (e) {
 				throw new Error(`CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`);
 			}
@@ -50,12 +52,14 @@ CssModulesProcessor = class CssModulesProcessor {
 	}
 
 	load(sourceString, sourcePath, trace, pathFetcher) {
-		let parser = new Parser(pathFetcher, trace);
-
-		return postcss(this.plugins.concat([parser.plugin]))
+		const parser = new Parser(pathFetcher, trace);
+//console.log('\n\n************')
+//console.log(sourcePath)
+//		console.log(sourceString)
+		return postcss(postcssPlugins.concat([parser.plugin]))
 			.process(sourceString, {
 				from: sourcePath,
-				to: sourcePath.replace('\.mss$', '.css'),
+				to: getOutputPath(sourcePath, pluginOptions.outputCssFilePath),
 				map: {inline: false}
 			})
 			.then(result => {

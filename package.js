@@ -1,12 +1,8 @@
 Package.describe({
 	name: 'nathantreid:css-modules',
 	version: '1.0.0-beta.7',
-	// Brief, one-line summary of the package.
 	summary: 'CSS modules implementation. CSS for components!',
-	// URL to the Git repository containing the source code for this package.
 	git: 'https://github.com/nathantreid/meteor-css-modules.git',
-	// By default, Meteor will default to using README.md for documentation.
-	// To avoid submitting documentation, set this field to null.
 	documentation: 'README.md'
 });
 
@@ -23,21 +19,26 @@ Package.registerBuildPlugin({
 		"app-module-path": "1.0.4",
 		"cjson": "0.3.3",
 		"css-modules-loader-core": "1.0.0",
+		"node-sass": "3.4.2",
 		"postcss": "5.0.14",
 		"postcss-modules-local-by-default": "1.0.1",
 		"postcss-modules-extract-imports": "1.0.0",
 		"postcss-modules-scope": "1.0.0",
 		"postcss-modules-values": "1.1.1",
+		"string-template": "1.0.0"
 	},
 	sources: [
-		'plugins-loader.js',
+		'get-output-path.js',
+		'options.js',
+		'postcss-plugins.js',
+		'scss-processor.js',
 		'css-modules-processor.js',
 		'css-modules-build-plugin.js',
-		'plugins.js'
+		'plugin.js'
 	]
 });
 
 Package.onUse(function (api) {
 	api.use('isobuild:compiler-plugin@1.0.0');
-
+	api.use('isobuild:minifier-plugin@1.0.0')
 });
