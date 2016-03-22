@@ -13,9 +13,9 @@ export default class CssModulesBuildPlugin {
 	processFilesForTarget(files) {
 		files = addFilesFromIncludedFolders(files);
 		const allFiles = createAllFilesMap(files);
-		const globalVariablesCode = getGlobalVariables(pluginOptions, plugins);
 
-		compileScssFiles.call(this, files);
+		if (pluginOptions.enableSassCompilation)
+			compileScssFiles.call(this, files);
 		compileCssModules.call(this, files);
 
 		function addFilesFromIncludedFolders(files) {
@@ -41,26 +41,18 @@ export default class CssModulesBuildPlugin {
 			return files;
 		}
 
-		function getGlobalVariables(options, plugins) {
-			if (options.extractSimpleVars === false) return;
-
-			const findSimpleVarsPlugin = R.findIndex(plugin=>plugin.postcss && plugin.postcss.postcssPlugin === 'postcss-simple-vars');
-			const pluginIndex = findSimpleVarsPlugin(plugins);
-
-			if (pluginIndex === -1) return;
-			const variables = plugins[pluginIndex].options.variables;
-			const convertJsonVariablesToScssVariables = R.compose(R.reduce((variables, pair)=>variables + `$${pair[0]}: ${pair[1]};\n`, ''), R.toPairs);
-			return convertJsonVariablesToScssVariables(variables);
-		}
-
 		function compileScssFiles(files) {
 			const processor = new ScssProcessor('./', allFiles);
 			const isScssRoot = (file)=>isScss(file) && isRoot(file);
 			const compileFile = compileScssFile.bind(this);
 			files.filter(isScssRoot).forEach(compileFile);
+
 			function isScss(file) {
+				if (pluginOptions.enableSassCompilation === true)
+					return true;
+
 				const extension = path.extname(file.getPathInPackage()).substring(1);
-				return ['scss', 'sass'].indexOf(extension) !== -1;
+				return pluginOptions.enableSassCompilation.indexOf(extension) !== -1;
 			}
 
 			function isRoot(inputFile) {
@@ -73,7 +65,7 @@ export default class CssModulesBuildPlugin {
 
 			function compileScssFile(file) {
 				const contents = file.contents = file.getContentsAsString();
-				file.contents = `${globalVariablesCode || ''}\n\n${contents || ''}`;
+				file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
 
 				file.getContentsAsString = function getContentsAsStringWithGlobalVariables() {
 					return file.contents;

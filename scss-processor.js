@@ -4,6 +4,7 @@ import path from 'path';
 import fs from 'fs';
 const sass = Npm.require('node-sass');
 import IncludedFile from './included-file';
+import pluginOptions from './options';
 
 export default class ScssProcessor {
 	constructor(root, allFiles) {
@@ -126,8 +127,10 @@ export default class ScssProcessor {
 
 				function discoverImportPath(importPath) {
 					const potentialPaths = [importPath];
+					const potentialFileExtensions = pluginOptions.enableSassCompilation === true ? pluginOptions.extensions : pluginOptions.enableSassCompilation;
+
 					if (!path.extname(importPath))
-						['scss', 'sass'].forEach(extension=>potentialPaths.push(`${importPath}.${extension}`));
+						potentialFileExtensions.forEach(extension=>potentialPaths.push(`${importPath}.${extension}`));
 					if (path.basename(importPath)[0] !== '_')
 						[].concat(potentialPaths).forEach(potentialPath=>potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
 

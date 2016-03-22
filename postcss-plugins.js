@@ -33,10 +33,10 @@ function loadPlugins() {
 		if (plugin === undefined) throw new Error(`plugin ${packageName} was not found by NPM!`);
 
 		var pluginEntryOptions = getPluginOptions(pluginEntry[1]);
-		if (options.extractSimpleVars !== false && packageName === 'postcss-simple-vars')
-			plugin.options = pluginEntryOptions;
-		 else
-			plugin = pluginEntryOptions !== undefined ? plugin(pluginEntryOptions) : plugin;
+		if (options.globalVariablesJs && packageName === 'postcss-simple-vars')
+			pluginEntryOptions = R.merge({variables: options.globalVariablesJs}, pluginEntryOptions);
+
+		plugin = pluginEntryOptions !== undefined ? plugin(pluginEntryOptions) : plugin;
 		plugins.push(plugin);
 	}, R.toPairs(options));
 	return plugins;
