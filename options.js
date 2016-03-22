@@ -14,12 +14,12 @@ export default options;
 
 function getDefaultOptions() {
 	return {
+		enableSassCompilation: ['scss', 'sass'],
 		explicitIncludes: [],
 		extensions: ['mss'],
+		globalVariablesText: '',
 		outputJsFilePath: '{dirname}/{basename}{extname}',
 		outputCssFilePath: '{dirname}/{basename}',
-		globalVariablesText: '',
-		enableSassCompilation: ['scss', 'sass']
 	};
 }
 
