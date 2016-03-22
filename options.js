@@ -7,6 +7,7 @@ let options;
 if (fs.existsSync(optionsFilePath))
 	options = cjson.load(optionsFilePath).cssModules;
 
+options = options || {};
 options = processGlobalVariables(options);
 options = R.merge(getDefaultOptions(), options || {});
 
