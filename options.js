@@ -37,7 +37,7 @@ function processGlobalVariables(options) {
 				break;
 			case 'String':
 				const fileContents = fs.readFileSync(entry, 'utf-8');
-				if (path.extname() === '.json') {
+				if (path.extname(entry) === '.json') {
 					const jsonVariables = cjson.parse(fileContents);
 					globalVariablesJs.push(jsonVariables);
 					globalVariablesText.push(convertJsonVariablesToScssVariables(jsonVariables));
