@@ -22,8 +22,8 @@ function getTemplate(filePath, outputPathTemplates) {
 		if (key === 'default') continue;
 		let val = outputPathTemplates[key];
 		if (R.type(val) === 'String')
-			val = outputPathTemplates[key] = {template: val, regex: new RegExp(val)};
 
+			val = outputPathTemplates[key] = {template: val, regex: new RegExp(key)};
 		if (val.regex.test(filePath))
 			return val.template;
 	}
