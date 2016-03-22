@@ -10,8 +10,8 @@ Package.describe({
 Package.registerBuildPlugin({
 	name: 'mss',
 	use: [
-		'babel-compiler@6.5.2-rc.4',
-		'ecmascript@0.4.1-rc.4',
+		'babel-compiler@6.5.2-rc.7',
+		'ecmascript@0.4.1-rc.7',
 		'nathantreid:css-modules-import-path-helpers@0.0.2',
 		'ramda:ramda@0.19.0',
 	],
