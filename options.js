@@ -14,6 +14,7 @@ export default options;
 
 function getDefaultOptions() {
 	return {
+		explicitIncludes: [],
 		extensions: ['mss'],
 		outputJsFilePath: '{dirname}/{basename}{extname}',
 		outputCssFilePath: '{dirname}/{basename}',
