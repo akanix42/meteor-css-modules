@@ -17,7 +17,7 @@ function getDefaultOptions() {
 	return {
 		enableSassCompilation: ['scss', 'sass'],
 		explicitIncludes: [],
-		extensions: ['mss'],
+		extensions: ['m.css', 'mss'],
 		globalVariablesText: '',
 		outputJsFilePath: '{dirname}/{basename}{extname}',
 		outputCssFilePath: '{dirname}/{basename}',
