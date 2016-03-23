@@ -19,9 +19,26 @@ Install using Meteor's package management system:
 meteor add nathantreid:css-modules@1.0.0-beta.7
 ```
 
+Because Meteor 1.3 doesn't allow build plugins to handle CSS files, you will need to use another extension. The default is .mss (Modular Style Sheet).
+This can be configured by setting the `extensions` property in the cssModules configuration in packages.json:
+```
+  "cssModules": {
+    "extensions": [
+      "mss"
+    ]
+  }
+```
+
+## New: Sass / React Toolbox support!
+
+[React Toolbox example / instructions](https://github.com/nathantreid/meteor-react-toolbox-example)
+
+To enable Sass compilation, set the aforementioned `extensions` property to `['scss', 'sass']`.
+If you are using a different file extension, set it in the `extensions` property, and also update the enableSassCompilation, which defaults to `['scss', 'sass']`.
+
+
 ## Usage
 
-Because Meteor 1.2 doesn't allow build plugins to handle CSS files, you will need to use the .mss (Modular Style Sheet) extension.
 
 ***hello.mss***
 ``` css
@@ -164,17 +181,15 @@ If you set inline and file options, they will be combined.
 ## Global Variables
 
 While explicit composition is a very good thing, sometimes global variables are a good thing, such as for colors which are constant throughout the app.
-Reimporting the variables every time you need them can get tiresome, but thankfully you can do so by passing your variables in to the postcss-simple-vars plugin!
+Reimporting the variables every time you need them can get tiresome, but thankfully you can do so by  including the postcss-simple-vars plugin!
 
-First, create a json file to hold your global variables. For the sake of this example, create a colors.json file containing the following data:
+First, install the postcss-simple-vars plugin and configure it to load. Next, create a json file to hold your global variables. For the sake of this example, create a colors.json file containing the following data:
 
 **colors.json**
 
 ``` JSON
 {
-  "variables": {
-    "primary": "green"
-  }
+  "primary": "green"
 }
 ```
 This defines your first variable, *primary*.
@@ -185,28 +200,15 @@ Now update your package.json with the following data:
 ``` JSON
 {
   "cssModules": {
-    "plugins": {
-      "postcss-simple-vars": {
-        "fileOptions": [
-          "colors.json"
-        ]
-      }
-    }
+    "globalVariables": [
+      "colors.json"
+    ]
   }
 }
 ```
 
-This is an array, so you can specify as many files as you like. If the file is in a subdirectory, you can use either of these 2 forms to reference it:
-
-* path/to/file.json
-* {}/path/to/file.json
-
-If the file is in a local package, you can use either of these 2 forms to reference it:
-
-* {author:package}/path/to/file.json
-* packages/[package-folder]/path/to/file.json
-
-Now use the variable you created in any of your .mss files:
+This is an array, so you can specify as many files as you like.
+Now to use the variable you created in any of your files:
 
 **example.mss**
 
@@ -227,6 +229,8 @@ Please [see the demo](https://github.com/nathantreid/css-modules-demo-meteor-1.3
 * 11/2015: Implemented global variables via the postcss-simple-vars plugin
 * 11/2015: **Any** NPM-listed PostCSS plugin specified in packages.json and css-modules.json will be loaded. Freedom!
 * 02/2016: Updates for Meteor 1.3; css-modules.json is now combined with package.json
+* 03/2016: SCSS support
+* 03/2016: React Toolbox support
 
 ## Todo
 
