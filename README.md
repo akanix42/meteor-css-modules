@@ -34,7 +34,7 @@ This can be configured by setting the `extensions` property in the cssModules co
 [React Toolbox example / instructions](https://github.com/nathantreid/meteor-react-toolbox-example)
 
 To enable Sass compilation, set the aforementioned `extensions` property to `['scss', 'sass']`.
-If you are using a different file extension, set it in the `extensions` property, and also update the enableSassCompilation, which defaults to `['scss', 'sass']`.
+If you are using a different file extension, set it in the `extensions` property, and also set the `enableSassCompilation` property, which defaults to `['scss', 'sass']`.
 
 
 ## Usage
