@@ -22,6 +22,10 @@ export default class IncludedFile {
 		this.inputFile.error(data);
 	}
 
+	getArch() {
+		return this.inputFile.getArch();
+	}
+
 	getBasename() {
 		return this.basename;
 	}

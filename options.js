@@ -21,6 +21,7 @@ function getDefaultOptions() {
 		globalVariablesText: '',
 		outputJsFilePath: '{dirname}/{basename}{extname}',
 		outputCssFilePath: '{dirname}/{basename}',
+		specificArchitecture: 'web'
 	};
 }
 
