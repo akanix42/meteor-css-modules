@@ -9,14 +9,35 @@ import getOutputPath from './get-output-path';
 const recursive = Npm.require('recursive-readdir');
 //import recursive from 'recursive-readdir';
 
+// clock function thanks to NextLocal: http://stackoverflow.com/a/34970550/1090626
+function clock(start) {
+	if (!start) return process.hrtime();
+	var end = process.hrtime(start);
+	return Math.round((end[0] * 1000) + (end[1] / 1000000));
+}
+
+function profile(start, message) {
+	if (!pluginOptions.enableProfiling)
+		return;
+
+	const time = clock(start);
+	if (start !== undefined)
+		console.log(message, time, 'ms');
+
+	return time;
+}
+
 export default class CssModulesBuildPlugin {
 	processFilesForTarget(files) {
+		const start = profile();
 		files = addFilesFromIncludedFolders(files);
 		const allFiles = createAllFilesMap(files);
 
 		if (pluginOptions.enableSassCompilation)
 			compileScssFiles.call(this, files);
 		compileCssModules.call(this, files);
+
+		profile(start, 'compilation complete in ');
 
 		function addFilesFromIncludedFolders(files) {
 			pluginOptions.explicitIncludes.map(folderPath=> {

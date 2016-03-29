@@ -15,6 +15,7 @@ export default options;
 
 function getDefaultOptions() {
 	return {
+		enableProfiling: false,
 		enableSassCompilation: ['scss', 'sass'],
 		explicitIncludes: [],
 		extensions: ['m.css', 'mss'],
