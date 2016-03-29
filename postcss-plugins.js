@@ -2,6 +2,7 @@ import pluginOptions from './options';
 
 const fs = Npm.require('fs');
 const cjson = Npm.require('cjson');
+const path = Npm.require('path');
 const appModulePath = Npm.require('app-module-path');
 appModulePath.addPath(process.cwd() + '/node_modules/');
 
@@ -11,8 +12,11 @@ const corePlugins = {
 	"postcss-modules-scope": Npm.require("postcss-modules-scope"),
 	"postcss-modules-values": Npm.require("postcss-modules-values"),
 };
-corePlugins['postcss-modules-scope'].generateScopedName = function generateScopedName(exportedName, path) {
-	const sanitisedPath = path.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
+
+corePlugins['postcss-modules-scope'].generateScopedName = function generateScopedName(exportedName, filePath) {
+	let sanitisedPath = filePath.replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
+	const filename = path.basename(filePath).replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
+	sanitisedPath = sanitisedPath.replace(new RegExp(`_(${filename})$`), '__$1');
 	return `_${sanitisedPath}__${exportedName}`;
 };
 
