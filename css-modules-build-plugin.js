@@ -113,17 +113,21 @@ export default class CssModulesBuildPlugin {
 							file.addStylesheet({
 								data: result.source,
 								path: getOutputPath(file.getPathInPackage(), pluginOptions.outputCssFilePath) + '.css',
-								sourceMap: JSON.stringify(result.sourceMap)
+								sourceMap: JSON.stringify(result.sourceMap),
+								lazy: false
 							});
 
-						if (result.tokens)
+						if (result.tokens) {
 							file.addJavaScript({
 								data: Babel.compile('' +
 									`const styles = ${JSON.stringify(result.tokens)};
 							 export { styles as default, styles };`).code,
 								path: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
 								sourcePath: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
+								lazy: false,
+								bare: false,
 							});
+						}
 					}).await();
 			}
 		}
