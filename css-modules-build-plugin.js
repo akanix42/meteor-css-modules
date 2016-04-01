@@ -22,7 +22,7 @@ function profile(start, message) {
 
 	const time = clock(start);
 	if (start !== undefined)
-		console.log(message, time, 'ms');
+		console.log(`${message} ${time}ms`);
 
 	return time;
 }
@@ -161,10 +161,9 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 
 		function compileCssModules(files) {
 			const processor = new CssModulesProcessor('./');
-			const compileFile = processFile.bind(this);
 			const isNotScssImport = (file) => !hasUnderscore(file.getPathInPackage());
 
-			files.filter(isNotScssImport).forEach(compileFile);
+			files.filter(isNotScssImport).forEach(processFile.bind(this));
 
 			function processFile(file) {
 				const source = {
