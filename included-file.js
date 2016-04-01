@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import sha1 from './sha1';
 
 export default class IncludedFile {
 	constructor(filePath, backingInputFile) {
@@ -53,4 +54,10 @@ export default class IncludedFile {
 	getPathInPackage() {
 		return this.path;
 	}
+
+	getSourceHash() {
+		return sha1(this.getContentsAsString());
+	}
+
 };
+

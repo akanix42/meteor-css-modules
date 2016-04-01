@@ -1,13 +1,13 @@
 import path from 'path';
 import Future from 'fibers/future';
+import LRU from 'lru-cache';
+import recursive from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
 import pluginOptions from './options';
 import plugins from './postcss-plugins';
 import getOutputPath from './get-output-path';
-const recursive = Npm.require('recursive-readdir');
-//import recursive from 'recursive-readdir';
 
 // clock function thanks to NextLocal: http://stackoverflow.com/a/34970550/1090626
 function clock(start) {
@@ -27,17 +27,61 @@ function profile(start, message) {
 	return time;
 }
 
-export default class CssModulesBuildPlugin {
+export default class CssModulesBuildPlugin extends CachingCompiler {
+	constructor() {
+		super({
+			compilerName: 'mss',
+			defaultCacheSize: 1024 * 1024 * 10
+		});
+
+		this._cache = new LRU({
+			max: this._cacheSize,
+			length: (value) => this.compileResultSize(value),
+		});
+	}
+
 	processFilesForTarget(files) {
 		const start = profile();
 		files = addFilesFromIncludedFolders(files);
 		const allFiles = createAllFilesMap(files);
-
+		const uncachedFiles = processCachedFiles.call(this, files);
 		if (pluginOptions.enableSassCompilation)
-			compileScssFiles.call(this, files);
-		compileCssModules.call(this, files);
+			compileScssFiles.call(this, uncachedFiles);
+		compileCssModules.call(this, uncachedFiles);
 
-		profile(start, 'compilation complete in ');
+		profile(start, 'compilation complete in');
+
+		function processCachedFiles(files) {
+			const cacheMisses = [];
+			const filesToProcess = [];
+			files.forEach(inputFile => {
+				const cacheKey = this._deepHash(this.getCacheKey(inputFile));
+				let compileResult = this._cache.get(cacheKey);
+
+				if (!compileResult) {
+					compileResult = this._readCache(cacheKey);
+					if (compileResult) {
+						this._cacheDebug(`Loaded ${ inputFile.getDisplayPath() }`);
+					}
+				}
+
+				if (!compileResult) {
+					cacheMisses.push(inputFile.getDisplayPath());
+					inputFile.cacheKey = cacheKey;
+					filesToProcess.push(inputFile);
+				}
+				else
+					this.addCompileResult(inputFile, compileResult);
+			});
+
+			if (this._cacheDebugEnabled) {
+				cacheMisses.sort();
+				this._cacheDebug(
+					`Ran (#${ ++this._callCount }) on: ${ JSON.stringify(cacheMisses) }`);
+			}
+
+			return filesToProcess;
+		}
 
 		function addFilesFromIncludedFolders(files) {
 			pluginOptions.explicitIncludes.map(folderPath=> {
@@ -130,25 +174,10 @@ export default class CssModulesBuildPlugin {
 
 				return processor.process(source, './', allFiles)
 					.then(result => {
-						if (result.source)
-							file.addStylesheet({
-								data: result.source,
-								path: getOutputPath(file.getPathInPackage(), pluginOptions.outputCssFilePath) + '.css',
-								sourceMap: JSON.stringify(result.sourceMap),
-								lazy: false
-							});
-
-						if (result.tokens) {
-							file.addJavaScript({
-								data: Babel.compile('' +
-									`const styles = ${JSON.stringify(result.tokens)};
-							 export { styles as default, styles };`).code,
-								path: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
-								sourcePath: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
-								lazy: false,
-								bare: false,
-							});
-						}
+						// Save what we've compiled.
+						this._cache.set(file.cacheKey, result);
+						this._writeCacheAsync(file.cacheKey, result);
+						this.addCompileResult(file, result);
 					}).await();
 			}
 		}
@@ -157,12 +186,57 @@ export default class CssModulesBuildPlugin {
 			return path.basename(file)[0] === '_';
 		}
 	}
+
+	addCompileResult(file, result) {
+		if (result.source) {
+			file.addStylesheet({
+				data: result.source,
+				path: getOutputPath(file.getPathInPackage(), pluginOptions.outputCssFilePath) + '.css',
+				sourceMap: JSON.stringify(result.sourceMap),
+				lazy: false
+			});
+		}
+
+		if (result.tokens) {
+			file.addJavaScript({
+				data: Babel.compile('' +
+					`const styles = ${JSON.stringify(result.tokens)};
+							 export { styles as default, styles };`).code,
+				path: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
+				sourcePath: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
+				lazy: false,
+				bare: false,
+			});
+		}
+	}
+
+	compileResultSize(compileResult) {
+		return compileResult.source.length + JSON.stringify(compileResult.tokens).length +
+			this.sourceMapSize(compileResult.sourceMap);
+	}
+
+	/**
+	 * modified version of implementation from caching-compiler package
+	 */
+	sourceMapSize(sm) {
+		if (!sm) return 0;
+
+		const mappings = sm.mappings || sm._mappings;
+		const mappingsLength = mappings ? mappings.length : 0;
+		let contentsLength = 0;
+		if ('sourcesContent' in sm)
+			(sm.sourcesContent || []).reduce((soFar, current) => soFar + (current ? current.length : 0), 0)
+		else if ('_sourceContents' in sm)
+			Object.keys(sm._sourceContents || {}).reduce((total, key) => total + sm._sourceContents[key], 0);
+
+		return mappingsLength + contentsLength;
+	}
+
+	getCacheKey(inputFile) {
+		return inputFile.getSourceHash();
+	}
+
 };
-
-
-function processFiles(files) {
-
-}
 
 function createAllFilesMap(files) {
 	const allFiles = new Map();
