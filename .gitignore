@@ -48,3 +48,4 @@ crashlytics.properties
 crashlytics-build.properties
 
 .versions
+.npm/
