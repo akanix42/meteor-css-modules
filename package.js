@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'nathantreid:css-modules',
-	version: '1.0.0-beta.9',
+	version: '1.0.0',
 	summary: 'CSS modules implementation. CSS for components!',
 	git: 'https://github.com/nathantreid/meteor-css-modules.git',
 	documentation: 'README.md'
@@ -45,5 +45,6 @@ Package.registerBuildPlugin({
 });
 
 Package.onUse(function (api) {
+	api.versionsFrom('1.3');
 	api.use('isobuild:compiler-plugin@1.0.0');
 });
