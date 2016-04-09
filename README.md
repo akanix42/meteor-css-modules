@@ -19,7 +19,7 @@ Install using Meteor's package management system:
 meteor add nathantreid:css-modules@1.0.0-beta.7
 ```
 
-Because Meteor 1.3 doesn't allow build plugins to handle CSS files, you will need to use another extension. The default is .mss (Modular Style Sheet).
+Because Meteor 1.3 doesn't allow build plugins to handle CSS files, you will need to use another extension. The defaults are .m.css and .mss (Modular Style Sheet).
 This can be configured by setting the `extensions` property in the cssModules configuration in packages.json:
 ```
   "cssModules": {
