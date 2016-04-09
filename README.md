@@ -220,6 +220,20 @@ Now to use the variable you created in any of your files:
 
 Please [see the demo](https://github.com/nathantreid/css-modules-demo-meteor-1.3) for a working example.
 
+## Server-side Processing
+
+To enable server-side processing, set "specificArchitecture": false in your cssModules config:
+``` JSON
+{
+  "cssModules": {
+    "specificArchitecture": false
+  }
+}
+```
+
+You can also use any archMatching option (the default is 'web', or client-side only processing). To only allow server-side processing, set `"specificArchitecture": "os"`.
+
+
 ## History
 
 * 11/2015: Implementation of CSS Modules for Meteor released
@@ -231,10 +245,8 @@ Please [see the demo](https://github.com/nathantreid/css-modules-demo-meteor-1.3
 * 02/2016: Updates for Meteor 1.3; css-modules.json is now combined with package.json
 * 03/2016: SCSS support
 * 03/2016: React Toolbox support
+* 03/2016: Server-side processing
 
-## Todo
-
-* consider replacing Meteor's .css processor (replace standard-minifiers)
 
 ## Acknowledgements
 
