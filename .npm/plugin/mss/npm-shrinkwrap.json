@@ -5,11 +5,6 @@
       "resolved": "https://registry.npmjs.org/app-module-path/-/app-module-path-1.0.4.tgz",
       "from": "https://registry.npmjs.org/app-module-path/-/app-module-path-1.0.4.tgz"
     },
-    "async": {
-      "version": "1.4.0",
-      "resolved": "https://registry.npmjs.org/async/-/async-1.4.0.tgz",
-      "from": "https://registry.npmjs.org/async/-/async-1.4.0.tgz"
-    },
     "cjson": {
       "version": "0.3.3",
       "resolved": "https://registry.npmjs.org/cjson/-/cjson-0.3.3.tgz",
@@ -102,7 +97,7 @@
     "fibers": {
       "version": "1.0.5",
       "resolved": "https://registry.npmjs.org/fibers/-/fibers-1.0.5.tgz",
-      "from": "fibers@1.0.5"
+      "from": "https://registry.npmjs.org/fibers/-/fibers-1.0.5.tgz"
     },
     "lru-cache": {
       "version": "2.6.4",
