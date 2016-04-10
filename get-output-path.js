@@ -28,5 +28,5 @@ function getTemplate(filePath, outputPathTemplates) {
 			return val.template;
 	}
 
-	return outputPathTemplates['default'] || '{dirname}/{basename}.{extname}';
+	return outputPathTemplates['default'] || '{dirname}/{basename}{extname}';
 }
