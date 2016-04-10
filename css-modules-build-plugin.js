@@ -187,26 +187,40 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 	}
 
 	addCompileResult(file, result) {
-		if (result.source) {
-			file.addStylesheet({
-				data: result.source,
-				path: getOutputPath(file.getPathInPackage(), pluginOptions.outputCssFilePath) + '.css',
-				sourceMap: JSON.stringify(result.sourceMap),
-				lazy: false
-			});
+		const filePath = file.getPathInPackage();
+		const isLazy = filePath.split('/').indexOf('imports') >= 0;
+
+		if (!isLazy) {
+			if (result.source) {
+				file.addStylesheet({
+					data: result.source,
+					path: getOutputPath(filePath, pluginOptions.outputCssFilePath) + '.css',
+					sourceMap: JSON.stringify(result.sourceMap),
+					lazy: false
+				});
+			}
 		}
 
-		if (result.tokens) {
+		const stylesheetCode = (isLazy && result.source)
+			? `import modules from 'meteor/modules';
+					 modules.addStyles(${JSON.stringify(result.source)});`
+			: '';
+
+		const tokensCode = result.tokens
+			? `const styles = ${JSON.stringify(result.tokens)};
+					 export { styles as default, styles };`
+			: '';
+
+		if (stylesheetCode || tokensCode)
 			file.addJavaScript({
-				data: Babel.compile('' +
-					`const styles = ${JSON.stringify(result.tokens)};
-							 export { styles as default, styles };`).code,
-				path: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
-				sourcePath: getOutputPath(file.getPathInPackage(), pluginOptions.outputJsFilePath) + '.js',
-				lazy: false,
+				data: Babel.compile(
+					`${stylesheetCode}
+					 ${tokensCode}`).code,
+				path: getOutputPath(filePath, pluginOptions.outputJsFilePath),
+				sourcePath: getOutputPath(filePath, pluginOptions.outputJsFilePath),
+				lazy: isLazy,
 				bare: false,
 			});
-		}
 	}
 
 	compileResultSize(compileResult) {
