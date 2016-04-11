@@ -56,22 +56,22 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 			const filesToProcess = [];
 			files.forEach(inputFile => {
 				const cacheKey = this._deepHash(this.getCacheKey(inputFile));
-				let compileResult = this._cache.get(cacheKey);
-
-				if (!compileResult) {
-					compileResult = this._readCache(cacheKey);
-					if (compileResult) {
-						this._cacheDebug(`Loaded ${ inputFile.getDisplayPath() }`);
-					}
-				}
-
-				if (!compileResult) {
-					cacheMisses.push(inputFile.getDisplayPath());
+				//let compileResult = this._cache.get(cacheKey);
+				//compileResult = null;
+				//if (!compileResult) {
+				//	compileResult = this._readCache(cacheKey);
+				//	if (compileResult) {
+				//		this._cacheDebug(`Loaded ${ inputFile.getDisplayPath() }`);
+				//	}
+				//}
+        //
+				//if (!compileResult) {
+				//	cacheMisses.push(inputFile.getDisplayPath());
 					inputFile.cacheKey = cacheKey;
 					filesToProcess.push(inputFile);
-				}
-				else
-					this.addCompileResult(inputFile, compileResult);
+				//}
+				//else
+				//	this.addCompileResult(inputFile, compileResult);
 			});
 
 			if (this._cacheDebugEnabled) {
