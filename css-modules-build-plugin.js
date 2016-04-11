@@ -189,8 +189,9 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 	addCompileResult(file, result) {
 		const filePath = file.getPathInPackage();
 		const isLazy = filePath.split('/').indexOf('imports') >= 0;
+		const shouldAddStylesheet = file.getArch().indexOf('web') === 0;
 
-		if (!isLazy) {
+		if (!isLazy && shouldAddStylesheet) {
 			if (result.source) {
 				file.addStylesheet({
 					data: result.source,
@@ -201,7 +202,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 			}
 		}
 
-		const stylesheetCode = (isLazy && result.source)
+		const stylesheetCode = (isLazy && shouldAddStylesheet && result.source)
 			? `import modules from 'meteor/modules';
 					 modules.addStyles(${JSON.stringify(result.source)});`
 			: '';
