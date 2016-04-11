@@ -57,7 +57,7 @@ If you are using a different file extension, set it in the `extensions` property
 
 ***hello.js***
 ``` js
-import styles from "{}/hello.mss";
+import styles from "/hello.mss";
 
 Template.hello.helpers({
     styles: styles
@@ -69,13 +69,6 @@ Template.hello.helpers({
 <template name="hello">
   <button class="{{styles.hello}}">Click Me</button>
 </template>
-```
-
-***Alternative JS import syntax***
-``` js
-Template.hello.helpers({
-    styles: CssModules.import("{}/hello.mss")
-});
 ```
 
 ### Relative Imports
@@ -93,16 +86,6 @@ you can do the following:
 ***hello.js***
 ``` js
 import styles from "./hello.mss";
-
-Template.hello.helpers({
-    styles: styles
-});
-```
-
-
-This will be converted to:
-``` js
-var styles = CssModules.import("{}/client/hello.mss");
 
 Template.hello.helpers({
     styles: styles
