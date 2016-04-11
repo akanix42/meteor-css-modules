@@ -112,7 +112,7 @@ Here is my standard plugin list (in load order):
 
 **How to load other PostCSS plugins or customize plugin options**
 You can load plugins by adding them to the dependencies or devDependencies in the [package.json](https://github.com/nathantreid/css-modules-demo-meteor-1.3/blob/master/package.json#L13) file,
-then also listing them under a cssModules { plugins { } } entry in the [same file](https://github.com/nathantreid/css-modules-demo-meteor-1.3/blob/master/package.json#L26).
+then also listing them under a cssModules { postcssPlugins { } } entry in the [same file](https://github.com/nathantreid/css-modules-demo-meteor-1.3/blob/master/package.json#L26).
 
 ``` js
 {
@@ -120,7 +120,7 @@ then also listing them under a cssModules { plugins { } } entry in the [same fil
     "postcss-simple-vars": "1.1.0"
   },
   "cssModules": {
-    "plugins": {
+    "postcssPlugins": {
       "postcss-simple-vars": {}
     }
   }
@@ -137,7 +137,7 @@ To set inline options, specify them under the plugin entry like so:
 
 ``` js
   "cssModules": {
-    "plugins": {
+    "postcssPlugins": {
       "my-postcss-plugin": {
         "inlineOptions": {
           "option1": true
@@ -149,7 +149,7 @@ To set inline options, specify them under the plugin entry like so:
 To reference options from a file, specify them under the plugin entry like so:
 ``` js
   "cssModules": {
-    "plugins": {
+    "postcssPlugins": {
       "my-postcss-plugin": {
         "fileOptions": [
           "path/to/file1",
