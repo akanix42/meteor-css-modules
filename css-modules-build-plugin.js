@@ -69,11 +69,11 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				//		this._cacheDebug(`Loaded ${ inputFile.getDisplayPath() }`);
 				//	}
 				//}
-        //
+				//
 				//if (!compileResult) {
 				//	cacheMisses.push(inputFile.getDisplayPath());
-					inputFile.cacheKey = cacheKey;
-					filesToProcess.push(inputFile);
+				inputFile.cacheKey = cacheKey;
+				filesToProcess.push(inputFile);
 				//}
 				//else
 				//	this.addCompileResult(inputFile, compileResult);
