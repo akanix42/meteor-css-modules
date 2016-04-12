@@ -4,7 +4,9 @@ import path from 'path';
 import fs from 'fs';
 const sass = Npm.require('node-sass');
 import IncludedFile from './included-file';
-import pluginOptions from './options';
+import pluginOptionsWrapper from './options';
+
+const pluginOptions = pluginOptionsWrapper.options;
 
 export default class ScssProcessor {
 	constructor(root, allFiles) {

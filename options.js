@@ -3,15 +3,10 @@ const fs = Npm.require('fs');
 const cjson = Npm.require('cjson');
 const optionsFilePath = path.resolve(process.cwd(), 'package.json');
 
-let options;
-if (fs.existsSync(optionsFilePath))
-	options = cjson.load(optionsFilePath).cssModules;
-
-options = options || {};
-options = processGlobalVariables(options);
-options = R.merge(getDefaultOptions(), options || {});
-
-export default options;
+const pluginOptions = {};
+loadOptions();
+export { loadOptions as reloadOptions };
+export default pluginOptions;
 
 function getDefaultOptions() {
 	return {
@@ -24,6 +19,17 @@ function getDefaultOptions() {
 		outputCssFilePath: '{dirname}/{basename}',
 		specificArchitecture: 'web'
 	};
+}
+
+function loadOptions() {
+	let options = null;
+	if (fs.existsSync(optionsFilePath))
+		options = cjson.load(optionsFilePath).cssModules;
+
+	options = options || {};
+	options = processGlobalVariables(options);
+	options = R.merge(getDefaultOptions(), options || {});
+	return pluginOptions.options = options;
 }
 
 function processGlobalVariables(options) {

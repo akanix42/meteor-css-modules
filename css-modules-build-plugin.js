@@ -5,10 +5,11 @@ import recursive from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
-import pluginOptions from './options';
 import plugins from './postcss-plugins';
+import pluginOptionsWrapper,{ reloadOptions } from './options';
 import getOutputPath from './get-output-path';
 
+let pluginOptions = pluginOptionsWrapper.options;
 // clock function thanks to NextLocal: http://stackoverflow.com/a/34970550/1090626
 function clock(start) {
 	if (!start) return process.hrtime();
@@ -41,6 +42,9 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 	}
 
 	processFilesForTarget(files) {
+
+		pluginOptions = reloadOptions();
+
 		const start = profile();
 		files = addFilesFromIncludedFolders(files);
 		const allFiles = createAllFilesMap(files);

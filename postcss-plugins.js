@@ -1,5 +1,5 @@
-import pluginOptions from './options';
-
+import pluginOptionsWrapper from './options';
+const pluginOptions = pluginOptionsWrapper.options;
 const fs = Npm.require('fs');
 const cjson = Npm.require('cjson');
 const path = Npm.require('path');

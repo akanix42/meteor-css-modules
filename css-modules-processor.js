@@ -1,9 +1,10 @@
 import postcssPlugins from './postcss-plugins';
-import pluginOptions from './options';
+import pluginOptionsWrapper from './options';
 import getOutputPath from './get-output-path';
 
 const postcss = Npm.require('postcss');
 const Parser = Npm.require('css-modules-loader-core/lib/parser');
+const pluginOptions = pluginOptionsWrapper.options;
 
 export default class CssModulesProcessor {
 	constructor(root, plugins) {
