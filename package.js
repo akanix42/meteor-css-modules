@@ -20,7 +20,6 @@ Package.registerBuildPlugin({
 		"app-module-path": "1.0.4",
 		"cjson": "0.3.3",
 		"css-modules-loader-core": "1.0.0",
-		"fibers": "1.0.5",
 		"lru-cache": "2.6.4",
 		"node-sass": "3.4.2",
 		"postcss": "5.0.14",

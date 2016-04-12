@@ -1,7 +1,7 @@
 import path from 'path';
-import Future from 'fibers/future';
 import LRU from 'lru-cache';
-import recursive from 'recursive-readdir';
+import { Meteor } from 'meteor/meteor';
+import recursiveUnwrapped from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
@@ -10,6 +10,7 @@ import pluginOptionsWrapper,{ reloadOptions } from './options';
 import getOutputPath from './get-output-path';
 
 let pluginOptions = pluginOptionsWrapper.options;
+recursive = Meteor.wrapAsync(recursiveUnwrapped);
 // clock function thanks to NextLocal: http://stackoverflow.com/a/34970550/1090626
 function clock(start) {
 	if (!start) return process.hrtime();
@@ -89,14 +90,9 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 
 		function addFilesFromIncludedFolders(files) {
 			pluginOptions.explicitIncludes.map(folderPath=> {
-				const recursiveFuture = new Future();
-				recursive(folderPath, [onlyAllowExtensionsHandledByPlugin], function (err, includedFiles) {
-					if (err)
-						recursiveFuture.throw(err);
-					if (includedFiles)
-						files = files.concat(includedFiles.map(filePath=>new IncludedFile(filePath.replace(/\\/g, '/'), files[0])));
-					recursiveFuture.return();
-				});
+
+				const includedFiles = recursive(folderPath, [onlyAllowExtensionsHandledByPlugin]);
+				files = files.concat(includedFiles.map(filePath=>new IncludedFile(filePath.replace(/\\/g, '/'), files[0])));
 
 				function onlyAllowExtensionsHandledByPlugin(file, stats) {
 					let extension = path.extname(file);
@@ -104,8 +100,6 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 						extension = extension.substring(1);
 					return !stats.isDirectory() && pluginOptions.extensions.indexOf(extension) === -1;
 				}
-
-				recursiveFuture.wait();
 			});
 			return files;
 		}

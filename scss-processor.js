@@ -1,8 +1,6 @@
-import Future from 'fibers/future';
-//import sass from 'node-sass';
 import path from 'path';
 import fs from 'fs';
-const sass = Npm.require('node-sass');
+import sass from 'node-sass';
 import IncludedFile from './included-file';
 import pluginOptionsWrapper from './options';
 
@@ -82,14 +80,8 @@ export default class ScssProcessor {
 		if (!options.data.trim())
 			options.data = '$fakevariable : blue;';
 
-		//const sassFuture = new Future();
-
-		const output = sass.renderSync(options);//, sassFuture.resolver());
-		//const output = sassFuture.wait();
-
-		const compileResult = {sourceContent: output.css.toString('utf-8'), sourceMap: output.map};
-		return compileResult;
-
+		const output = sass.renderSync(options);
+		return {sourceContent: output.css.toString('utf-8'), sourceMap: output.map};
 
 		function importer(sourceFilePath, relativeTo) {
 			const sourceFile = getSourceContents(this.fileCache, sourceFilePath, relativeTo);
