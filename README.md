@@ -36,6 +36,11 @@ This can be configured by setting the `extensions` property in the cssModules co
 To enable Sass compilation, set the aforementioned `extensions` property to `['scss', 'sass']`.
 If you are using a different file extension, set it in the `extensions` property, and also set the `enableSassCompilation` property, which defaults to `['scss', 'sass']`.
 
+## New: Stylus support!
+
+To enable Stylus compilation, set the aforementioned `extensions` property to `['m.styl']`.
+If you are using a different file extension, set it in the `extensions` property, and also set the `enableStylusCompilation` property, which defaults to `['m.styl']`.
+
 
 ## Usage
 

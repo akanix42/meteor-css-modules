@@ -3,6 +3,7 @@ import Future from 'fibers/future';
 import LRU from 'lru-cache';
 import recursive from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
+import StylusProcessor from './stylus-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
 import pluginOptions from './options';
@@ -47,6 +48,8 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		const uncachedFiles = processCachedFiles.call(this, files);
 		if (pluginOptions.enableSassCompilation)
 			compileScssFiles.call(this, uncachedFiles);
+		if (pluginOptions.enableStylusCompilation)
+			compileStylusFiles.call(this, uncachedFiles);
 		compileCssModules.call(this, uncachedFiles);
 
 		profile(start, 'compilation complete in');
@@ -148,6 +151,60 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				} catch (err) {
 					file.error({
 						message: `CSS modules SCSS compiler error: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
+						sourcePath: file.getDisplayPath()
+					});
+					return null;
+				}
+
+				file.getContentsAsString = function getContentsAsString() {
+					return result.source;
+				};
+			}
+		}
+
+		function compileStylusFiles(files) {
+			const processor = new StylusProcessor('./', allFiles);
+			const isStylusRoot = (file)=>isStylus(file) && isRoot(file);
+			const compileFile = compileStylusFile.bind(this);
+			files.filter(isStylusRoot).forEach(compileFile);
+
+			function isStylus(file) {
+				if (pluginOptions.enableStylusCompilation === true)
+					return true;
+
+				return _.find(pluginOptions.enableStylusCompilation, (ext) => (
+					file.getPathInPackage().endsWith(ext)
+				))
+			}
+
+			function isRoot(inputFile) {
+				const fileOptions = inputFile.getFileOptions();
+				if (fileOptions.hasOwnProperty('isImport')) {
+					return !fileOptions.isImport;
+				}
+				return !hasUnderscore(inputFile.getPathInPackage());
+			}
+
+			function compileStylusFile(file) {
+				const contents = file.contents = file.getContentsAsString();
+				file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
+
+				file.getContentsAsString = function getContentsAsStringWithGlobalVariables() {
+					return file.contents;
+				};
+
+				const source = {
+					path: ImportPathHelpers.getImportPathInPackage(file),
+					contents: file.getContentsAsString(),
+					file
+				};
+
+				let result;
+				try {
+					result = processor.process(file, source, './', allFiles);
+				} catch (err) {
+					file.error({
+						message: `CSS modules stylus compiler error: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
 						sourcePath: file.getDisplayPath()
 					});
 					return null;

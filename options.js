@@ -17,6 +17,7 @@ function getDefaultOptions() {
 	return {
 		enableProfiling: false,
 		enableSassCompilation: ['scss', 'sass'],
+		enableStylusCompilation: ['m.styl'],
 		explicitIncludes: [],
 		extensions: ['m.css', 'mss'],
 		globalVariablesText: '',
