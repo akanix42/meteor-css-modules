@@ -175,6 +175,9 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 			}
 		}
 
+		const importsCode = result.imports
+			? result.imports.map(importPath=>`import '${importPath}';`).join('\n')
+			: '';
 		const stylesheetCode = (isLazy && shouldAddStylesheet && result.source)
 			? `import modules from 'meteor/modules';
 					 modules.addStyles(${JSON.stringify(result.source)});`
@@ -185,16 +188,19 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 					 export { styles as default, styles };`
 			: '';
 
-		if (stylesheetCode || tokensCode)
+		if (stylesheetCode || tokensCode) {
 			file.addJavaScript({
 				data: Babel.compile(
-					`${stylesheetCode}
-					 ${tokensCode}`).code,
+					`
+					${importsCode}
+					${stylesheetCode}
+					${tokensCode}`).code,
 				path: getOutputPath(filePath, pluginOptions.outputJsFilePath),
 				sourcePath: getOutputPath(filePath, pluginOptions.outputJsFilePath),
 				lazy: isLazy,
 				bare: false,
 			});
+		}
 	}
 
 	compileResultSize(compileResult) {

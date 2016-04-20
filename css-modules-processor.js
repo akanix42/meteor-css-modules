@@ -10,26 +10,37 @@ export default class CssModulesProcessor {
 	constructor(root, plugins) {
 		this.root = root;
 		this.importNumber = 0;
-		this.tokensByFile = {};
+		this.resultsByFile = {};
+		this.importsByFile = {};
 	}
 
 	process(_source, _relativeTo, allFiles) {
-		return processInternal.call(this, _source, _relativeTo);
+		return processInternal.call(this, null, _source, _relativeTo);
 
-		function processInternal(source, relativeTo, _trace) {
+		function processInternal(parent, source, relativeTo, _trace) {
 			relativeTo = relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
 			source = getSourceContents(source, relativeTo);
 			let trace = _trace || String.fromCharCode(this.importNumber++);
-
+			if (parent) {
+				const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
+				parentImports.push(source.pathInApp);
+			}
 			return new Promise((resolve, reject) => {
-				const tokens = this.tokensByFile[source.path];
-				if (tokens)
-					return resolve(tokens);
+				const result = this.resultsByFile[source.path];
+				if (result)
+					return resolve(parent ? result.tokens : result);
 
-				this.load(source.contents, source.path, trace, processInternal.bind(this))
+				this.load(source.contents, source.path, trace, processInternal.bind(this, source))
 					.then(({ injectableSource, exportTokens, sourceMap }) => {
-						this.tokensByFile[source.path] = exportTokens;
-						resolve({source: injectableSource, tokens: exportTokens, sourceMap: sourceMap});
+						const imports = this.importsByFile[source.path];
+						const result = this.resultsByFile[source.path] = {
+							source: injectableSource,
+							tokens: exportTokens,
+							sourceMap,
+							imports
+						};
+
+						resolve(parent ? result.tokens : result);
 					}, reject);
 			});
 		}
@@ -37,7 +48,11 @@ export default class CssModulesProcessor {
 		function getSourceContents(source, relativeTo) {
 			if (source instanceof String || typeof source === "string") {
 				source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
-				return {path: source, contents: importModule(source)};
+				return {
+					path: source,
+					pathInApp: ImportPathHelpers.getAppRelativeImportPath(source),
+					contents: importModule(source)
+				};
 			}
 			return source;
 		}
@@ -54,7 +69,7 @@ export default class CssModulesProcessor {
 
 	load(sourceString, sourcePath, trace, pathFetcher) {
 		const parser = new Parser(pathFetcher, trace);
-
+		sourcePath = ImportPathHelpers.getAbsoluteImportPath(sourcePath);
 		return postcss(postcssPlugins.concat([parser.plugin]))
 			.process(sourceString, {
 				from: sourcePath,
