@@ -57,33 +57,10 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		profile(start, 'compilation complete in');
 
 		function processCachedFiles(files) {
-			const cacheMisses = [];
 			const filesToProcess = [];
 			files.forEach(inputFile => {
-				const cacheKey = this._deepHash(this.getCacheKey(inputFile));
-				//let compileResult = this._cache.get(cacheKey);
-				//compileResult = null;
-				//if (!compileResult) {
-				//	compileResult = this._readCache(cacheKey);
-				//	if (compileResult) {
-				//		this._cacheDebug(`Loaded ${ inputFile.getDisplayPath() }`);
-				//	}
-				//}
-				//
-				//if (!compileResult) {
-				//	cacheMisses.push(inputFile.getDisplayPath());
-				inputFile.cacheKey = cacheKey;
 				filesToProcess.push(inputFile);
-				//}
-				//else
-				//	this.addCompileResult(inputFile, compileResult);
 			});
-
-			if (this._cacheDebugEnabled) {
-				cacheMisses.sort();
-				this._cacheDebug(
-					`Ran (#${ ++this._callCount }) on: ${ JSON.stringify(cacheMisses) }`);
-			}
 
 			return filesToProcess;
 		}
@@ -172,8 +149,6 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				return processor.process(source, './', allFiles)
 					.then(result => {
 						// Save what we've compiled.
-						this._cache.set(file.cacheKey, result);
-						this._writeCacheAsync(file.cacheKey, result);
 						this.addCompileResult(file, result);
 					}).await();
 			}
