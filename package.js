@@ -15,6 +15,7 @@ Package.registerBuildPlugin({
 		'caching-compiler@1.0.0',
 		'nathantreid:css-modules-import-path-helpers@0.1.0',
 		'ramda:ramda@0.19.0',
+		'underscore',
 	],
 	npmDependencies: {
 		"app-module-path": "1.0.4",
@@ -29,6 +30,7 @@ Package.registerBuildPlugin({
 		"postcss-modules-values": "1.1.1",
 		"recursive-readdir": "1.3.0",
 		"string-template": "1.0.0",
+		"stylus": "0.54.2",
 	},
 	sources: [
 		'sha1.js',
@@ -37,6 +39,7 @@ Package.registerBuildPlugin({
 		'options.js',
 		'postcss-plugins.js',
 		'scss-processor.js',
+		'stylus-processor.js',
 		'css-modules-processor.js',
 		'css-modules-build-plugin.js',
 		'plugin.js'
