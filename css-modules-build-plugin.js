@@ -226,7 +226,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				file.addStylesheet({
 					data: result.source,
 					path: getOutputPath(filePath, pluginOptions.outputCssFilePath) + '.css',
-					sourceMap: JSON.stringify(result.sourceMap),
+//					sourceMap: JSON.stringify(result.sourceMap),
 					lazy: false
 				});
 			}
@@ -236,8 +236,12 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 			? result.imports.map(importPath=>`import '${importPath}';`).join('\n')
 			: '';
 		const stylesheetCode = (isLazy && shouldAddStylesheet && result.source)
-			? `import modules from 'meteor/modules';
-					 modules.addStyles(${JSON.stringify(result.source)});`
+			? `import { addStyles, removeStyleTag } from 'meteor/nathantreid:css-modules';
+				 const element = addStyles(${JSON.stringify(result.source)});
+				 if (module.hot) {
+				   module.hot.accept();
+				   module.hot.dispose(() => removeStyleTag(element));
+				 }`
 			: '';
 
 		const tokensCode = result.tokens
