@@ -16,6 +16,7 @@ Package.registerBuildPlugin({
 		'nathantreid:css-modules-import-path-helpers@0.1.2',
 		'ramda:ramda@0.19.0',
 		'underscore@1.0.7',
+		'gadicc:hot-build@0.0.8'
 	],
 	npmDependencies: {
 		"app-module-path": "1.0.4",
@@ -49,4 +50,7 @@ Package.registerBuildPlugin({
 Package.onUse(function (api) {
 	api.versionsFrom('1.3');
 	api.use('isobuild:compiler-plugin@1.0.0');
+	api.use('modules', 'client');
+	api.use('gadicc:hot@0.0.21', 'client');
+	api.mainModule('addRemoveStyles.js', 'client');
 });
