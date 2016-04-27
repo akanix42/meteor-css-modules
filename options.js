@@ -17,7 +17,7 @@ function getDefaultOptions() {
 		extensions: ['m.css', 'mss'],
 		globalVariablesText: '',
 		outputJsFilePath: '{dirname}/{basename}{extname}',
-		outputCssFilePath: '{dirname}/{basename}',
+		outputCssFilePath: '{dirname}/{basename}{extname}',
 		specificArchitecture: 'web'
 	};
 }
