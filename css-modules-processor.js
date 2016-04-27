@@ -77,7 +77,7 @@ export default class CssModulesProcessor {
 				map: {inline: false}
 			})
 			.then(result => {
-				return {injectableSource: result.css, exportTokens: parser.exportTokens, sourceMap: result.map};
+				return {injectableSource: result.css, exportTokens: parser.exportTokens, sourceMap: result.map.toJSON()};
 			});
 	}
 
