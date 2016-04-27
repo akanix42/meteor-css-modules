@@ -226,6 +226,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				file.addStylesheet({
 					data: result.source,
 					path: getOutputPath(filePath, pluginOptions.outputCssFilePath) + '.css',
+					sourcePath: getOutputPath(filePath, pluginOptions.outputCssFilePath) + '.css',
 					sourceMap: JSON.stringify(result.sourceMap),
 					lazy: false
 				});
