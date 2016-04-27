@@ -253,7 +253,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 					${importsCode}
 					${stylesheetCode}
 					${tokensCode}`).code,
-				path: getOutputPath(filePath, pluginOptions.outputJsFilePath),
+				path: getOutputPath(filePath, pluginOptions.outputJsFilePath) + '.js',
 				sourcePath: getOutputPath(filePath, pluginOptions.outputJsFilePath),
 				lazy: isLazy,
 				bare: false,
