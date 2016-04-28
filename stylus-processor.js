@@ -133,10 +133,10 @@ export default class StylusProcessor {
 			} catch (err) {
 				console.error(err);
 				sourceFile.file.error({
-					message: `CSS modules SCSS compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
+					message: `CSS modules Stylus compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
 					sourcePath: sourceFile.file.getDisplayPath()
 				});
-				return new Error(`CSS modules SCSS compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`);
+				return new Error(`CSS modules Stylus compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`);
 			}
 		}
 	}
