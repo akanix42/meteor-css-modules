@@ -117,6 +117,7 @@ export default class ScssProcessor {
 					allFiles.set(originalImportPath, file);
 				}
 
+				return {contents: file.rawContents || file.getContentsAsString(), file: importPath};
 				return {contents: file.getContentsAsString(), file: importPath};
 
 				function discoverImportPath(importPath) {

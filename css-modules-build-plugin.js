@@ -108,7 +108,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 
 			function compileScssFile(file) {
 				const contents = file.contents = file.getContentsAsString();
-				file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
+				file.rawContents = file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
 
 				file.getContentsAsString = function getContentsAsStringWithGlobalVariables() {
 					return file.contents;
@@ -162,7 +162,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 
 			function compileStylusFile(file) {
 				const contents = file.contents = file.getContentsAsString();
-				file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
+				file.rawContents = file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
 
 				file.getContentsAsString = function getContentsAsStringWithGlobalVariables() {
 					return file.contents;
