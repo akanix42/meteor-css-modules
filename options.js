@@ -14,6 +14,7 @@ function getDefaultOptions() {
 		enableSassCompilation: ['scss', 'sass'],
 		enableStylusCompilation: ['m.styl'],
 		explicitIncludes: [],
+		ignorePaths: [],
 		extensions: ['m.css', 'mss'],
 		globalVariablesText: '',
 		outputJsFilePath: '{dirname}/{basename}{extname}',

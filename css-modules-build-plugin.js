@@ -48,6 +48,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		pluginOptions = reloadOptions();
 
 		const start = profile();
+		files = removeFilesFromExcludedFolders(files);
 		files = addFilesFromIncludedFolders(files);
 		const allFiles = createAllFilesMap(files);
 		const uncachedFiles = processCachedFiles.call(this, files);
@@ -66,6 +67,16 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 			});
 
 			return filesToProcess;
+		}
+
+		function removeFilesFromExcludedFolders(files) {
+			if (!pluginOptions.ignorePaths.length)
+				return files;
+
+			const ignoredPathsRegExps = pluginOptions.ignorePaths.map(pattern=> new RegExp(pattern));
+			const shouldKeepFile = file => !ignoredPathsRegExps.some(regex=>regex.test(file.getPathInPackage()));
+
+			return files.filter(shouldKeepFile);
 		}
 
 		function addFilesFromIncludedFolders(files) {
