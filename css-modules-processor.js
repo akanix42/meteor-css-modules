@@ -74,7 +74,8 @@ export default class CssModulesProcessor {
 			.process(sourceString, {
 				from: sourcePath,
 				to: getOutputPath(sourcePath, pluginOptions.outputCssFilePath),
-				map: {inline: false}
+				map: {inline: false},
+				parser: pluginOptions.parser ? Npm.require(pluginOptions.parser) : undefined
 			})
 			.then(result => {
 				return {injectableSource: result.css, exportTokens: parser.exportTokens, sourceMap: result.map.toJSON()};
