@@ -31,6 +31,7 @@ Package.registerBuildPlugin({
 		"recursive-readdir": "1.3.0",
 		"string-template": "1.0.0",
 		"stylus": "0.54.2",
+		"sugarss": "0.1.3",
 	},
 	sources: [
 		'sha1.js',
