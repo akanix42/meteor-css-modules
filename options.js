@@ -16,6 +16,7 @@ function getDefaultOptions() {
 		explicitIncludes: [],
 		ignorePaths: [],
 		extensions: ['m.css', 'mss'],
+		filenames: [],
 		globalVariablesText: '',
 		outputJsFilePath: '{dirname}/{basename}{extname}',
 		outputCssFilePath: '{dirname}/{basename}{extname}',

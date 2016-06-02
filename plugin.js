@@ -7,7 +7,8 @@ ImportPathHelpers.init(Plugin);
 
 Plugin.registerCompiler({
 	extensions: pluginOptions.extensions,
-	archMatching: pluginOptions.specificArchitecture
+	archMatching: pluginOptions.specificArchitecture,
+	filenames: pluginOptions.filenames
 }, function () {
 	return new CssModulesBuildPlugin(Plugin);
 });
