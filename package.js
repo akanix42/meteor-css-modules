@@ -10,9 +10,9 @@ Package.describe({
 Package.registerBuildPlugin({
 	name: 'mss',
 	use: [
-		'babel-compiler@6.5.2-rc.7',
-		'ecmascript@0.4.1-rc.7',
-		'caching-compiler@1.0.0',
+		'babel-compiler@6.8.2',
+		'ecmascript@0.4.5',
+		'caching-compiler@1.0.5',
 		'nathantreid:css-modules-import-path-helpers@0.1.3',
 		'ramda:ramda@0.19.0',
 		'underscore@1.0.7',
@@ -47,6 +47,6 @@ Package.registerBuildPlugin({
 });
 
 Package.onUse(function (api) {
-	api.versionsFrom('1.3');
+	api.versionsFrom('1.3.3.1');
 	api.use('isobuild:compiler-plugin@1.0.0');
 });
