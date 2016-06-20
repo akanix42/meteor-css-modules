@@ -105,6 +105,8 @@ Any PostCSS plugins can be used (as long they don't conflict with the CSS module
 * postcss-modules-extract-imports
 * postcss-modules-scope
 
+**The above plugins are required for full CSS modules functionality; the first is optional unless you use values, but omitting the other three will likely result in errors.**
+
 Here is my standard plugin list (in load order):
 
 * postcss-simple-vars
@@ -118,6 +120,7 @@ Here is my standard plugin list (in load order):
 **How to load other PostCSS plugins or customize plugin options**
 You can load plugins by adding them to the dependencies or devDependencies in the [package.json](https://github.com/nathantreid/css-modules-demo-meteor-1.3/blob/master/package.json#L13) file,
 then also listing them under a cssModules { postcssPlugins { } } entry in the [same file](https://github.com/nathantreid/css-modules-demo-meteor-1.3/blob/master/package.json#L26).
+**If you modify the `postcssPlugins` option, make sure to also include the core CSS modules plugin as described above.**
 
 ``` js
 {
@@ -126,7 +129,10 @@ then also listing them under a cssModules { postcssPlugins { } } entry in the [s
   },
   "cssModules": {
     "postcssPlugins": {
-      "postcss-simple-vars": {}
+      "postcss-simple-vars": {},
+      "postcss-modules-local-by-default": {},
+      "postcss-modules-extract-imports": {},
+	  "postcss-modules-scope": {},
     }
   }
 }
