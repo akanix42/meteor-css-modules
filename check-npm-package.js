@@ -23,7 +23,6 @@ function checkNpmVersion(name, version){
 	try {
 		const installedVersion = require(`${name}/package.json`).version;
 		if (semver.satisfies(installedVersion, version)) {
-			console.log('semver', installedVersion, version)
 			return true;
 		} else {
 			console.warn(colors.yellow.bold(`WARNING: version mismatch for ${name}; installed version is ${installedVersion}, but version ${version} is required by nathantreid:css-modules)`));
