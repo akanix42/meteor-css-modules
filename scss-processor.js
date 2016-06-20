@@ -1,10 +1,11 @@
 import path from 'path';
 import fs from 'fs';
-import sass from 'node-sass';
 import IncludedFile from './included-file';
 import pluginOptionsWrapper from './options';
 
 const pluginOptions = pluginOptionsWrapper.options;
+
+const sass = pluginOptions.enableSassCompilation ? require('node-sass') : null;
 
 export default class ScssProcessor {
 	constructor(root, allFiles) {

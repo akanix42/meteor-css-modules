@@ -1,9 +1,10 @@
 import Future from 'fibers/future';
-import stylus from 'stylus';
 import path from 'path';
 import fs from 'fs';
 import IncludedFile from './included-file';
 import pluginOptions from './options';
+
+const stylus = pluginOptions.enableStylusCompilation ? require('stylus') : null;
 
 export default class StylusProcessor {
 	constructor(root, allFiles) {

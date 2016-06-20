@@ -1,3 +1,8 @@
+import appModulePath from 'app-module-path';
+import checkNpmPackage from './check-npm-package';
+
+appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
+
 const path = Npm.require('path');
 const fs = Npm.require('fs');
 const cjson = Npm.require('cjson');
@@ -5,7 +10,7 @@ const optionsFilePath = path.resolve(process.cwd(), 'package.json');
 
 const pluginOptions = {};
 loadOptions();
-export { loadOptions as reloadOptions };
+export {loadOptions as reloadOptions};
 export default pluginOptions;
 
 function getDefaultOptions() {
@@ -32,6 +37,13 @@ function loadOptions() {
 	options = options || {};
 	options = processGlobalVariables(options);
 	options = R.merge(getDefaultOptions(), options || {});
+
+	if (options.enableSassCompilation && !checkNpmPackage('node-sass@=3.4.1'))
+		options.enableSassCompilation = false;
+
+	if (options.enableStylusCompilation && !checkNpmPackage('stylus@0.x'))
+		options.enableStylusCompilation = false;
+
 	return pluginOptions.options = options;
 }
 

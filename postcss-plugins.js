@@ -3,8 +3,6 @@ const pluginOptions = pluginOptionsWrapper.options;
 const fs = Npm.require('fs');
 const cjson = Npm.require('cjson');
 const path = Npm.require('path');
-const appModulePath = Npm.require('app-module-path');
-appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
 
 const corePlugins = {
 	"postcss-modules-local-by-default": Npm.require("postcss-modules-local-by-default"),
