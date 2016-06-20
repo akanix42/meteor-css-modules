@@ -38,7 +38,7 @@ function loadOptions() {
 	options = processGlobalVariables(options);
 	options = R.merge(getDefaultOptions(), options || {});
 
-	if (options.enableSassCompilation && !checkNpmPackage('node-sass@=3.4.1'))
+	if (options.enableSassCompilation && !checkNpmPackage('node-sass@3.x'))
 		options.enableSassCompilation = false;
 
 	if (options.enableStylusCompilation && !checkNpmPackage('stylus@0.x'))
