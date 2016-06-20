@@ -33,7 +33,12 @@ This can be configured by setting the `extensions` property in the cssModules co
 
 See [the wiki](https://github.com/nathantreid/meteor-css-modules/wiki) for more details.
 
+# BREAKING CHANGES in 2.0.0
 
+`node-sass`, `stylus`, and `sugarss` are now user installed dependencies; they are still supported, but the npm packages are no longer bundled with the CSS modules package.
+Instead, you must use `meteor npm install` to install them as needed.
+Once installed, their behavior is unchanged: Sass and Stylus compilation require the `extensions` property to be set, and sugarss requires the `parser` option to be set.
+See [the wiki](https://github.com/nathantreid/meteor-css-modules/wiki) for more details.
 
 
 ## Usage
