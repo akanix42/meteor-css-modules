@@ -20,7 +20,7 @@ function getDefaultOptions() {
 		enableStylusCompilation: ['styl', 'm.styl'],
 		explicitIncludes: [],
 		ignorePaths: [],
-		extensions: ['m.css', 'mss'],
+		extensions: ['css', 'm.css', 'mss'],
 		filenames: [],
 		globalVariablesText: '',
 		outputJsFilePath: '{dirname}/{basename}{extname}',
