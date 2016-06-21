@@ -50,6 +50,10 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		const start = profile();
 		files = removeFilesFromExcludedFolders(files);
 		files = addFilesFromIncludedFolders(files);
+		let passthroughFiles;
+		({files, passthroughFiles} = extractPassthroughFiles(files));
+		processPassthroughFiles(passthroughFiles);
+
 		const allFiles = createAllFilesMap(files);
 		const uncachedFiles = processCachedFiles.call(this, files);
 		if (pluginOptions.enableSassCompilation)
@@ -93,6 +97,33 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				}
 			});
 			return files;
+		}
+
+		function extractPassthroughFiles(files) {
+			const passthroughFiles = [];
+			if (!pluginOptions.passthroughPaths.length)
+				return {passthroughFiles, files};
+			const otherFiles = [];
+			const createPatternRegExp = pattern => typeof pattern === 'string' ? new RegExp(pattern) : new RegExp(pattern[0], pattern[1]);
+			const passthroughPathsRegExps = pluginOptions.passthroughPaths.map(createPatternRegExp);
+
+			files.forEach(file=> {
+				if (passthroughPathsRegExps.some(regex=>regex.test(file.getPathInPackage())))
+					passthroughFiles.push(file);
+				else
+					otherFiles.push(file);
+			});
+
+			return {passthroughFiles, files: otherFiles};
+		}
+
+		function processPassthroughFiles(files) {
+			files.forEach(inputFile => {
+				inputFile.addStylesheet({
+					data: inputFile.getContentsAsString(),
+					path: inputFile.getPathInPackage()
+				});
+			});
 		}
 
 		function compileScssFiles(files) {
