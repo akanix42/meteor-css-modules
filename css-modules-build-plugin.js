@@ -7,7 +7,7 @@ import StylusProcessor from './stylus-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
 import plugins from './postcss-plugins';
-import pluginOptionsWrapper,{ reloadOptions } from './options';
+import pluginOptionsWrapper, { reloadOptions } from './options';
 import getOutputPath from './get-output-path';
 
 let pluginOptions = pluginOptionsWrapper.options;
@@ -44,7 +44,6 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 	}
 
 	processFilesForTarget(files) {
-
 		pluginOptions = reloadOptions();
 
 		const start = profile();
