@@ -4,6 +4,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.0] - 2016-06-21
+### Added
+- The .css file extension can now be processed and is enabled by default.
+- The new `passthroughPaths` option allows you to skip processing of certain stylesheets, passing them on unchanged to the bundler.
+  This allows you exclude CSS modules processing for libraries such as bootstrap. See [the wiki] for more information.
+
 ## [2.0.2] - 2016-06-20
 ### Removed
 - A debugging console.log statement
@@ -20,11 +26,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - node-sass, stylus, and sugarss are now user installed dependencies; they are still supported, but the npm packages are no longer bundled with the CSS modules package.
 They must now be installed using `meteor npm install`.
 Once installed, their behavior is unchanged: Sass and Stylus compilation require the `extensions` property to be set, and sugarss requires the `parser` option to be set.
-See [the wiki](https://github.com/nathantreid/meteor-css-modules/wiki) for more details.
+See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.0.2...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/nathantreid/meteor-css-modules/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/nathantreid/meteor-css-modules/compare/v1.1.2...v1.3.0
+[the wiki]: https://github.com/nathantreid/meteor-css-modules/wiki
