@@ -95,6 +95,26 @@ Template.hello.helpers({
     styles: styles
 });
 ```
+### :local and :global
+All class names and animation names are scoped locally by default. Meaning that they are expanded to be prefixed for safe usage with other CSS-files. Sometimes you may need to reference some global class within the css-specifications. 
+
+`:global` switches to global scope for the current selector resp. identifier. `:global(.xxx)` resp. `@keyframes :global(xxx)` declares the stuff in brackets in the global scope.
+
+Similar `:local` and `:local(...)` for local scope.
+
+If the selector is switched into global mode, global mode is also activated for the rules. (this allows to make `animation: abc;` local)
+
+Example:s
+`.localA :global .global-b .global-c :local(.localD.localE) .global-d`
+
+    .myButton {
+        /* any css */
+    }
+
+    .myButton :global(.fa) {
+        /* any css */
+    }
+
 
 ## PostCSS Plugins
 Any PostCSS plugins can be used (as long they don't conflict with the CSS modules core plugins); the following PostCSS plugins are the core CSS modules plugins and therefore used by default:
