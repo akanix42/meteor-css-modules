@@ -1,7 +1,7 @@
 # [CSS Modules](https://github.com/css-modules/css-modules) for Meteor
 
 **What are CSS Modules?**
-"A CSS Module is a CSS file in which all class names and animation names are scoped locally by default." - CSS modules github
+"A CSS Module is a CSS file in which all class names and animation names are scoped locally by default." - [CSS modules github](https://github.com/css-modules/css-modules)
 
 **Why use CSS Modules?**
 In short, you can separate your CSS into components, just like you do with the HTML and JavaScript for your Blaze or React Templates.
@@ -19,21 +19,13 @@ Install using Meteor's package management system:
 meteor add nathantreid:css-modules
 ```
 
-Because Meteor 1.3 doesn't allow build plugins to handle CSS files, you will need to use another extension. The defaults are .m.css and .mss (Modular Style Sheet).
-This can be configured by setting the `extensions` property in the cssModules configuration in packages.json:
-```
-  "cssModules": {
-    "extensions": [
-      "mss"
-    ]
-  }
-```
+By default, this plugin will handle .css files as well as .m.css and .mss files (legacy). This can be adjusted in the [package options](https://github.com/nathantreid/meteor-css-modules/wiki/Package-Options).
 
 ## Supports Sass (and React Toolbox), Stylus, and Sugarss
 
 See [the wiki](https://github.com/nathantreid/meteor-css-modules/wiki) for more details.
 
-# BREAKING CHANGES in 2.0.0
+## BREAKING CHANGES in 2.0.0
 
 `node-sass`, `stylus`, and `sugarss` are now user installed dependencies; they are still supported, but the npm packages are no longer bundled with the CSS modules package.
 Instead, you must use `meteor npm install` to install them as needed.
@@ -43,16 +35,15 @@ See [the wiki](https://github.com/nathantreid/meteor-css-modules/wiki) for more 
 
 ## Usage
 
-
-***hello.mss***
+***hello.css***
 ``` css
 .hello {
-    composes: b from "./b.mss";
+    composes: b from "./b.css";
     color: red;
 }
 ```
 
-***b.mss***
+***b.css***
 ``` css
 .b {
     font-weight: bold;
@@ -61,7 +52,7 @@ See [the wiki](https://github.com/nathantreid/meteor-css-modules/wiki) for more 
 
 ***hello.js***
 ``` js
-import styles from "/hello.mss";
+import styles from "/hello.css";
 
 Template.hello.helpers({
     styles: styles
@@ -82,14 +73,14 @@ Given the structure:
 root
 - client
   - hello.js
-  - hello.mss
+  - hello.css
 ```
 
 you can do the following:
 
 ***hello.js***
 ``` js
-import styles from "./hello.mss";
+import styles from "./hello.css";
 
 Template.hello.helpers({
     styles: styles
@@ -223,7 +214,7 @@ Now update your package.json with the following data:
 This is an array, so you can specify as many files as you like.
 Now to use the variable you created in any of your files:
 
-**example.mss**
+**example.css**
 
 ``` css
 .example {
@@ -249,17 +240,7 @@ You can also use any archMatching option (the default is 'web', or client-side o
 
 ## History
 
-* 11/2015: Implementation of CSS Modules for Meteor released
-* 11/2015: Shortened auto-generated class names by excluding irrelevant path information
-* 11/2015: Implemented source maps
-* 11/2015: Added additional postcss plugins (nested, nested props, media min/max, colorHexAlpha, anyLink, and notSelector.
-* 11/2015: Implemented global variables via the postcss-simple-vars plugin
-* 11/2015: **Any** NPM-listed PostCSS plugin specified in packages.json and css-modules.json will be loaded. Freedom!
-* 02/2016: Updates for Meteor 1.3; css-modules.json is now combined with package.json
-* 03/2016: SCSS support
-* 03/2016: React Toolbox support
-* 03/2016: Server-side processing
-
+* See https://github.com/nathantreid/meteor-css-modules/blob/master/CHANGELOG.md for updates
 
 ## Acknowledgements
 
