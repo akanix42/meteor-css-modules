@@ -15,6 +15,9 @@ export default pluginOptions;
 
 function getDefaultOptions() {
 	return {
+		tokens: {
+			camelCase: true
+		},
 		enableProfiling: false,
 		enableSassCompilation: ['scss', 'sass'],
 		enableStylusCompilation: ['styl', 'm.styl'],
