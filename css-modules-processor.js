@@ -23,7 +23,7 @@ export default class CssModulesProcessor {
 			let trace = _trace || String.fromCharCode(this.importNumber++);
 			if (parent) {
 				const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
-				parentImports.push(source.pathInApp);
+				parentImports.push(source.originalPath);
 			}
 			return new Promise((resolve, reject) => {
 				const result = this.resultsByFile[source.path];
@@ -46,11 +46,13 @@ export default class CssModulesProcessor {
 		}
 
 		function getSourceContents(source, relativeTo) {
-			if (source instanceof String || typeof source === "string") {
+			if (source instanceof String || typeof source === 'string') {
+				const originalPath = source.replace(/^"(.*)"$/, '$1');
 				source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
 				return {
 					path: source,
 					pathInApp: ImportPathHelpers.getAppRelativeImportPath(source),
+					originalPath,
 					contents: importModule(source)
 				};
 			}
