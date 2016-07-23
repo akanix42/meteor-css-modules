@@ -1,7 +1,7 @@
-import appModulePath from 'app-module-path';
 import { R } from 'meteor/ramda:ramda';
 import checkNpmPackage from './check-npm-package';
 
+import appModulePath from 'app-module-path';
 appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
 
 const path = Npm.require('path');
@@ -11,7 +11,7 @@ const optionsFilePath = path.resolve(process.cwd(), 'package.json');
 
 const pluginOptions = {};
 loadOptions();
-export {loadOptions as reloadOptions};
+export { loadOptions as reloadOptions };
 export default pluginOptions;
 
 function getDefaultOptions() {

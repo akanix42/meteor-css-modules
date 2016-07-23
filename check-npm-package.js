@@ -6,7 +6,7 @@ import semver from 'semver';
 import colors from 'colors';
 
 export default function checkNpmPackage(packageWithVersion ) {
-	const [packageName, packageVersion ] = packageWithVersion.split('@');
+	const [ packageName, packageVersion ] = packageWithVersion.split('@');
 
 	if (!verifyPackageExists(packageName, packageVersion))
 		return false;
