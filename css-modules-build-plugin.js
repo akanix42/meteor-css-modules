@@ -49,17 +49,19 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		const start = profile();
 		files = removeFilesFromExcludedFolders(files);
 		files = addFilesFromIncludedFolders(files);
-		let passthroughFiles;
-		({files, passthroughFiles} = extractPassthroughFiles(files));
-		processPassthroughFiles(passthroughFiles);
 
 		const allFiles = createAllFilesMap(files);
 		const uncachedFiles = processCachedFiles.call(this, files);
 		if (pluginOptions.enableSassCompilation)
+		if (pluginOptions.enableSassCompilation)
 			compileScssFiles.call(this, uncachedFiles);
 		if (pluginOptions.enableStylusCompilation)
 			compileStylusFiles.call(this, uncachedFiles);
-		compileCssModules.call(this, uncachedFiles);
+
+		let passthroughFiles;
+		({files, passthroughFiles} = extractPassthroughFiles(uncachedFiles));
+		processPassthroughFiles(passthroughFiles);
+		compileCssModules.call(this, files);
 
 		profile(start, 'compilation complete in');
 
