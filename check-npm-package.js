@@ -8,15 +8,19 @@ import colors from 'colors';
 export default function checkNpmPackage(packageWithVersion ) {
 	const [packageName, packageVersion ] = packageWithVersion.split('@');
 
-	if (!verifyPackageExists(packageName))
+	if (!verifyPackageExists(packageName, packageVersion))
 		return false;
 
 	return checkNpmVersion(packageName, packageVersion);
 }
 
-function verifyPackageExists(packageName) {
+function verifyPackageExists(packageName, packageVersion) {
 	const packagePath = `${ImportPathHelpers.basePath}/node_modules/${packageName}`;
-	return fs.existsSync(packagePath);
+	const doesPackageExist = fs.existsSync(packagePath);
+	if (!doesPackageExist)
+		console.error(colors.red.bold(`Error checking npm module: ${packageName}@${packageVersion} (required by nathantreid:css-modules): module not found. Please ensure you have installed the module; here is the command:\n meteor npm install ${packageName} --save-dev\n`));
+
+	return doesPackageExist;
 }
 
 function checkNpmVersion(name, version){

@@ -1,4 +1,5 @@
 import appModulePath from 'app-module-path';
+import { R } from 'meteor/ramda:ramda';
 import checkNpmPackage from './check-npm-package';
 
 appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
@@ -39,13 +40,38 @@ function loadOptions() {
 	options = processGlobalVariables(options);
 	options = R.merge(getDefaultOptions(), options || {});
 
-	if (options.enableSassCompilation && !checkNpmPackage('node-sass@3.x'))
-		options.enableSassCompilation = false;
-
-	if (options.enableStylusCompilation && !checkNpmPackage('stylus@0.x'))
-		options.enableStylusCompilation = false;
+	checkSassCompilation(options);
+	checkStylusCompilation(options);
 
 	return pluginOptions.options = options;
+}
+
+function checkSassCompilation(options) {
+	if (!options.enableSassCompilation)
+		return;
+
+	if (options.enableSassCompilation === true
+		|| (Array.isArray(options.enableSassCompilation) && R.intersection(options.enableSassCompilation, options.extensions).length)) {
+		const result = checkNpmPackage('node-sass@3.x');
+		if (result === true)
+			return;
+
+		options.enableSassCompilation = false;
+	}
+}
+
+function checkStylusCompilation(options) {
+	if (!options.enableStylusCompilation)
+		return;
+
+	if (options.enableStylusCompilation === true
+		|| (Array.isArray(options.enableStylusCompilation) && R.intersection(options.enableStylusCompilation, options.extensions).length)) {
+		const result = checkNpmPackage('stylus@0.x');
+		if (result === true)
+			return;
+
+		options.enableStylusCompilation = false;
+	}
 }
 
 function processGlobalVariables(options) {
