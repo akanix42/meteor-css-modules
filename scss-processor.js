@@ -131,7 +131,7 @@ export default class ScssProcessor {
 						[].concat(potentialPaths).forEach(potentialPath=>potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
 
 					for (let i = 0, potentialPath = potentialPaths[i]; i < potentialPaths.length; i++, potentialPath = potentialPaths[i])
-						if (fs.existsSync(potentialPaths[i]))
+						if (fs.existsSync(potentialPaths[i]) && fs.lstatSync(potentialPaths[i]).isFile())
 							return potentialPath;
 
 					throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths)}`);
