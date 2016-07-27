@@ -111,7 +111,7 @@ export default class ScssProcessor {
 					importPath += '.scss';
 
 				let file = allFiles.get(importPath);
-				if (!file && path.basename(file).indexOf('_' === -1))
+				if (!file && path.basename(file).indexOf('_') === -1)
 					file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
 				if (!file) {
 					file = new IncludedFile(discoverImportPath(originalImportPath), sourceFile);
