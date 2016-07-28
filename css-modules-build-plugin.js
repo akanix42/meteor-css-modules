@@ -167,11 +167,11 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				try {
 					result = processor.process(file, source, './', allFiles);
 				} catch (err) {
-					file.error({
-						message: `CSS modules SCSS compiler error: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-						sourcePath: file.getDisplayPath()
-					});
-					return null;
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					console.error(`Processing Step: SCSS compilation`);
+					console.error(`Unable to compile ${source.path}\n${err}`);
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					throw err;
 				}
 
 				file.getContentsAsString = function getContentsAsString() {
@@ -221,11 +221,11 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				try {
 					result = processor.process(file, source, './', allFiles);
 				} catch (err) {
-					file.error({
-						message: `CSS modules stylus compiler error: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-						sourcePath: file.getDisplayPath()
-					});
-					return null;
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					console.error(`Processing Step: Stylus compilation`);
+					console.error(`Unable to compile ${source.path}\n${err}`);
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					throw err;
 				}
 
 				file.getContentsAsString = function getContentsAsString() {
@@ -291,16 +291,29 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 
 		if (stylesheetCode || tokensCode) {
 			file.addJavaScript({
-				data: Babel.compile(
-					`
+				data: tryBabelCompile(`
 					${importsCode}
 					${stylesheetCode}
-					${tokensCode}`).code,
+					${tokensCode}`),
 				path: getOutputPath(filePath, pluginOptions.outputJsFilePath) + '.js',
 				sourcePath: getOutputPath(filePath, pluginOptions.outputJsFilePath),
 				lazy: isLazy,
 				bare: false,
 			});
+		}
+
+		function tryBabelCompile(code) {
+			try {
+				return Babel.compile(code).code;
+			} catch (err) {
+				console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+				console.error(`Processing Step: CSS Modules compilation`);
+				console.error(`Unable to compile ${filePath}\n${err}`);
+				console.error('Source: \n// <start of file>\n', code.replace(/^\s+/gm, ''))
+				console.error(`// <end of file>`);
+				console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+				throw err;
+			}
 		}
 	}
 
