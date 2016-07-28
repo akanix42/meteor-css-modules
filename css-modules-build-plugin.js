@@ -53,13 +53,12 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		const allFiles = createAllFilesMap(files);
 		const uncachedFiles = processCachedFiles.call(this, files);
 		if (pluginOptions.enableSassCompilation)
-		if (pluginOptions.enableSassCompilation)
 			compileScssFiles.call(this, uncachedFiles);
 		if (pluginOptions.enableStylusCompilation)
 			compileStylusFiles.call(this, uncachedFiles);
 
 		let passthroughFiles;
-		({files, passthroughFiles} = extractPassthroughFiles(uncachedFiles));
+		({ files, passthroughFiles } = extractPassthroughFiles(uncachedFiles));
 		processPassthroughFiles(passthroughFiles);
 		compileCssModules.call(this, files);
 
@@ -103,7 +102,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		function extractPassthroughFiles(files) {
 			const passthroughFiles = [];
 			if (!pluginOptions.passthroughPaths.length)
-				return {passthroughFiles, files};
+				return { passthroughFiles, files };
 			const otherFiles = [];
 			const createPatternRegExp = pattern => typeof pattern === 'string' ? new RegExp(pattern) : new RegExp(pattern[0], pattern[1]);
 			const passthroughPathsRegExps = pluginOptions.passthroughPaths.map(createPatternRegExp);
@@ -115,7 +114,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 					otherFiles.push(file);
 			});
 
-			return {passthroughFiles, files: otherFiles};
+			return { passthroughFiles, files: otherFiles };
 		}
 
 		function processPassthroughFiles(files) {
