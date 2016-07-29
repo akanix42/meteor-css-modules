@@ -16,8 +16,8 @@ export default pluginOptions;
 
 function getDefaultOptions() {
 	return {
-		tokens: {
-			camelCase: true
+		jsClassNamingConvention: {
+			camelCase: false
 		},
 		enableProfiling: false,
 		enableSassCompilation: ['scss', 'sass'],

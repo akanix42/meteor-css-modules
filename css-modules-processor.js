@@ -82,7 +82,7 @@ export default class CssModulesProcessor {
 			})
 			.then(result => {
 				let exportTokens = parser.exportTokens;
-				if (pluginOptions.tokens.camelCase) {
+				if (pluginOptions.jsClassNamingConvention.camelCase) {
 					let transformedTokens = {};
 					let keys = Object.keys(exportTokens);
 					keys.forEach(key=>transformedTokens[camelcase(key)]=exportTokens[key]);
