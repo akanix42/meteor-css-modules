@@ -30,7 +30,10 @@ function getDefaultOptions() {
 		outputJsFilePath: '{dirname}/{basename}{extname}',
 		outputCssFilePath: '{dirname}/{basename}{extname}',
 		passthroughPaths: [],
-		specificArchitecture: 'web'
+		specificArchitecture: 'web',
+		namingConvention:{
+			trimNameParts: []
+		}
 	};
 }
 

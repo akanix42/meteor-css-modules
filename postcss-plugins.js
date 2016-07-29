@@ -15,8 +15,18 @@ corePlugins['postcss-modules-scope'].generateScopedName = function generateScope
 	let sanitisedPath = path.relative(ImportPathHelpers.basePath, filePath).replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
 	const filename = path.basename(filePath).replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
 	sanitisedPath = sanitisedPath.replace(new RegExp(`_(${filename})$`), '__$1');
-	return `_${sanitisedPath}__${exportedName}`;
+	return trimNameParts(`_${sanitisedPath}__${exportedName}`);
 };
+
+function trimNameParts(name){
+	if (!pluginOptions.namingConvention || !pluginOptions.namingConvention.trimNameParts || pluginOptions.namingConvention.trimNameParts.length == 0) return name;
+
+	let trimmed = name;
+	for (let t of pluginOptions.namingConvention.trimNameParts){
+		trimmed = trimmed.replace(t, '');
+	}
+	return trimmed;
+}
 
 export default loadPlugins();
 
