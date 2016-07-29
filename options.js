@@ -1,5 +1,6 @@
 import { R } from 'meteor/ramda:ramda';
 import checkNpmPackage from './check-npm-package';
+import { createReplacer } from './text-replacer';
 
 import appModulePath from 'app-module-path';
 appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
@@ -16,8 +17,8 @@ export default pluginOptions;
 
 function getDefaultOptions() {
 	return {
-		cssClassNamingConvention:{
-			trimNameParts: []
+		cssClassNamingConvention: {
+			replacements: []
 		},
 		enableProfiling: false,
 		enableSassCompilation: ['scss', 'sass'],
@@ -46,10 +47,19 @@ function loadOptions() {
 	options = processGlobalVariables(options);
 	options = R.merge(getDefaultOptions(), options || {});
 
+	processCssClassNamingConventionReplacements(options);
 	checkSassCompilation(options);
 	checkStylusCompilation(options);
 
 	return pluginOptions.options = options;
+}
+
+function processCssClassNamingConventionReplacements(options) {
+	if (!options.cssClassNamingConvention || !options.cssClassNamingConvention.replacements)
+		return;
+
+	const replacements = options.cssClassNamingConvention.replacements;
+	options.cssClassNamingConvention.replacements = replacements.map(createReplacer);
 }
 
 function checkSassCompilation(options) {

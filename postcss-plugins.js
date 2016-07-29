@@ -15,17 +15,17 @@ corePlugins['postcss-modules-scope'].generateScopedName = function generateScope
 	let sanitisedPath = path.relative(ImportPathHelpers.basePath, filePath).replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
 	const filename = path.basename(filePath).replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
 	sanitisedPath = sanitisedPath.replace(new RegExp(`_(${filename})$`), '__$1');
-	return trimNameParts(`_${sanitisedPath}__${exportedName}`);
+	return runReplacers(`_${sanitisedPath}__${exportedName}`);
 };
 
-function trimNameParts(name) {
-	if (!pluginOptions.cssClassNamingConvention || !pluginOptions.cssClassNamingConvention.trimNameParts
-		|| pluginOptions.cssClassNamingConvention.trimNameParts.length == 0)
+function runReplacers(name) {
+	if (!pluginOptions.cssClassNamingConvention || !pluginOptions.cssClassNamingConvention.replacements
+		|| pluginOptions.cssClassNamingConvention.replacements.length == 0)
 		return name;
 
 	let trimmed = name;
-	for (let t of pluginOptions.cssClassNamingConvention.trimNameParts) {
-		trimmed = trimmed.replace(t, '');
+	for (let replacer of pluginOptions.cssClassNamingConvention.replacements) {
+		trimmed = replacer(trimmed);
 	}
 	return trimmed;
 }

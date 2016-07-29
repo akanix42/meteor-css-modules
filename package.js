@@ -34,6 +34,7 @@ Package.registerBuildPlugin({
 	},
 	sources: [
 		'sha1.js',
+		'text-replacer.js',
 		'included-file.js',
 		'get-output-path.js',
 		'check-npm-package.js',
