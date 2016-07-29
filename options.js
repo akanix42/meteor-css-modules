@@ -129,7 +129,7 @@ function processGlobalVariables(options) {
 
 	function convertScssVariablesToJsonVariables(text) {
 		const extractVariables = R.match(/^\$.*/gm);
-		const convertVariableToJson = R.replace(/\$(.*):\s*(.*);/g, '"$1":"$2"');
+		const convertVariableToJson = R.pipe(R.replace(/"/g, '\\"'), R.replace(/\$(.*):\s*(.*);/g, '"$1":"$2"'));
 		const surroundWithBraces = (str) => `{${str}}`;
 
 		const processText = R.pipe(extractVariables, R.map(convertVariableToJson), R.join(',\n'), surroundWithBraces, cjson.parse);
