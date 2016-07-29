@@ -306,7 +306,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				return Babel.compile(code).code;
 			} catch (err) {
 				console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-				console.error(`Processing Step: CSS Modules compilation`);
+				console.error(`Processing Step: Babel compilation`);
 				console.error(`Unable to compile ${filePath}\n${err}`);
 				console.error('Source: \n// <start of file>\n', code.replace(/^\s+/gm, ''))
 				console.error(`// <end of file>`);
