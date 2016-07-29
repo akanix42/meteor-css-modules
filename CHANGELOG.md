@@ -4,6 +4,23 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.1.4] - 2016-07-28
+### Changed
+- SCSS, Stylus, and CSS modules error logging is more detailed and throws an exception when an error is encountered
+
+## [2.1.3] - 2016-07-26
+### Fixed
+- Updated to nathantreid:css-modules-import-path-helpers@0.1.4 to fix issues with importing files from Atmosphere packages
+
+## [2.1.2] - 2016-07-26
+### Fixed
+- When discovering SCSS import paths, don't try to import directories (fixes #61 for local packages)
+
+## [2.1.1] - 2016-07-25
+### Fixed
+- The passthroughsPaths option preprocesses SCSS / Stylus files but bypasses the PostCSS processor. Allows compilation of libraries such as bootstrap.
+- The import path is now always relative to the importing file (fixes #57).
+
 ## [2.1.0] - 2016-06-21
 ### Added
 - The .css file extension can now be processed and is enabled by default.
@@ -29,7 +46,11 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.0...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.4...HEAD
+[2.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.3...v2.1.4
+[2.1.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.2...v2.1.3
+[2.1.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.1...v2.1.2
+[2.1.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.0...v2.1.1
 [2.1.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.0.0...v2.0.1

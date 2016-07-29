@@ -49,9 +49,6 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		const start = profile();
 		files = removeFilesFromExcludedFolders(files);
 		files = addFilesFromIncludedFolders(files);
-		let passthroughFiles;
-		({files, passthroughFiles} = extractPassthroughFiles(files));
-		processPassthroughFiles(passthroughFiles);
 
 		const allFiles = createAllFilesMap(files);
 		const uncachedFiles = processCachedFiles.call(this, files);
@@ -59,7 +56,11 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 			compileScssFiles.call(this, uncachedFiles);
 		if (pluginOptions.enableStylusCompilation)
 			compileStylusFiles.call(this, uncachedFiles);
-		compileCssModules.call(this, uncachedFiles);
+
+		let passthroughFiles;
+		({ files, passthroughFiles } = extractPassthroughFiles(uncachedFiles));
+		processPassthroughFiles(passthroughFiles);
+		compileCssModules.call(this, files);
 
 		profile(start, 'compilation complete in');
 
@@ -101,7 +102,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		function extractPassthroughFiles(files) {
 			const passthroughFiles = [];
 			if (!pluginOptions.passthroughPaths.length)
-				return {passthroughFiles, files};
+				return { passthroughFiles, files };
 			const otherFiles = [];
 			const createPatternRegExp = pattern => typeof pattern === 'string' ? new RegExp(pattern) : new RegExp(pattern[0], pattern[1]);
 			const passthroughPathsRegExps = pluginOptions.passthroughPaths.map(createPatternRegExp);
@@ -113,7 +114,7 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 					otherFiles.push(file);
 			});
 
-			return {passthroughFiles, files: otherFiles};
+			return { passthroughFiles, files: otherFiles };
 		}
 
 		function processPassthroughFiles(files) {
@@ -165,11 +166,15 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				try {
 					result = processor.process(file, source, './', allFiles);
 				} catch (err) {
-					file.error({
-						message: `CSS modules SCSS compiler error: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-						sourcePath: file.getDisplayPath()
-					});
-					return null;
+					const numberOfAdditionalLines = pluginOptions.globalVariablesTextLineCount
+						? pluginOptions.globalVariablesTextLineCount + 1
+						: 0;
+					const adjustedLineNumber = err.line - numberOfAdditionalLines;
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					console.error(`Processing Step: SCSS compilation`);
+					console.error(`Unable to compile ${source.path}\nLine: ${adjustedLineNumber}, Column: ${err.column}\n${err}`);
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					throw err;
 				}
 
 				file.getContentsAsString = function getContentsAsString() {
@@ -219,11 +224,11 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				try {
 					result = processor.process(file, source, './', allFiles);
 				} catch (err) {
-					file.error({
-						message: `CSS modules stylus compiler error: ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-						sourcePath: file.getDisplayPath()
-					});
-					return null;
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					console.error(`Processing Step: Stylus compilation`);
+					console.error(`Unable to compile ${source.path}\n${err}`);
+					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+					throw err;
 				}
 
 				file.getContentsAsString = function getContentsAsString() {
@@ -289,16 +294,29 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 
 		if (stylesheetCode || tokensCode) {
 			file.addJavaScript({
-				data: Babel.compile(
-					`
+				data: tryBabelCompile(`
 					${importsCode}
 					${stylesheetCode}
-					${tokensCode}`).code,
+					${tokensCode}`),
 				path: getOutputPath(filePath, pluginOptions.outputJsFilePath) + '.js',
 				sourcePath: getOutputPath(filePath, pluginOptions.outputJsFilePath),
 				lazy: isLazy,
 				bare: false,
 			});
+		}
+
+		function tryBabelCompile(code) {
+			try {
+				return Babel.compile(code).code;
+			} catch (err) {
+				console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+				console.error(`Processing Step: Babel compilation`);
+				console.error(`Unable to compile ${filePath}\n${err}`);
+				console.error('Source: \n// <start of file>\n', code.replace(/^\s+/gm, ''))
+				console.error(`// <end of file>`);
+				console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+				throw err;
+			}
 		}
 	}
 

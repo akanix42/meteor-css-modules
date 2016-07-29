@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'nathantreid:css-modules',
-	version: '2.1.0',
+	version: '2.1.4',
 	summary: 'CSS modules implementation. CSS for components!',
 	git: 'https://github.com/nathantreid/meteor-css-modules.git',
 	documentation: 'README.md'
@@ -13,7 +13,7 @@ Package.registerBuildPlugin({
 		'babel-compiler@6.8.2',
 		'ecmascript@0.4.5',
 		'caching-compiler@1.0.5',
-		'nathantreid:css-modules-import-path-helpers@0.1.3',
+		'nathantreid:css-modules-import-path-helpers@0.1.4',
 		'ramda:ramda@0.19.0',
 		'underscore@1.0.7',
 	],

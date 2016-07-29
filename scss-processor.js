@@ -111,7 +111,7 @@ export default class ScssProcessor {
 					importPath += '.scss';
 
 				let file = allFiles.get(importPath);
-				if (!file && path.basename(file).indexOf('_' === -1))
+				if (!file && path.basename(file).indexOf('_') === -1)
 					file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
 				if (!file) {
 					file = new IncludedFile(discoverImportPath(originalImportPath), sourceFile);
@@ -131,7 +131,7 @@ export default class ScssProcessor {
 						[].concat(potentialPaths).forEach(potentialPath=>potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
 
 					for (let i = 0, potentialPath = potentialPaths[i]; i < potentialPaths.length; i++, potentialPath = potentialPaths[i])
-						if (fs.existsSync(potentialPaths[i]))
+						if (fs.existsSync(potentialPaths[i]) && fs.lstatSync(potentialPaths[i]).isFile())
 							return potentialPath;
 
 					throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths)}`);
