@@ -166,9 +166,13 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 				try {
 					result = processor.process(file, source, './', allFiles);
 				} catch (err) {
+					const numberOfAdditionalLines = pluginOptions.globalVariablesTextLineCount
+						? pluginOptions.globalVariablesTextLineCount + 1
+						: 0;
+					const adjustedLineNumber = err.line - numberOfAdditionalLines;
 					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
 					console.error(`Processing Step: SCSS compilation`);
-					console.error(`Unable to compile ${source.path}\n${err}`);
+					console.error(`Unable to compile ${source.path}\nLine: ${adjustedLineNumber}, Column: ${err.column}\n${err}`);
 					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
 					throw err;
 				}

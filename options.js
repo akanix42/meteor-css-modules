@@ -101,6 +101,7 @@ function processGlobalVariables(options) {
 	});
 	options.globalVariablesJs = R.mergeAll(globalVariablesJs);
 	options.globalVariablesText = R.join('\n', globalVariablesText);
+	options.globalVariablesTextLineCount = options.globalVariablesText.split(/\r\n|\r|\n/).length;
 
 	return options;
 
