@@ -1,6 +1,6 @@
 Package.describe({
 	name: 'nathantreid:css-modules',
-	version: '2.2.0',
+	version: '2.2.1-issue53.1',
 	summary: 'CSS modules implementation. CSS for components!',
 	git: 'https://github.com/nathantreid/meteor-css-modules.git',
 	documentation: 'README.md'
@@ -39,6 +39,7 @@ Package.registerBuildPlugin({
 		'get-output-path.js',
 		'check-npm-package.js',
 		'options.js',
+		'helpers/profile.js',
 		'postcss-plugins.js',
 		'scss-processor.js',
 		'stylus-processor.js',

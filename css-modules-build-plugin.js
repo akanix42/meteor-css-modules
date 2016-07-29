@@ -9,26 +9,11 @@ import IncludedFile from './included-file';
 import plugins from './postcss-plugins';
 import pluginOptionsWrapper, { reloadOptions } from './options';
 import getOutputPath from './get-output-path';
+import profile from './helpers/profile';
 
 let pluginOptions = pluginOptionsWrapper.options;
 recursive = Meteor.wrapAsync(recursiveUnwrapped);
 // clock function thanks to NextLocal: http://stackoverflow.com/a/34970550/1090626
-function clock(start) {
-	if (!start) return process.hrtime();
-	var end = process.hrtime(start);
-	return Math.round((end[0] * 1000) + (end[1] / 1000000));
-}
-
-function profile(start, message) {
-	if (!pluginOptions.enableProfiling)
-		return;
-
-	const time = clock(start);
-	if (start !== undefined)
-		console.log(`${message} ${time}ms`);
-
-	return time;
-}
 
 export default class CssModulesBuildPlugin extends CachingCompiler {
 	constructor() {
@@ -47,19 +32,25 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		pluginOptions = reloadOptions();
 
 		const start = profile();
+		const prepStart = profile();
 		files = removeFilesFromExcludedFolders(files);
 		files = addFilesFromIncludedFolders(files);
 
 		const allFiles = createAllFilesMap(files);
 		const uncachedFiles = processCachedFiles.call(this, files);
+		profile(prepStart, 'prep complete in');
+
 		if (pluginOptions.enableSassCompilation)
 			compileScssFiles.call(this, uncachedFiles);
 		if (pluginOptions.enableStylusCompilation)
 			compileStylusFiles.call(this, uncachedFiles);
 
+		const passthroughStart = profile();
 		let passthroughFiles;
 		({ files, passthroughFiles } = extractPassthroughFiles(uncachedFiles));
 		processPassthroughFiles(passthroughFiles);
+		profile(passthroughStart, 'passthrough processing complete in');
+
 		compileCssModules.call(this, files);
 
 		profile(start, 'compilation complete in');
@@ -127,10 +118,12 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		}
 
 		function compileScssFiles(files) {
+			const start = profile();
 			const processor = new ScssProcessor('./', allFiles);
 			const isScssRoot = (file)=>isScss(file) && isRoot(file);
 			const compileFile = compileScssFile.bind(this);
 			files.filter(isScssRoot).forEach(compileFile);
+			profile(start, 'scss compilation complete in');
 
 			function isScss(file) {
 				if (pluginOptions.enableSassCompilation === true)
@@ -184,10 +177,12 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		}
 
 		function compileStylusFiles(files) {
+			const start = profile();
 			const processor = new StylusProcessor('./', allFiles);
 			const isStylusRoot = (file)=>isStylus(file) && isRoot(file);
 			const compileFile = compileStylusFile.bind(this);
 			files.filter(isStylusRoot).forEach(compileFile);
+			profile(start, 'stylus compilation complete in');
 
 			function isStylus(file) {
 				if (pluginOptions.enableStylusCompilation === true)
@@ -241,7 +236,9 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 			const processor = new CssModulesProcessor('./');
 			const isNotScssImport = (file) => !hasUnderscore(file.getPathInPackage());
 
+			const start = profile();
 			files.filter(isNotScssImport).forEach(processFile.bind(this));
+			profile(start, 'css modules compilation complete in');
 
 			function processFile(file) {
 				const source = {
