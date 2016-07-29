@@ -19,6 +19,7 @@ Package.registerBuildPlugin({
 	],
 	npmDependencies: {
 		"app-module-path": "1.0.4",
+		"camelcase": "3.0.0",
 		"cjson": "0.3.3",
 		"colors": "1.1.2",
 		"css-modules-loader-core": "1.0.0",

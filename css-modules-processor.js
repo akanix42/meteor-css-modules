@@ -2,6 +2,7 @@ import postcssPlugins from './postcss-plugins';
 import pluginOptionsWrapper from './options';
 import getOutputPath from './get-output-path';
 
+import camelcase from 'camelcase';
 const postcss = Npm.require('postcss');
 const Parser = Npm.require('css-modules-loader-core/lib/parser');
 const pluginOptions = pluginOptionsWrapper.options;
@@ -80,7 +81,14 @@ export default class CssModulesProcessor {
 				parser: pluginOptions.parser ? Npm.require(pluginOptions.parser) : undefined
 			})
 			.then(result => {
-				return {injectableSource: result.css, exportTokens: parser.exportTokens, sourceMap: result.map.toJSON()};
+				let exportTokens = parser.exportTokens;
+				if (pluginOptions.jsClassNamingConvention.camelCase) {
+					let transformedTokens = {};
+					let keys = Object.keys(exportTokens);
+					keys.forEach(key=>transformedTokens[camelcase(key)]=exportTokens[key]);
+					exportTokens = transformedTokens;
+				}
+				return {injectableSource: result.css, exportTokens, sourceMap: result.map.toJSON()};
 			});
 	}
 
