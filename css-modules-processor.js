@@ -48,7 +48,7 @@ export default class CssModulesProcessor {
 
 		function getSourceContents(source, relativeTo) {
 			if (source instanceof String || typeof source === 'string') {
-				const originalPath = source.replace(/^"(.*)"$/, '$1');
+				const originalPath = source.replace(/^["'](.*)["']$/, '$1');
 				source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
 				return {
 					path: source,
