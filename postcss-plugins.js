@@ -18,11 +18,13 @@ corePlugins['postcss-modules-scope'].generateScopedName = function generateScope
 	return trimNameParts(`_${sanitisedPath}__${exportedName}`);
 };
 
-function trimNameParts(name){
-	if (!pluginOptions.namingConvention || !pluginOptions.namingConvention.trimNameParts || pluginOptions.namingConvention.trimNameParts.length == 0) return name;
+function trimNameParts(name) {
+	if (!pluginOptions.cssClassNamingConvention || !pluginOptions.cssClassNamingConvention.trimNameParts
+		|| pluginOptions.cssClassNamingConvention.trimNameParts.length == 0)
+		return name;
 
 	let trimmed = name;
-	for (let t of pluginOptions.namingConvention.trimNameParts){
+	for (let t of pluginOptions.cssClassNamingConvention.trimNameParts) {
 		trimmed = trimmed.replace(t, '');
 	}
 	return trimmed;
