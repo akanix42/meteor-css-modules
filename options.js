@@ -16,24 +16,24 @@ export default pluginOptions;
 
 function getDefaultOptions() {
 	return {
-		jsClassNamingConvention: {
-			camelCase: false
+		cssClassNamingConvention:{
+			trimNameParts: []
 		},
 		enableProfiling: false,
 		enableSassCompilation: ['scss', 'sass'],
 		enableStylusCompilation: ['styl', 'm.styl'],
 		explicitIncludes: [],
-		ignorePaths: [],
 		extensions: ['css', 'm.css', 'mss'],
 		filenames: [],
 		globalVariablesText: '',
+		ignorePaths: [],
+		jsClassNamingConvention: {
+			camelCase: false
+		},
 		outputJsFilePath: '{dirname}/{basename}{extname}',
 		outputCssFilePath: '{dirname}/{basename}{extname}',
 		passthroughPaths: [],
 		specificArchitecture: 'web',
-		cssClassNamingConvention:{
-			trimNameParts: []
-		}
 	};
 }
 
