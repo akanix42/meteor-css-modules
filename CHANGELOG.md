@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.2.1] - 2016-07-29
+### Fixed
+- Properly override Meteor's default CSS build plugin when using css modules in a package.
+- Fix error caused by attempting to load node-sass when scss compilation is enabled but not used.
+
+### Changed
+- Increased logging output when profiling is enabled (enableProfiling: true).
+
 ## [2.2.0] - 2016-07-29
 ### Added
 - `cssClassNamingConvention.replacements` option allows you to replace any text in the class names. See [the wiki] for more information.
@@ -51,7 +59,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.0...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.1...HEAD
+[2.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.4...v2.2.0
 [2.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.2...v2.1.3
