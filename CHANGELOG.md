@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.2.2] - 2016-07-29
+### Fixed
+- Strip surrounding single quotes when importing CSS modules (previously only strippped double quotes).
+
 ## [2.2.1] - 2016-07-29
 ### Fixed
 - Properly override Meteor's default CSS build plugin when using css modules in a package.
@@ -59,7 +63,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.1...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.2...HEAD
+[2.2.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.4...v2.2.0
 [2.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.3...v2.1.4
