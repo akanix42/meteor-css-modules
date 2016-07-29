@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [2.2.0] - 2016-07-29
+### Added
+- `cssClassNamingConvention.replacements` option allows you to replace any text in the class names. See [the wiki] for more information.
+- `jsClassNamingConvention.camelCase` option allows you to convert your css class names to camelCased javasript properties. See [the wiki] for more information.
+
 ## [2.1.4] - 2016-07-28
 ### Changed
 - SCSS, Stylus, and CSS modules error logging is more detailed and throws an exception when an error is encountered
@@ -46,7 +51,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.4...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.0...HEAD
+[2.2.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.4...v2.2.0
 [2.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.1...v2.1.2
