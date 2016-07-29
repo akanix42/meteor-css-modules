@@ -10,8 +10,7 @@ if (pluginOptions.extensions.indexOf('css') === -1)
 else
 	monkeyPatchToHandleCssExtension();
 
-
-function registerCompiler() {
+function registerCompiler () {
 	Plugin.registerCompiler({
 		extensions: pluginOptions.extensions,
 		archMatching: pluginOptions.specificArchitecture,
@@ -24,13 +23,12 @@ function registerCompiler() {
 /**
  * Monkey patch _registerSourceProcessor and SourceProcessorSet.merge so we can block the default CSS compiler
  */
-function monkeyPatchToHandleCssExtension() {
+function monkeyPatchToHandleCssExtension () {
 	const registerSourceProcessor = Plugin._registerSourceProcessor;
-	Plugin._registerSourceProcessor = function (options, factory, {sourceProcessorSet, methodName, featurePackage}) {
+	Plugin._registerSourceProcessor = function (options, factory, { sourceProcessorSet, methodName, featurePackage }) {
 		const buildPluginMerge = sourceProcessorSet.constructor.prototype.merge;
 		sourceProcessorSet.constructor.prototype.merge = function (otherSet, options) {
-			/**
-			 * If a css plugin handler has already been added,
+			/* If a css plugin handler has already been added,
 			 * don't merge the meteor package, which only includes the 'css' package
 			 */
 			if (otherSet._myPackageDisplayName !== 'meteor' || !('css' in this._byExtension)) {
@@ -45,10 +43,9 @@ function monkeyPatchToHandleCssExtension() {
 					}
 				}
 				buildPluginMerge.call(this, ...arguments);
-				return;
 			}
 		};
-		registerSourceProcessor(options, factory, {sourceProcessorSet, methodName, featurePackage});
+		registerSourceProcessor(options, factory, { sourceProcessorSet, methodName, featurePackage });
 	};
 
 	registerCompiler();
