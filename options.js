@@ -71,9 +71,8 @@ function checkSassCompilation(options) {
 		const result = checkNpmPackage('node-sass@3.x');
 		if (result === true)
 			return;
-
-		options.enableSassCompilation = false;
 	}
+	options.enableSassCompilation = false;
 }
 
 function checkStylusCompilation(options) {
@@ -85,9 +84,9 @@ function checkStylusCompilation(options) {
 		const result = checkNpmPackage('stylus@0.x');
 		if (result === true)
 			return;
-
-		options.enableStylusCompilation = false;
 	}
+
+	options.enableStylusCompilation = false;
 }
 
 function processGlobalVariables(options) {
