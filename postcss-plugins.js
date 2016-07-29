@@ -48,7 +48,7 @@ function loadPlugins() {
 
 		var pluginEntryOptions = getPluginOptions(pluginEntry[1]);
 		if (options.globalVariablesJs && packageName === 'postcss-simple-vars')
-			pluginEntryOptions = R.merge({variables: options.globalVariablesJs}, pluginEntryOptions);
+			pluginEntryOptions = R.merge({ variables: options.globalVariablesJs }, pluginEntryOptions);
 
 		plugin = pluginEntryOptions !== undefined ? plugin(pluginEntryOptions) : plugin;
 		plugins.push(plugin);
@@ -73,7 +73,7 @@ function loadJsonOrMssFile(filePath) {
 		const index = str.lastIndexOf(character);
 		return str.substring(0, index) + str.substring(index + 1);
 	};
-	const loadMssFile = R.compose(variables=> ({variables: variables}), cjson.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, ['utf-8']));
+	const loadMssFile = R.compose(variables=> ({ variables: variables }), cjson.parse, str=>`{${str}}`, R.curry(removeLastOccurrence)(','), R.replace(/\$(.*):\s*(.*),/g, '"$1":"$2",'), R.replace(/;/g, ','), R.partialRight(fs.readFileSync, ['utf-8']));
 	return filePath.endsWith(".json") ? cjson.load(filePath) : loadMssFile(filePath);
 }
 
