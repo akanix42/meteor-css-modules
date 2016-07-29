@@ -34,6 +34,16 @@ function monkeyPatchToHandleCssExtension() {
 			 * don't merge the meteor package, which only includes the 'css' package
 			 */
 			if (otherSet._myPackageDisplayName !== 'meteor' || !('css' in this._byExtension)) {
+				/* If we're using CSS modules inside of a package, it's possible that Meteor's CSS build plugin got merged
+				 * before we could block it. In that case, unregister the Meteor CSS processor.
+				 */
+				if (('css' in this._byExtension) && 'css' in otherSet._byExtension) {// && sp.isopack.displayName() === 'meteor')
+					const previouslyRegisteredSourceProcessor = this._byExtension.css[0];
+					if (previouslyRegisteredSourceProcessor.isopack.displayName() === 'meteor' && otherSet._myPackageDisplayName === 'nathantreid:css-modules') {
+						this.allSourceProcessors.splice(this.allSourceProcessors.indexOf(previouslyRegisteredSourceProcessor), 1)
+						delete this._byExtension.css;
+					}
+				}
 				buildPluginMerge.call(this, ...arguments);
 				return;
 			}
