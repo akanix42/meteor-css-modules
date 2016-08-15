@@ -1,3 +1,4 @@
+import profile, { profileFunction } from './helpers/profile';
 import pluginOptionsWrapper from './options';
 const pluginOptions = pluginOptionsWrapper.options;
 const fs = Npm.require('fs');
@@ -51,6 +52,8 @@ function loadPlugins() {
 			pluginEntryOptions = R.merge({ variables: options.globalVariablesJs }, pluginEntryOptions);
 
 		plugin = pluginEntryOptions !== undefined ? plugin(pluginEntryOptions) : plugin;
+		if (pluginOptions.profiling.postcssPlugins)
+			plugin = profileFunction(`postcss: ${packageName}`, plugin);
 		plugins.push(plugin);
 	}, R.toPairs(options));
 	return plugins;
@@ -107,3 +110,4 @@ function deepExtend(destination, source) {
 	}
 	return destination;
 }
+

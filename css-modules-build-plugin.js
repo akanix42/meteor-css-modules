@@ -9,7 +9,8 @@ import IncludedFile from './included-file';
 import plugins from './postcss-plugins';
 import pluginOptionsWrapper, { reloadOptions } from './options';
 import getOutputPath from './get-output-path';
-import profile from './helpers/profile';
+import profile, { displayFunctionProfilingResults } from './helpers/profile';
+import fs from 'fs';
 
 let pluginOptions = pluginOptionsWrapper.options;
 recursive = Meteor.wrapAsync(recursiveUnwrapped);
@@ -235,22 +236,57 @@ export default class CssModulesBuildPlugin extends CachingCompiler {
 		function compileCssModules(files) {
 			const processor = new CssModulesProcessor('./');
 			const isNotScssImport = (file) => !hasUnderscore(file.getPathInPackage());
-
+			let addCompileResultTime = 0;
+			let profilingResults = {
+				processor: 0,
+				addCompileResult: 0,
+				sourceStart: 0,
+				processFileAfterAwait: 0,
+			};
+			const results = [];
 			const start = profile();
-			files.filter(isNotScssImport).forEach(processFile.bind(this));
+			const filesStart = profile();
+			const filteredFiles = files.filter(isNotScssImport)
+
+			profile(filesStart, 'filtering complete in');
+			filteredFiles.forEach(processFile.bind(this));
 			profile(start, 'css modules compilation complete in');
+			displayProfilingResults();
+			// console.dir(results);
 
 			function processFile(file) {
+				const sourceStart = profile();
 				const source = {
 					path: ImportPathHelpers.getImportPathInPackage(file),
 					contents: file.getContentsAsString()
 				};
+				profilingResults.sourceStart += profile(sourceStart);
+				const start = profile();
 
-				return processor.process(source, './', allFiles)
+				processor.process(source, './', allFiles)
+					.then(result => {
+						profilingResults.processor += profile(start);
+						results.push(`${file.getPathInPackage()}: ${profile(start)}`);
+						return result;
+					})
 					.then(result => {
 						// Save what we've compiled.
+						const start = profile();
 						this.addCompileResult(file, result);
+						profilingResults.addCompileResult += profile(start);
 					}).await();
+
+				profilingResults.processFileAfterAwait += profile(start);
+			}
+
+			function displayProfilingResults() {
+				displayFunctionProfilingResults();
+				processor.displayProfilingResults();
+
+				const keys = Object.keys(profilingResults);
+				keys.forEach(key=> {
+					console.log(`compileCssModules::${key}: ${profilingResults[key]}ms`);
+				});
 			}
 		}
 

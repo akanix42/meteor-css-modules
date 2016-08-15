@@ -35,6 +35,9 @@ function getDefaultOptions() {
 		outputCssFilePath: '{dirname}/{basename}{extname}',
 		passthroughPaths: [],
 		specificArchitecture: 'web',
+		profiling: {
+			postcssPlugins: true,
+		}
 	};
 }
 

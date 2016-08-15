@@ -1,8 +1,9 @@
 import postcssPlugins from './postcss-plugins';
 import pluginOptionsWrapper from './options';
 import getOutputPath from './get-output-path';
-
 import camelcase from 'camelcase';
+import profile, { profileFunction } from './helpers/profile';
+
 const postcss = Npm.require('postcss');
 const Parser = Npm.require('css-modules-loader-core/lib/parser');
 const pluginOptions = pluginOptionsWrapper.options;
@@ -13,25 +14,63 @@ export default class CssModulesProcessor {
 		this.importNumber = 0;
 		this.resultsByFile = {};
 		this.importsByFile = {};
+		this.isProfilingInProgress = false;
+		this.profilingResults = {
+			load: 0,
+			loadAlt: 0,
+			getSourceContents: 0,
+			promiseStart: 0,
+			process: 0,
+		}
+	}
+
+	displayProfilingResults() {
+		const keys = Object.keys(this.profilingResults);
+		keys.forEach(key=> {
+			console.log(`cssModulesProcess::${key}: ${this.profilingResults[key]}ms`);
+		});
 	}
 
 	process(_source, _relativeTo, allFiles) {
-		return processInternal.call(this, null, _source, _relativeTo);
+		const start = profile();
+		return processInternal.call(this, null, _source, _relativeTo)
+			.then(result => {
+				this.profilingResults.process += profile(start);
+				this.isProfilingInProgress = false;
+				return result;
+			});
 
 		function processInternal(parent, source, relativeTo, _trace) {
 			relativeTo = relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
+			const getSourceContentsStart = profile();
+
 			source = getSourceContents(source, relativeTo);
+			this.profilingResults.getSourceContents += profile(getSourceContentsStart);
 			let trace = _trace || String.fromCharCode(this.importNumber++);
 			if (parent) {
 				const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
 				parentImports.push(source.originalPath);
 			}
+			const promiseStart = profile();
 			return new Promise((resolve, reject) => {
+				this.profilingResults.promiseStart += profile(promiseStart);
+				let shouldSkipProfiling = this.isProfilingInProgress;
+				const loadStart = profile();
+
 				const result = this.resultsByFile[source.path];
 				if (result)
 					return resolve(parent ? result.tokens : result);
 
+
+				this.isProfilingInProgress = true;
+
 				this.load(source.contents, source.path, trace, processInternal.bind(this, source))
+					.then(result => {
+						if(!shouldSkipProfiling) {
+							this.profilingResults.load += profile(loadStart);
+						}
+						return result;
+					})
 					.then(({ injectableSource, exportTokens, sourceMap }) => {
 						const imports = this.importsByFile[source.path];
 						const result = this.resultsByFile[source.path] = {
@@ -42,7 +81,13 @@ export default class CssModulesProcessor {
 						};
 
 						resolve(parent ? result.tokens : result);
-					}, reject);
+					}, reject)
+					.then(result => {
+						if(!shouldSkipProfiling) {
+							this.profilingResults.loadAlt += profile(loadStart);
+						}
+						return result;
+					});
 			});
 		}
 
@@ -73,8 +118,8 @@ export default class CssModulesProcessor {
 	load(sourceString, sourcePath, trace, pathFetcher) {
 		const parser = new Parser(pathFetcher, trace);
 		sourcePath = ImportPathHelpers.getAbsoluteImportPath(sourcePath);
-		return postcss(postcssPlugins.concat([parser.plugin]))
-			.process(sourceString, {
+		const processor = profileFunction('postcss', postcss)(postcssPlugins.concat([profileFunction('cssModulesParser', parser.plugin)]));
+		return profileFunction('postcss#process', processor.process, processor)(sourceString, {
 				from: sourcePath,
 				to: getOutputPath(sourcePath, pluginOptions.outputCssFilePath),
 				map: {inline: false},
