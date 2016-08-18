@@ -13,7 +13,6 @@ import profile from './helpers/profile';
 
 let pluginOptions = pluginOptionsWrapper.options;
 recursive = Meteor.wrapAsync(recursiveUnwrapped);
-// clock function thanks to NextLocal: http://stackoverflow.com/a/34970550/1090626
 
 export default class CssModulesBuildPlugin extends CachingCompiler {
 	constructor() {
