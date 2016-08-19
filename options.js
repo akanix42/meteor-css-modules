@@ -54,8 +54,8 @@ function loadOptions() {
 	if (options.hash === pluginOptions.hash)
 		return pluginOptions.options;
 
-	options.hash = JSON.stringify(options);
 	options = processGlobalVariables(options);
+	options.hash = JSON.stringify(options);
 	options = R.merge(getDefaultOptions(), options || {});
 
 	processCssClassNamingConventionReplacements(options);
