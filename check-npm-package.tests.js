@@ -53,5 +53,4 @@ describe('checkNpmPackage', function() {
   it('should return true if a matching package version is installed', function() {
     expect(checkNpmPackage('eslint@^3.3.1')).to.be.true;
   });
-
 });
