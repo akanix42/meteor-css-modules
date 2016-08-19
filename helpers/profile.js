@@ -26,23 +26,28 @@ export default function profile(start, message) {
 }
 
 const profilingResults = {};
-export function profileFunction(name, fn, context=fn) {
-	// console.log('recording plugin time for', packageName)
-	profilingResults[name] = 0;
-	return function() {
+export function profileFunction(name, fn, context) {
+	profilingResults[name] = profilingResults[name] || 0;
+	return function(...args) {
 		const start = profile();
-		const result = fn.apply(context, arguments);
+
+		let result;
+		if (context === undefined)
+			result = fn(...args);
+		else
+			result = fn.apply(context, arguments);
 		if (result && result.then) {
-			return result.then(function(data) {
-				recordTime();
-				return data;
+			return result.then(function() {
+				recordTime(start);
 			});
 		}
-		// console.log('record plugin time', packageName)
-		recordTime();
-		return result;
 
-		function recordTime() {
+		recordTime(start);
+		console.log(name, );
+		if (result !== undefined)
+			return result;
+
+		function recordTime(start) {
 			profilingResults[name] += profile(start);
 		}
 	}

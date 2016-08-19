@@ -118,15 +118,20 @@ export default class CssModulesProcessor {
 	load(sourceString, sourcePath, trace, pathFetcher) {
 		const parser = new Parser(pathFetcher, trace);
 		sourcePath = ImportPathHelpers.getAbsoluteImportPath(sourcePath);
-		const processor = profileFunction('postcss', postcss)(postcssPlugins.concat([profileFunction('cssModulesParser', parser.plugin)]));
-		return profileFunction('postcss#process', processor.process, processor)(sourceString, {
-				from: sourcePath,
-				to: getOutputPath(sourcePath, pluginOptions.outputCssFilePath),
-				map: {inline: false},
-				parser: pluginOptions.parser ? Npm.require(pluginOptions.parser) : undefined
-			})
+		const wrappedParser = profileFunction('plugin: postcss: css-modules-loader-core', function (css, result) {
+			return parser.plugin(css, result);
+		});
+		// const processor = postcss(postcssPlugins.concat([parser.plugin]));
+		const processor = postcss(postcssPlugins.concat([wrappedParser]));
+		return processor.process(sourceString, {
+			from: sourcePath,
+			to: getOutputPath(sourcePath, pluginOptions.outputCssFilePath),
+			map: { inline: false },
+			parser: pluginOptions.parser ? Npm.require(pluginOptions.parser) : undefined
+		})
 			.then(result => {
 				let exportTokens = parser.exportTokens;
+				console.log('tokens', JSON.stringify(exportTokens, null, 2))
 				if (pluginOptions.jsClassNamingConvention.camelCase) {
 					let transformedTokens = {};
 					let keys = Object.keys(exportTokens);

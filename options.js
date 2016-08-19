@@ -20,7 +20,7 @@ function getDefaultOptions() {
 		cssClassNamingConvention: {
 			replacements: []
 		},
-		enableProfiling: false,
+		enableProfiling: true,
 		enableSassCompilation: ['scss', 'sass'],
 		enableStylusCompilation: ['styl', 'm.styl'],
 		explicitIncludes: [],

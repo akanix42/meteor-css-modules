@@ -41,7 +41,7 @@ function loadPlugins() {
 			"postcss-modules-values": {}
 		};
 	const plugins = [];
-
+	let i = 0;
 	R.forEach((pluginEntry)=> {
 		const packageName = pluginEntry[0];
 		let plugin = corePlugins[packageName] || Npm.require(packageName);
@@ -52,9 +52,18 @@ function loadPlugins() {
 			pluginEntryOptions = R.merge({ variables: options.globalVariablesJs }, pluginEntryOptions);
 
 		plugin = pluginEntryOptions !== undefined ? plugin(pluginEntryOptions) : plugin;
-		if (pluginOptions.profiling.postcssPlugins)
-			plugin = profileFunction(`postcss: ${packageName}`, plugin);
-		plugins.push(plugin);
+
+		function wrapper(...args) {
+			const result = plugin(...args);
+			// if (result && typeof result === 'function')
+			// 	return profileFunction(`postcss: ${packageName}`, result);
+			return result;
+		}
+
+		if (pluginOptions.profiling.postcssPlugins && i++ === 0)
+			plugins.push(plugin);
+		else
+			plugins.push(plugin);
 	}, R.toPairs(options));
 	return plugins;
 }
