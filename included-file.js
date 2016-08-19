@@ -1,6 +1,9 @@
 import path from 'path';
 import fs from 'fs';
 import sha1 from './sha1';
+import pluginOptionsWrapper from './options';
+
+const pluginOptions = pluginOptionsWrapper.options;
 
 export default class IncludedFile {
 	constructor(filePath, backingInputFile) {
@@ -8,6 +11,20 @@ export default class IncludedFile {
 		this.inputFile = backingInputFile;
 		this.extension = path.extname(this.path);
 		this.basename = path.basename(this.path);
+
+
+	}
+	async prepInputFile(file) {
+		file.referencedImportPaths = [];
+
+		file.contents = await (new Promise((resolve, reject) => fs.readFile(file.path, 'utf-8', function(err, result) {
+			if (err) reject(err);
+			resolve(result);
+		})));
+
+		if (pluginOptions.globalVariablesText)
+			file.contents = `${pluginOptions.globalVariablesText}\n\n${file.contents}`;
+		file.rawContents = file.contents;
 	}
 
 	addJavaScript(options) {
@@ -32,7 +49,7 @@ export default class IncludedFile {
 	}
 
 	getContentsAsString() {
-		return this.contents || (this.contents = fs.readFileSync(this.path, 'utf-8'));
+		return this.contents;
 	}
 
 	getDisplayPath() {

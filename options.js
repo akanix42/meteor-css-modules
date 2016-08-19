@@ -1,6 +1,7 @@
 import { R } from 'meteor/ramda:ramda';
 import checkNpmPackage from './check-npm-package';
 import { createReplacer } from './text-replacer';
+import sha1 from './sha1';
 
 import appModulePath from 'app-module-path';
 appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
@@ -35,23 +36,39 @@ function getDefaultOptions() {
 		outputCssFilePath: '{dirname}/{basename}{extname}',
 		passthroughPaths: [],
 		specificArchitecture: 'web',
+		hash: null
 	};
+}
+
+export function getHash() {
+	return pluginOptions.hash;
 }
 
 function loadOptions() {
 	let options = null;
-	if (fs.existsSync(optionsFilePath))
+	if (fs.existsSync(optionsFilePath)) {
 		options = cjson.load(optionsFilePath).cssModules;
-
+	}
 	options = options || {};
+	options.hash = sha1(JSON.stringify(options));
+	if (options.hash === pluginOptions.hash)
+		return pluginOptions.options;
+
+	options.hash = JSON.stringify(options);
 	options = processGlobalVariables(options);
 	options = R.merge(getDefaultOptions(), options || {});
 
 	processCssClassNamingConventionReplacements(options);
+	processPassthroughPathExpressions(options);
 	checkSassCompilation(options);
 	checkStylusCompilation(options);
 
 	return pluginOptions.options = options;
+}
+
+function processPassthroughPathExpressions(options) {
+	const createPatternRegExp = pattern => typeof pattern === 'string' ? new RegExp(pattern) : new RegExp(pattern[0], pattern[1]);
+	options.passthroughPaths = options.passthroughPaths.map(createPatternRegExp);
 }
 
 function processCssClassNamingConventionReplacements(options) {

@@ -8,88 +8,109 @@ const Parser = Npm.require('css-modules-loader-core/lib/parser');
 const pluginOptions = pluginOptionsWrapper.options;
 
 export default class CssModulesProcessor {
-	constructor(root, plugins) {
-		this.root = root;
+	constructor() {
 		this.importNumber = 0;
 		this.resultsByFile = {};
 		this.importsByFile = {};
+		this.filesByName = null;
 	}
 
-	process(_source, _relativeTo, allFiles) {
-		return processInternal.call(this, null, _source, _relativeTo);
+	async process(file, filesByName) {
+		this.filesByName = filesByName;
+		if (pluginOptions.passthroughPaths.some(regex => regex.test(file.getPathInPackage())))
+			return;
 
-		function processInternal(parent, source, relativeTo, _trace) {
-			relativeTo = relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
-			source = getSourceContents(source, relativeTo);
-			let trace = _trace || String.fromCharCode(this.importNumber++);
-			if (parent) {
-				const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
-				parentImports.push(source.originalPath);
-			}
-			return new Promise((resolve, reject) => {
-				const result = this.resultsByFile[source.path];
-				if (result)
-					return resolve(parent ? result.tokens : result);
+		const source = {
+			path: file.importPath,
+			contents: file.contents
+		};
 
-				this.load(source.contents, source.path, trace, processInternal.bind(this, source))
-					.then(({ injectableSource, exportTokens, sourceMap }) => {
-						const imports = this.importsByFile[source.path];
-						const result = this.resultsByFile[source.path] = {
-							source: injectableSource,
-							tokens: exportTokens,
-							sourceMap,
-							imports
-						};
+		const result = await this._processFile(source);
+		file.contents = result.css;
+		file.tokens = result.tokens;
+		file.sourceMap = result.sourceMap;
+		file.imports = result.imports;
+	}
 
-						resolve(parent ? result.tokens : result);
-					}, reject);
-			});
+	async _processFile(source, trace = String.fromCharCode(this.importNumber++)) {
+		const result = this.resultsByFile[source.path];
+		if (result) {
+				return result;
 		}
 
-		function getSourceContents(source, relativeTo) {
-			if (source instanceof String || typeof source === 'string') {
-				const originalPath = source.replace(/^["'](.*)["']$/, '$1');
-				source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
-				return {
-					path: source,
-					pathInApp: ImportPathHelpers.getAppRelativeImportPath(source),
-					originalPath,
-					contents: importModule(source)
-				};
-			}
-			return source;
+		const { css, tokens, sourceMap } = await this._transpileFile(source.contents, source.path, trace, this._importFile.bind(this, source));
+
+		const imports = this.importsByFile[source.path];
+		return this.resultsByFile[source.path] = {
+			css,
+			tokens,
+			sourceMap,
+			imports
+		};
+	}
+
+	async _importFile(parent, source, relativeTo, trace) {
+		relativeTo = fixRelativePath(relativeTo);
+		source = loadFile(source, relativeTo, this.filesByName);
+		const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
+		parentImports.push(source.originalPath);
+
+		return await (this._processFile(source, trace)).tokens;
+
+		function fixRelativePath(relativeTo) {
+			return relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
 		}
 
-		function importModule(importPath) {
+		function loadFile(source, relativeTo, filesByName) {
+			if (source instanceof Object)
+				return source;
+
+			const originalPath = source.replace(/^["'](.*)["']$/, '$1');
+			source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
+			return {
+				path: source,
+				originalPath,
+				contents: loadFileContents(source, filesByName)
+			};
+		}
+
+		function loadFileContents(importPath, filesByName) {
 			try {
-				const file = allFiles.get(importPath);
-				return file.getContentsAsString();
+				const file = filesByName.get(importPath);
+				return file.contents;
 			} catch (e) {
 				throw new Error(`CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`);
 			}
 		}
+
 	}
 
-	load(sourceString, sourcePath, trace, pathFetcher) {
-		const parser = new Parser(pathFetcher, trace);
+	async _transpileFile(sourceString, sourcePath, trace, pathFetcher) {
+		const cssModulesParser = new Parser(pathFetcher, trace);
 		sourcePath = ImportPathHelpers.getAbsoluteImportPath(sourcePath);
-		return postcss(postcssPlugins.concat([parser.plugin]))
+		const result = await postcss(postcssPlugins.concat([cssModulesParser.plugin]))
 			.process(sourceString, {
 				from: sourcePath,
 				to: getOutputPath(sourcePath, pluginOptions.outputCssFilePath),
-				map: {inline: false},
+				map: { inline: false },
 				parser: pluginOptions.parser ? Npm.require(pluginOptions.parser) : undefined
-			})
-			.then(result => {
-				let exportTokens = parser.exportTokens;
-				if (pluginOptions.jsClassNamingConvention.camelCase) {
-					let transformedTokens = {};
-					let keys = Object.keys(exportTokens);
-					keys.forEach(key=>transformedTokens[camelcase(key)]=exportTokens[key]);
-					exportTokens = transformedTokens;
-				}
-				return {injectableSource: result.css, exportTokens, sourceMap: result.map.toJSON()};
 			});
+
+		return {
+			css: result.css,
+			tokens: transformTokens(cssModulesParser.exportTokens),
+			sourceMap: result.map.toJSON()
+		};
+
+		function transformTokens(tokens) {
+			if (!pluginOptions.jsClassNamingConvention.camelCase)
+				return tokens;
+
+			let transformedTokens = {};
+			let keys = Object.keys(tokens);
+			keys.forEach(key=>transformedTokens[camelcase(key)] = tokens[key]);
+			return transformedTokens;
+		}
 	}
 
 };
