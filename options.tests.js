@@ -1,6 +1,5 @@
 /* eslint-env node, mocha */
 import chai from 'chai';
-import logger from './logger';
 import packageOptionsWrapper, { reloadOptions } from './options';
 import cjson from 'cjson';
 import path from 'path';

@@ -2,6 +2,7 @@
 import checkNpmPackage from './check-npm-package';
 import chai from 'chai';
 import logger from './logger';
+
 const expect = chai.expect;
 
 describe('checkNpmPackage', function() {
