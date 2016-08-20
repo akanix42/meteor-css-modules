@@ -1,9 +1,10 @@
-/* globals Npm, R */
+/* globals Npm */
 import pluginOptionsWrapper from './options';
 const pluginOptions = pluginOptionsWrapper.options;
 import fs from 'fs';
 import cjson from 'cjson';
 import path from 'path';
+import R from 'ramda';
 import ImportPathHelpers from './helpers/import-path-helpers';
 
 const corePlugins = {

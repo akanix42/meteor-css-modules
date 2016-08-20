@@ -13,7 +13,6 @@ Package.registerBuildPlugin({
     'babel-compiler@6.8.2',
     'ecmascript@0.4.5',
     'caching-compiler@1.0.5',
-    'ramda:ramda@0.19.0',
     'underscore@1.0.7',
   ],
   npmDependencies: {

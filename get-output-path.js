@@ -1,4 +1,5 @@
-/* globals Npm, R */
+/* globals Npm */
+import R from 'ramda';
 const path = Npm.require('path');
 const format = Npm.require('string-template');
 
