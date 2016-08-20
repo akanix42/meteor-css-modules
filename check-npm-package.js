@@ -1,4 +1,3 @@
-/* globals ImportPathHelpers */
 /**
  * Adapted from https://github.com/tmeasday/check-npm-versions
  */
@@ -6,6 +5,7 @@ import fs from 'fs';
 import semver from 'semver';
 import colors from 'colors';
 import logger from './logger';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 export default function checkNpmPackage(packageWithVersion) {
   const [ packageName, packageVersion ] = packageWithVersion.split('@');

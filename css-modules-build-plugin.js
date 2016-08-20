@@ -1,4 +1,4 @@
-/* globals Babel, ImportPathHelpers, JSON */
+/* globals Babel, JSON */
 import path from 'path';
 import { MultiFileCachingCompiler } from 'meteor/caching-compiler';
 import { Meteor } from 'meteor/meteor';
@@ -10,6 +10,7 @@ import IncludedFile from './included-file';
 import pluginOptionsWrapper, { reloadOptions, getHash as getPluginOptionsHash } from './options';
 import getOutputPath from './get-output-path';
 import profile from './helpers/profile';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 let pluginOptions = pluginOptionsWrapper.options;
 const recursive = Meteor.wrapAsync(recursiveUnwrapped);

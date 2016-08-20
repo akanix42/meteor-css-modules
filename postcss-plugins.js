@@ -1,9 +1,10 @@
-/* globals Npm, ImportPathHelpers, R */
+/* globals Npm, R */
 import pluginOptionsWrapper from './options';
 const pluginOptions = pluginOptionsWrapper.options;
-const fs = Npm.require('fs');
-const cjson = Npm.require('cjson');
-const path = Npm.require('path');
+import fs from 'fs';
+import cjson from 'cjson';
+import path from 'path';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 const corePlugins = {
   'postcss-modules-local-by-default': Npm.require('postcss-modules-local-by-default'),

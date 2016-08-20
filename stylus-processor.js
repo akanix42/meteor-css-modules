@@ -1,9 +1,9 @@
-/* globals ImportPathHelpers */
 import Future from 'fibers/future';
 import path from 'path';
 import fs from 'fs';
 import IncludedFile from './included-file';
 import pluginOptions from './options';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 const stylus = pluginOptions.enableStylusCompilation ? require('stylus') : null;
 

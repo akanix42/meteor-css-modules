@@ -1,8 +1,8 @@
-/* globals ImportPathHelpers */
 import path from 'path';
 import fs from 'fs';
 import IncludedFile from './included-file';
 import pluginOptionsWrapper from './options';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 const pluginOptions = pluginOptionsWrapper.options;
 

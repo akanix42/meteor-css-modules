@@ -1,7 +1,8 @@
-/* globals ImportPathHelpers, Npm */
+/* globals Npm */
 import postcssPlugins from './postcss-plugins';
 import pluginOptionsWrapper from './options';
 import getOutputPath from './get-output-path';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 import camelcase from 'camelcase';
 const postcss = Npm.require('postcss');

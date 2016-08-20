@@ -1,5 +1,4 @@
 /* eslint-env node, mocha */
-import './test-helpers/import-path-helpers.stub';
 import checkNpmPackage from './check-npm-package';
 import chai from 'chai';
 import logger from './logger';

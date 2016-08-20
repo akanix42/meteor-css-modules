@@ -1,9 +1,9 @@
-/* globals ImportPathHelpers */
 import R from 'ramda';
 import checkNpmPackage from './check-npm-package';
 import { createReplacer } from './text-replacer';
 import sha1 from './sha1';
 import cjson from 'cjson';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 import path from 'path';
 import fs from 'fs';

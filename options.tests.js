@@ -1,11 +1,10 @@
 /* eslint-env node, mocha */
-/* globals ImportPathHelpers */
-import './test-helpers/import-path-helpers.stub';
 import chai from 'chai';
 import logger from './logger';
 import packageOptionsWrapper, { reloadOptions } from './options';
 import cjson from 'cjson';
 import path from 'path';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 const expect = chai.expect;
 

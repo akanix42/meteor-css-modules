@@ -1,6 +1,7 @@
-/* globals ImportPathHelpers, Plugin */
+/* globals Plugin */
 import CssModulesBuildPlugin from './css-modules-build-plugin';
 import pluginOptionsWrapper from './options';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 const pluginOptions = pluginOptionsWrapper.options;
 
