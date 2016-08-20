@@ -29,6 +29,7 @@ Package.registerBuildPlugin({
     'postcss-modules-extract-imports': '1.0.0',
     'postcss-modules-scope': '1.0.0',
     'postcss-modules-values': '1.1.1',
+    'ramda': '0.19.0',
     'recursive-readdir': '1.3.0',
     'string-template': '1.0.0',
   },

@@ -1,16 +1,16 @@
-/* globals Npm, ImportPathHelpers */
-import { R } from 'meteor/ramda:ramda';
+/* globals ImportPathHelpers */
+import R from 'ramda';
 import checkNpmPackage from './check-npm-package';
 import { createReplacer } from './text-replacer';
 import sha1 from './sha1';
+import cjson from 'cjson';
 
+import path from 'path';
+import fs from 'fs';
 import appModulePath from 'app-module-path';
 appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
 
-const path = Npm.require('path');
-const fs = Npm.require('fs');
-const cjson = Npm.require('cjson');
-const optionsFilePath = path.resolve(process.cwd(), 'package.json');
+const optionsFilePath = path.join(ImportPathHelpers.basePath, 'package.json');
 
 const pluginOptions = {};
 loadOptions();
@@ -51,14 +51,13 @@ function loadOptions() {
     options = cjson.load(optionsFilePath).cssModules;
   }
   options = options || {};
+
+  options = processGlobalVariables(options);
+  options = R.merge(getDefaultOptions(), options || {});
   options.hash = sha1(JSON.stringify(options));
   if (options.hash === pluginOptions.hash) {
     return pluginOptions.options;
   }
-
-  options = processGlobalVariables(options);
-  options.hash = JSON.stringify(options);
-  options = R.merge(getDefaultOptions(), options || {});
 
   processCssClassNamingConventionReplacements(options);
   processPassthroughPathExpressions(options);
