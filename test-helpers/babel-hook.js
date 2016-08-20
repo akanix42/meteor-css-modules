@@ -21,3 +21,5 @@ require('babel-register')({
 })
 
 require('babel-polyfill')
+
+require('./import-path-helpers.stub');

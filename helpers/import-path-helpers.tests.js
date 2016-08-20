@@ -4,7 +4,16 @@ import chai from 'chai';
 
 chai.should();
 
+let basePath;
 describe('ImportPathHelpers', function() {
+  before(function() {
+    basePath = ImportPathHelpers.basePath;
+  });
+
+  after(function() {
+    ImportPathHelpers.basePath = basePath;
+  });
+
   describe('getAbsoluteImportPath', function() {
     it('should return the input path if the input is absolute', function z() {
       const inputPath = 'C:/test';
