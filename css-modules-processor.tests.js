@@ -64,5 +64,47 @@ describe('CssModulesProcessor', function() {
         'testTwo': '_test__test-two'
       });
     });
+
+    it('should process normal (non-passthrough) files', async function z() {
+      let wasCalled = false;
+      const file = {
+        importPath: './test.css',
+        getPathInPackage() {
+          return './test.css';
+        }
+      };
+      pluginOptions.passthroughPaths.push(/not-a-match/);
+
+      const processor = new CssModulesProcessor(pluginOptions);
+      processor._processFile = function() {
+        wasCalled = true;
+        return {};
+      };
+
+      await processor.process(file);
+
+      expect(wasCalled).to.be.true;
+    });
+
+    it('should skip processing of passthrough files', async function z() {
+      let wasCalled = false;
+      const file = {
+        importPath: './test.css',
+        getPathInPackage() {
+          return './test.css';
+        }
+      };
+      pluginOptions.passthroughPaths.push(/test/);
+
+      const processor = new CssModulesProcessor(pluginOptions);
+      processor._processFile = function() {
+        wasCalled = true;
+        return {};
+      };
+
+      await processor.process(file);
+
+      expect(wasCalled).to.be.false;
+    });
   });
 });
