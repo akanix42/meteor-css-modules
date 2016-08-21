@@ -47,7 +47,7 @@ describe('CssModulesProcessor', function() {
       });
     });
 
-    it('should camelcase the JSON class names when the camelcase option is enabled', async function z() {
+    it('should camelcase the JS class names when the camelcase option is enabled', async function z() {
       const file = {
         importPath: './test.css',
         contents: '.test { color: red; } .test-two { color: blue; }',
