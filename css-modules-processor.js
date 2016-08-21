@@ -1,25 +1,24 @@
 /* globals Npm */
 import postcssPlugins from './postcss-plugins';
-import pluginOptionsWrapper from './options';
 import getOutputPath from './get-output-path';
 import ImportPathHelpers from './helpers/import-path-helpers';
 
 import camelcase from 'camelcase';
 const postcss = Npm.require('postcss');
 const Parser = Npm.require('css-modules-loader-core/lib/parser');
-const pluginOptions = pluginOptionsWrapper.options;
 
 export default class CssModulesProcessor {
-  constructor() {
+  constructor(pluginOptions) {
     this.importNumber = 0;
     this.resultsByFile = {};
     this.importsByFile = {};
     this.filesByName = null;
+    this.pluginOptions = pluginOptions;
   }
 
   async process(file, filesByName) {
     this.filesByName = filesByName;
-    if (pluginOptions.passthroughPaths.some(regex => regex.test(file.getPathInPackage()))) {
+    if (this.pluginOptions.passthroughPaths.some(regex => regex.test(file.getPathInPackage()))) {
       return;
     }
 
@@ -94,19 +93,19 @@ export default class CssModulesProcessor {
     const result = await postcss(postcssPlugins.concat([cssModulesParser.plugin]))
       .process(sourceString, {
         from: sourcePath,
-        to: getOutputPath(sourcePath, pluginOptions.outputCssFilePath),
+        to: getOutputPath(sourcePath, this.pluginOptions.outputCssFilePath),
         map: { inline: false },
-        parser: pluginOptions.parser ? Npm.require(pluginOptions.parser) : undefined
+        parser: this.pluginOptions.parser ? Npm.require(this.pluginOptions.parser) : undefined
       });
 
     return {
       css: result.css,
-      tokens: transformTokens(cssModulesParser.exportTokens),
+      tokens: transformTokens(cssModulesParser.exportTokens, this.pluginOptions.jsClassNamingConvention),
       sourceMap: result.map.toJSON()
     };
 
-    function transformTokens(tokens) {
-      if (!pluginOptions.jsClassNamingConvention.camelCase) {
+    function transformTokens(tokens, jsClassNamingConvention) {
+      if (!jsClassNamingConvention.camelCase) {
         return tokens;
       }
 

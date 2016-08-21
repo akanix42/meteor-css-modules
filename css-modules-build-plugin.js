@@ -42,7 +42,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
     // this._prepInputFiles(files);
     this._setupPreprocessors();
-    this.cssModulesProcessor = new CssModulesProcessor();
+    this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
     this.filesByName = null;
 
     super.processFilesForTarget(files);
