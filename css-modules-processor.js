@@ -57,7 +57,7 @@ export default class CssModulesProcessor {
     const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
     parentImports.push(source.originalPath);
 
-    return await (this._processFile(source, trace)).tokens;
+    return (await this._processFile(source, trace)).tokens;
 
     function fixRelativePath(relativeTo) {
       return relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
