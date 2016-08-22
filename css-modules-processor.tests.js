@@ -171,6 +171,35 @@ describe('CssModulesProcessor', function() {
         }
       });
     });
+
+    describe('file.sourcemap', function() {
+      it('should generate a sourcemap', async function z() {
+        const file = {
+          importPath: './test.css',
+          contents: '.test { color: red; } .test2 { color: blue; }',
+          referencedImportPaths: [],
+          getPathInPackage() {
+            return './test.css';
+          }
+        };
+
+        const processor = new CssModulesProcessor({ ...reloadOptions() });
+        await processor.process(file);
+
+        expect(file.sourceMap).to.eql({
+          'file': 'test.css',
+          'mappings': 'AAAA,eAAQ,WAAW,EAAE,CAAC,gBAAS,YAAY,EAAE',
+          'names': [],
+          'sources': [
+            'test.css'
+          ],
+          'sourcesContent': [
+            '.test { color: red; } .test2 { color: blue; }'
+          ],
+          'version': 3
+        });
+      });
+    });
   });
 });
 
