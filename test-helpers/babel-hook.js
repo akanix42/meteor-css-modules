@@ -7,8 +7,8 @@ require('babel-register')({
     'es2015'
   ],
   plugins: [
-    // 'transform-es2015-modules-commonjs',
-    // 'transform-es2015-destructuring',
+    'transform-object-rest-spread',
+    'transform-es2015-destructuring',
     'syntax-async-functions',
     'syntax-async-generators',
     'transform-regenerator',

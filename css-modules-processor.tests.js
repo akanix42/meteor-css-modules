@@ -2,19 +2,12 @@
 import './test-helpers/global-variables.stub';
 import chai from 'chai';
 import CssModulesProcessor from './css-modules-processor';
-import pluginOptionsWrapper, { reloadOptions } from './options';
+import { reloadOptions } from './options';
+import ImportPathHelpers from './helpers/import-path-helpers';
 
 const expect = chai.expect;
 
-let pluginOptions = pluginOptionsWrapper.options;
 describe('CssModulesProcessor', function() {
-  before(function() {
-    pluginOptions = reloadOptions();
-  });
-  after(function() {
-    pluginOptions = reloadOptions();
-  });
-
   describe('#process()', function() {
     it('should transpile the passed in file', async function z() {
       const file = {
@@ -24,7 +17,8 @@ describe('CssModulesProcessor', function() {
           return './test.css';
         }
       };
-      const processor = new CssModulesProcessor(pluginOptions);
+
+      const processor = new CssModulesProcessor({...reloadOptions()});
       await processor.process(file);
 
       expect(file.contents).to.equal('._test__test { color: red; } ._test__test2 { color: blue; }\n/*# sourceMappingURL=test.css.map */');
@@ -38,6 +32,7 @@ describe('CssModulesProcessor', function() {
           return './test.css';
         }
       };
+      const pluginOptions = {...reloadOptions()};
       pluginOptions.passthroughPaths.push(/test/);
 
       const processor = new CssModulesProcessor(pluginOptions);
@@ -54,6 +49,7 @@ describe('CssModulesProcessor', function() {
           return './test.css';
         }
       };
+      const pluginOptions = {...reloadOptions()};
       const processor = new CssModulesProcessor(pluginOptions);
       await processor.process(file);
 
@@ -71,6 +67,7 @@ describe('CssModulesProcessor', function() {
           return './test.css';
         }
       };
+      const pluginOptions = {...reloadOptions()};
       pluginOptions.jsClassNamingConvention.camelCase = true;
       const processor = new CssModulesProcessor(pluginOptions);
       await processor.process(file);
