@@ -30,6 +30,22 @@ describe('CssModulesProcessor', function() {
       expect(file.contents).to.equal('._test__test { color: red; } ._test__test2 { color: blue; }\n/*# sourceMappingURL=test.css.map */');
     });
 
+    it('should not transpile passthrough files', async function z() {
+      const file = {
+        importPath: './test.css',
+        contents: '.test { color: red; } .test2 { color: blue; }',
+        getPathInPackage() {
+          return './test.css';
+        }
+      };
+      pluginOptions.passthroughPaths.push(/test/);
+
+      const processor = new CssModulesProcessor(pluginOptions);
+      await processor.process(file);
+
+      expect(file.contents).to.equal('.test { color: red; } .test2 { color: blue; }');
+    });
+
     it('should export the class names as an object', async function z() {
       const file = {
         importPath: './test.css',
@@ -65,46 +81,5 @@ describe('CssModulesProcessor', function() {
       });
     });
 
-    it('should process normal (non-passthrough) files', async function z() {
-      let wasCalled = false;
-      const file = {
-        importPath: './test.css',
-        getPathInPackage() {
-          return './test.css';
-        }
-      };
-      pluginOptions.passthroughPaths.push(/not-a-match/);
-
-      const processor = new CssModulesProcessor(pluginOptions);
-      processor._processFile = function() {
-        wasCalled = true;
-        return {};
-      };
-
-      await processor.process(file);
-
-      expect(wasCalled).to.be.true;
-    });
-
-    it('should skip processing of passthrough files', async function z() {
-      let wasCalled = false;
-      const file = {
-        importPath: './test.css',
-        getPathInPackage() {
-          return './test.css';
-        }
-      };
-      pluginOptions.passthroughPaths.push(/test/);
-
-      const processor = new CssModulesProcessor(pluginOptions);
-      processor._processFile = function() {
-        wasCalled = true;
-        return {};
-      };
-
-      await processor.process(file);
-
-      expect(wasCalled).to.be.false;
-    });
   });
 });
