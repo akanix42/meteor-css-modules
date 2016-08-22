@@ -12,6 +12,7 @@ export default class CssModulesProcessor {
     this.importNumber = 0;
     this.resultsByFile = {};
     this.importsByFile = {};
+    this.importTreeByFile = {};
     this.filesByName = null;
     this.pluginOptions = pluginOptions;
   }
@@ -32,6 +33,7 @@ export default class CssModulesProcessor {
     file.tokens = result.tokens;
     file.sourceMap = result.sourceMap;
     file.imports = result.imports;
+    file.referencedImportPaths = [...new Set([...file.referencedImportPaths, ...result.importTree])];
   }
 
   async _processFile(source, trace = String.fromCharCode(this.importNumber++)) {
@@ -43,11 +45,13 @@ export default class CssModulesProcessor {
     const { css, tokens, sourceMap } = await this._transpileFile(source.contents, source.path, trace, this._importFile.bind(this, source));
 
     const imports = this.importsByFile[source.path];
+    const importTree = this._generateImportTree(source.path);
     return this.resultsByFile[source.path] = {
       css,
       tokens,
       sourceMap,
-      imports
+      imports,
+      importTree
     };
   }
 
@@ -55,7 +59,7 @@ export default class CssModulesProcessor {
     relativeTo = fixRelativePath(relativeTo);
     source = loadFile(source, relativeTo, this.filesByName);
     const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
-    parentImports.push(source.originalPath);
+    parentImports.push({ relativePath: source.originalPath, absolutePath: source.path });
 
     return (await this._processFile(source, trace)).tokens;
 
@@ -114,5 +118,19 @@ export default class CssModulesProcessor {
       keys.forEach(key => transformedTokens[camelcase(key)] = tokens[key]);
       return transformedTokens;
     }
+  }
+
+  _generateImportTree(filePath) {
+    /* If we've already worked out the import tree, return it. */
+    let imports = this.importTreeByFile[filePath];
+    if (imports) return imports;
+
+    /* If this file has no imports, return an empty array for concatenating with referencedImportPaths. */
+    imports = this.importsByFile[filePath];
+    if (!imports) return [];
+
+    /* If this file has imports, traverse them to build the import tree. */
+    const absoluteImports = imports.map(importedFile => importedFile.absolutePath);
+    return this.importTreeByFile[filePath] = absoluteImports.concat(absoluteImports.reduce((combinedImports, importPath) => combinedImports.concat(this._generateImportTree(importPath)), []));
   }
 };
