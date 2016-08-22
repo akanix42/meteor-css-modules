@@ -44,7 +44,7 @@ export default class CssModulesProcessor {
 
     const { css, tokens, sourceMap } = await this._transpileFile(source.contents, source.path, trace, this._importFile.bind(this, source));
 
-    const imports = this.importsByFile[source.path];
+    const imports = (this.importsByFile[source.path] || []).map(importedFile => importedFile.relativePath);
     const importTree = this._generateImportTree(source.path);
     return this.resultsByFile[source.path] = {
       css,

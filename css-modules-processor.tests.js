@@ -150,8 +150,27 @@ describe('CssModulesProcessor', function() {
       });
     });
 
-    // TODO fix the Babel file.imports to the importedFile.relativePath property
+    describe('file.imports', function() {
+      it('should list the files that the current file imports directly', async function z() {
+        const allFiles = new Map();
+        addFile(generateFileObject('./direct-import1.css', '.test { color: red; }'));
+        addFile(generateFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
+        addFile(generateFileObject('./indirect-import.css', '.test { color: red; }'));
+        const file = generateFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
+        const pluginOptions = { ...reloadOptions() };
+        const processor = new CssModulesProcessor(pluginOptions);
+        await processor.process(file, allFiles);
 
+        expect(file.imports).to.eql([
+          './direct-import1.css',
+          './direct-import2.css'
+        ]);
+
+        function addFile(file) {
+          allFiles.set(file.importPath, file);
+        }
+      });
+    });
   });
 });
 
