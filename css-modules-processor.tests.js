@@ -102,7 +102,7 @@ describe('CssModulesProcessor', function() {
       }
     });
 
-    it('should build a deduplicated list of all the files that the current file imports directly or indirectly', async function z() {
+    it('should list all of the files that the current file imports', async function z() {
       const allFiles = new Map();
       addFile(generateFileObject('./direct-import1.css', '.test { color: red; }'));
       addFile(generateFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
@@ -113,6 +113,28 @@ describe('CssModulesProcessor', function() {
       await processor.process(file, allFiles);
 
       expect(file.referencedImportPaths).to.eql([
+        'D:/projects/meteor-css-modules/direct-import1.css',
+        'D:/projects/meteor-css-modules/direct-import2.css',
+        'D:/projects/meteor-css-modules/indirect-import.css'
+      ]);
+
+      function addFile(file) {
+        allFiles.set(file.importPath, file);
+      }
+    });
+
+    it('should build a deduplicated list of all the files that the current file imports directly or indirectly', async function z() {
+      const allFiles = new Map();
+      addFile(generateFileObject('./direct-import1.css', '.test { color: red; }'));
+      addFile(generateFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
+      addFile(generateFileObject('./indirect-import.css', '.test { composes: test from "./direct-import1.css"; }'));
+      const file = generateFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
+      const pluginOptions = {...reloadOptions()};
+      const processor = new CssModulesProcessor(pluginOptions);
+      await processor.process(file, allFiles);
+
+      expect(file.referencedImportPaths).to.eql([
+        'D:/projects/meteor-css-modules/direct-import1.css',
         'D:/projects/meteor-css-modules/direct-import2.css',
         'D:/projects/meteor-css-modules/indirect-import.css'
       ]);

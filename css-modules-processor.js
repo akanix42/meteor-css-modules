@@ -58,7 +58,7 @@ export default class CssModulesProcessor {
   async _importFile(parent, source, relativeTo, trace) {
     relativeTo = fixRelativePath(relativeTo);
     source = loadFile(source, relativeTo, this.filesByName);
-    const parentImports = this.importsByFile[parent.path] = (this.importsByFile[source.path] || []);
+    const parentImports = this.importsByFile[parent.path] = (this.importsByFile[parent.path] || []);
     parentImports.push({ relativePath: source.originalPath, absolutePath: source.path });
 
     return (await this._processFile(source, trace)).tokens;
