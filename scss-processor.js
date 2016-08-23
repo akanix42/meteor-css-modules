@@ -1,17 +1,15 @@
 import path from 'path';
 import fs from 'fs';
 import IncludedFile from './included-file';
-import pluginOptionsWrapper from './options';
 import ImportPathHelpers from './helpers/import-path-helpers';
-
-const pluginOptions = pluginOptionsWrapper.options;
-
-const sass = pluginOptions.enableSassCompilation ? require('node-sass') : null;
+import logger from './logger';
 
 export default class ScssProcessor {
-  constructor() {
+  constructor(pluginOptions) {
     this.fileCache = {};
     this.filesByName = null;
+    this.pluginOptions = pluginOptions;
+    this.sass = pluginOptions.enableSassCompilation ? require('node-sass') : null;
   }
 
   isRoot(inputFile) {
@@ -28,13 +26,13 @@ export default class ScssProcessor {
   }
 
   shouldProcess(file) {
-    return isScssFile(file);
+    return isScssFile.call(this, file);
 
     function isScssFile(file) {
-      if (pluginOptions.enableSassCompilation === true) return true;
+      if (typeof this.pluginOptions.enableSassCompilation === 'boolean') return this.pluginOptions.enableSassCompilation;
 
       const extension = path.extname(file.getPathInPackage()).substring(1);
-      return pluginOptions.enableSassCompilation.indexOf(extension) !== -1;
+      return this.pluginOptions.enableSassCompilation.indexOf(extension) !== -1;
     }
   }
 
@@ -43,14 +41,14 @@ export default class ScssProcessor {
     try {
       this._process(file);
     } catch (err) {
-      const numberOfAdditionalLines = pluginOptions.globalVariablesTextLineCount
-        ? pluginOptions.globalVariablesTextLineCount + 1
+      const numberOfAdditionalLines = this.pluginOptions.globalVariablesTextLineCount
+        ? this.pluginOptions.globalVariablesTextLineCount + 1
         : 0;
       const adjustedLineNumber = err.line - numberOfAdditionalLines;
-      console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-      console.error(`Processing Step: SCSS compilation`);
-      console.error(`Unable to compile ${file.importPath}\nLine: ${adjustedLineNumber}, Column: ${err.column}\n${err}`);
-      console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      logger.error(`Processing Step: SCSS compilation`);
+      logger.error(`Unable to compile ${file.importPath}\nLine: ${adjustedLineNumber}, Column: ${err.column}\n${err}`);
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
       throw err;
     }
   }
@@ -70,7 +68,7 @@ export default class ScssProcessor {
 
   _discoverImportPath(importPath) {
     const potentialPaths = [importPath];
-    const potentialFileExtensions = pluginOptions.enableSassCompilation === true ? pluginOptions.extensions : pluginOptions.enableSassCompilation;
+    const potentialFileExtensions = this.pluginOptions.enableSassCompilation === true ? this.pluginOptions.extensions : this.pluginOptions.enableSassCompilation;
 
     if (!path.extname(importPath)) {
       potentialFileExtensions.forEach(extension => potentialPaths.push(`${importPath}.${extension}`));
@@ -80,7 +78,7 @@ export default class ScssProcessor {
     }
 
     for (let i = 0, potentialPath = potentialPaths[i]; i < potentialPaths.length; i++, potentialPath = potentialPaths[i]) {
-      if (fs.existsSync(potentialPaths[i]) && fs.lstatSync(potentialPaths[i]).isFile()) {
+      if (this.filesByName.has(potentialPath) || (fs.existsSync(potentialPaths[i]) && fs.lstatSync(potentialPaths[i]).isFile())) {
         return potentialPath;
       }
     }
@@ -97,10 +95,10 @@ export default class ScssProcessor {
       sourceMapRoot: '.',
       indentedSyntax: sourceFile.file.getExtension() === 'sass',
       outFile: `.${sourceFile.file.getBasename()}`,
-      importer: this._importFile.bind(this),
+      importer: this._importFile.bind(this, sourceFile),
       includePaths: [],
       file: sourceFile.path,
-      data: sourceFile.rawContents
+      data: sourceFile.contents
     };
 
     /* Empty options.data workaround from fourseven:scss */
@@ -108,27 +106,31 @@ export default class ScssProcessor {
       sassOptions.data = '$fakevariable : blue;';
     }
 
-    const output = sass.renderSync(sassOptions);
-    return { css: output.css.toString('utf-8'), sourceMap: output.map };
+    const output = this.sass.renderSync(sassOptions);
+    return { css: output.css.toString('utf-8'), sourceMap: JSON.parse(output.map.toString('utf-8')) };
   }
 
-  _importFile(sourceFilePath, relativeTo, rootFile) {
+  _importFile(rootFile, sourceFilePath, relativeTo) {
     let importPath = ImportPathHelpers.getImportPathRelativeToFile(sourceFilePath, relativeTo);
     importPath = this._discoverImportPath(importPath);
-    let inputFile = this.filesByName[importPath];
+    let inputFile = this.filesByName.get(importPath);
     if (inputFile) {
-      rootFile.referencedImportPaths.push(importPath);
+      rootFile.file.referencedImportPaths.push(importPath);
     } else {
       this._createIncludedFile(importPath, rootFile);
     }
 
-    return this._wrapFileForNodeSass(inputFile);
+    return this._wrapFileForNodeSassImport(inputFile);
   }
 
   _createIncludedFile(importPath, rootFile) {
     const file = new IncludedFile(importPath, rootFile);
     file.prepInputFile().await();
     this.filesByName.set(importPath, file);
+  }
+
+  _wrapFileForNodeSassImport(file) {
+    return { contents: file.rawContents, file: file.importPath };
   }
 
 };
