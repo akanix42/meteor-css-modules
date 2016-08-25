@@ -4,7 +4,7 @@ import { MultiFileCachingCompiler } from 'meteor/caching-compiler';
 import { Meteor } from 'meteor/meteor';
 import recursiveUnwrapped from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
-import StylusProcessor from './stylus-processor';
+// import StylusProcessor from './stylus-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
 import pluginOptionsWrapper, { reloadOptions, getHash as getPluginOptionsHash } from './options';
@@ -104,9 +104,9 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     if (pluginOptions.enableSassCompilation) {
       this.preprocessors.push(new ScssProcessor('./'));
     }
-    if (pluginOptions.enableStylusCompilation) {
-      this.preprocessors.push(new StylusProcessor('./'));
-    }
+    // if (pluginOptions.enableStylusCompilation) {
+    //   this.preprocessors.push(new StylusProcessor('./'));
+    // }
   }
 
   isRoot(inputFile) {
