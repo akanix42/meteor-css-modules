@@ -1,6 +1,9 @@
 /* eslint-env node, mocha */
+import './test-helpers/import-path-helpers.stub';
 import chai from 'chai';
+import ImportPathHelpers from './helpers/import-path-helpers';
 import mock from 'mock-require';
+import generateFileObject from './test-helpers/generate-file-object';
 
 const expect = chai.expect;
 
@@ -193,6 +196,35 @@ describe('CssModulesBuildPlugin', function() {
       buildPlugin.isRoot({});
 
       expect(calledIsRootList).to.eql([true, true, false]);
+    });
+  });
+
+  describe('#compileResultSize', function() {
+    it('should return the length of the stringified compile result', function z() {
+      const buildPlugin = new CssModulesBuildPlugin();
+
+      expect(buildPlugin.compileResultSize({})).to.equal(2);
+      expect(buildPlugin.compileResultSize({ test: 1 })).to.equal(10);
+    });
+  });
+
+  describe('#getCacheKey', function() {
+    it('should return the inputFile`s source hash', function z() {
+      const buildPlugin = new CssModulesBuildPlugin();
+      const result = 'test';
+      const file = { getSourceHash: () => result };
+
+      expect(buildPlugin.getCacheKey(file)).to.equal(result);
+    });
+  });
+
+  describe('#getAbsoluteImportPath', function() {
+    it('should return the inputFile`s importPath as calculated by ImportPathHelpers', function z() {
+      const buildPlugin = new CssModulesBuildPlugin();
+      const file = generateFileObject('./test.css');
+      const result = `${ImportPathHelpers.basePath.replace(/\\/g, '/')}/test.css`;
+
+      expect(buildPlugin.getAbsoluteImportPath(file)).to.equal(result);
     });
   });
 });
