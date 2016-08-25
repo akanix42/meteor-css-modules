@@ -3,9 +3,8 @@ import './test-helpers/global-variables.stub';
 import chai from 'chai';
 import ScssProcessor from './scss-processor';
 import { reloadOptions } from './options';
-import ImportPathHelpers from './helpers/import-path-helpers';
-import path from 'path';
 import logger from './logger';
+import generateFileObject from './test-helpers/generate-file-object';
 
 const expect = chai.expect;
 
@@ -175,30 +174,3 @@ describe('ScssProcessor', function() {
   });
 });
 
-function generateFileObject(filePath, rawContents, packageName = null) {
-  const file = {
-    fileOptions: {},
-    rawContents,
-    referencedImportPaths: [],
-    getPackageName() {
-      return packageName;
-    },
-    getPathInPackage() {
-      return filePath;
-    },
-    getBasename() {
-      return path.basename(filePath);
-    },
-    getExtension() {
-      return path.extname(filePath);
-    }
-  };
-
-  file.getFileOptions = function() {
-    return file.fileOptions;
-  };
-
-  file.importPath = ImportPathHelpers.getImportPathInPackage(file);
-
-  return file;
-}

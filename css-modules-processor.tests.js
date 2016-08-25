@@ -3,7 +3,7 @@ import './test-helpers/global-variables.stub';
 import chai from 'chai';
 import CssModulesProcessor from './css-modules-processor';
 import { reloadOptions } from './options';
-import ImportPathHelpers from './helpers/import-path-helpers';
+import { generatePreprocessedFileObject } from './test-helpers/generate-file-object';
 
 const expect = chai.expect;
 
@@ -87,10 +87,10 @@ describe('CssModulesProcessor', function() {
 
       it('should pull in tokens from imported files', async function z() {
         const allFiles = new Map();
-        addFile(generateFileObject('./direct-import1.css', '.test { color: red; }'));
-        addFile(generateFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
-        addFile(generateFileObject('./indirect-import.css', '.test { color: red; }'));
-        const file = generateFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
+        addFile(generatePreprocessedFileObject('./direct-import1.css', '.test { color: red; }'));
+        addFile(generatePreprocessedFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
+        addFile(generatePreprocessedFileObject('./indirect-import.css', '.test { color: red; }'));
+        const file = generatePreprocessedFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
         const pluginOptions = { ...reloadOptions() };
         const processor = new CssModulesProcessor(pluginOptions);
         await processor.process(file, allFiles);
@@ -109,10 +109,10 @@ describe('CssModulesProcessor', function() {
     describe('file.referencedImportPaths', function() {
       it('should list all of the files that the current file imports', async function z() {
         const allFiles = new Map();
-        addFile(generateFileObject('./direct-import1.css', '.test { color: red; }'));
-        addFile(generateFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
-        addFile(generateFileObject('./indirect-import.css', '.test { color: red; }'));
-        const file = generateFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
+        addFile(generatePreprocessedFileObject('./direct-import1.css', '.test { color: red; }'));
+        addFile(generatePreprocessedFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
+        addFile(generatePreprocessedFileObject('./indirect-import.css', '.test { color: red; }'));
+        const file = generatePreprocessedFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
         const pluginOptions = { ...reloadOptions() };
         const processor = new CssModulesProcessor(pluginOptions);
         await processor.process(file, allFiles);
@@ -130,10 +130,10 @@ describe('CssModulesProcessor', function() {
 
       it('should build a deduplicated list of all the files that the current file imports directly or indirectly', async function z() {
         const allFiles = new Map();
-        addFile(generateFileObject('./direct-import1.css', '.test { color: red; }'));
-        addFile(generateFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
-        addFile(generateFileObject('./indirect-import.css', '.test { composes: test from "./direct-import1.css"; }'));
-        const file = generateFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
+        addFile(generatePreprocessedFileObject('./direct-import1.css', '.test { color: red; }'));
+        addFile(generatePreprocessedFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
+        addFile(generatePreprocessedFileObject('./indirect-import.css', '.test { composes: test from "./direct-import1.css"; }'));
+        const file = generatePreprocessedFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
         const pluginOptions = { ...reloadOptions() };
         const processor = new CssModulesProcessor(pluginOptions);
         await processor.process(file, allFiles);
@@ -153,10 +153,10 @@ describe('CssModulesProcessor', function() {
     describe('file.imports', function() {
       it('should list the files that the current file imports directly', async function z() {
         const allFiles = new Map();
-        addFile(generateFileObject('./direct-import1.css', '.test { color: red; }'));
-        addFile(generateFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
-        addFile(generateFileObject('./indirect-import.css', '.test { color: red; }'));
-        const file = generateFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
+        addFile(generatePreprocessedFileObject('./direct-import1.css', '.test { color: red; }'));
+        addFile(generatePreprocessedFileObject('./direct-import2.css', '.test { composes: test from "./indirect-import.css"; }'));
+        addFile(generatePreprocessedFileObject('./indirect-import.css', '.test { color: red; }'));
+        const file = generatePreprocessedFileObject('./test.css', '.test { composes: test from "./direct-import1.css"; } .test-two { composes: test from "./direct-import2.css"; }');
         const pluginOptions = { ...reloadOptions() };
         const processor = new CssModulesProcessor(pluginOptions);
         await processor.process(file, allFiles);
@@ -202,19 +202,3 @@ describe('CssModulesProcessor', function() {
     });
   });
 });
-
-function generateFileObject(path, contents, packageName = null) {
-  const file = {
-    contents,
-    referencedImportPaths: [],
-    getPackageName() {
-      return packageName;
-    },
-    getPathInPackage() {
-      return path;
-    }
-  };
-  file.importPath = ImportPathHelpers.getImportPathInPackage(file);
-
-  return file;
-}
