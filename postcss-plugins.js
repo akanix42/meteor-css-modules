@@ -1,4 +1,3 @@
-/* globals Npm */
 import pluginOptionsWrapper from './options';
 const pluginOptions = pluginOptionsWrapper.options;
 import fs from 'fs';
@@ -8,10 +7,10 @@ import R from 'ramda';
 import ImportPathHelpers from './helpers/import-path-helpers';
 
 const corePlugins = {
-  'postcss-modules-local-by-default': Npm.require('postcss-modules-local-by-default'),
-  'postcss-modules-extract-imports': Npm.require('postcss-modules-extract-imports'),
-  'postcss-modules-scope': Npm.require('postcss-modules-scope'),
-  'postcss-modules-values': Npm.require('postcss-modules-values'),
+  'postcss-modules-local-by-default': require('postcss-modules-local-by-default'),
+  'postcss-modules-extract-imports': require('postcss-modules-extract-imports'),
+  'postcss-modules-scope': require('postcss-modules-scope'),
+  'postcss-modules-values': require('postcss-modules-values'),
 };
 
 corePlugins['postcss-modules-scope'].generateScopedName = function generateScopedName(exportedName, filePath) {
@@ -49,7 +48,7 @@ function loadPlugins() {
 
   R.forEach((pluginEntry) => {
     const packageName = pluginEntry[0];
-    let plugin = corePlugins[packageName] || Npm.require(packageName);
+    let plugin = corePlugins[packageName] || require(packageName);
     if (plugin === undefined) throw new Error(`plugin ${packageName} was not found by NPM!`);
 
     var pluginEntryOptions = getPluginOptions(pluginEntry[1]);

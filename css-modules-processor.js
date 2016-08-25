@@ -4,8 +4,8 @@ import getOutputPath from './get-output-path';
 import ImportPathHelpers from './helpers/import-path-helpers';
 
 import camelcase from 'camelcase';
-const postcss = Npm.require('postcss');
-const Parser = Npm.require('css-modules-loader-core/lib/parser');
+import postcss from 'postcss';
+import Parser from 'css-modules-loader-core/lib/parser';
 
 export default class CssModulesProcessor {
   constructor(pluginOptions) {
@@ -99,7 +99,7 @@ export default class CssModulesProcessor {
         from: sourcePath,
         to: getOutputPath(sourcePath, this.pluginOptions.outputCssFilePath),
         map: { inline: false },
-        parser: this.pluginOptions.parser ? Npm.require(this.pluginOptions.parser) : undefined
+        parser: this.pluginOptions.parser ? require(this.pluginOptions.parser) : undefined
       });
 
     return {

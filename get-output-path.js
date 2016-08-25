@@ -1,7 +1,7 @@
 /* globals Npm */
 import R from 'ramda';
-const path = Npm.require('path');
-const format = Npm.require('string-template');
+import path from 'path';
+import format from 'string-template';
 
 export default function getOutputPath(filePath, outputPathTemplates) {
   const template = getTemplate(filePath, outputPathTemplates);
