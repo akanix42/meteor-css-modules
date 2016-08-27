@@ -269,13 +269,18 @@ describe('CssModulesBuildPlugin', function() {
           generateFileObject('./test.css'),
           generateFileObject('./yellow.css'),
         ];
-
+        
+        const processFilesForTarget = MultiFileCachingCompiler.prototype.processFilesForTarget;
         MultiFileCachingCompiler.prototype.processFilesForTarget = function(files) {
           expect(files.length).to.equal(4);
           expect(files[0]).to.equal(originalFiles[0]);
           expect(files[1]).to.equal(originalFiles[1]);
-          expect(files[2].path).to.equal('test-helpers/explicit-includes/a.css');
-          expect(files[3].path).to.equal('test-helpers/explicit-includes/b.css');
+          const newFiles = files.slice(2);
+          newFiles.sort();
+          expect(newFiles[0].path).to.equal('test-helpers/explicit-includes/a.css');
+          expect(newFiles[1].path).to.equal('test-helpers/explicit-includes/b.css');
+
+          MultiFileCachingCompiler.prototype.processFilesForTarget = processFilesForTarget;
           done();
         };
 
