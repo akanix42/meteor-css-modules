@@ -1,7 +1,12 @@
 /* eslint-env node, mocha */
+import './test-helpers/global-variables.stub';
 import './test-helpers/import-path-helpers.stub';
 import chai from 'chai';
+// import CssModulesBuildPlugin from './css-modules-build-plugin';
+// import { reloadOptions } from './options';
 import ImportPathHelpers from './helpers/import-path-helpers';
+// import path from 'path';
+// import logger from './logger';
 import mock from 'mock-require';
 import generateFileObject from './test-helpers/generate-file-object';
 import { reloadOptions } from './options';
@@ -379,4 +384,66 @@ describe('CssModulesBuildPlugin', function() {
     });
   });
 
+  describe('#compileOneFile', function() {
+    describe('compile result', function() {
+      it('should return stylesheet code for web architecture', function z(done) {
+        Fiber(function() {
+          const file = generateFileObject('./test.css', '.test { color: red; }');
+          file.arch = 'web';
+          const cssModulesProcessor = { process: () => null };
+          const processor = new CssModulesBuildPlugin();
+          processor.cssModulesProcessor = cssModulesProcessor;
+          processor.preprocessors = [];
+          processor.filesByName = new Map();
+
+          const result = processor.compileOneFile(file);
+
+          expect(result.compileResult.stylesheet).to.equal('.test { color: red; }');
+          done();
+        }).run();
+      });
+
+      it('should not return stylesheet code for server architecture', function z(done) {
+        Fiber(function() {
+          const file = generateFileObject('./test.css', '.test { color: red; }');
+          file.arch = 'server';
+
+          const cssModulesProcessor = { process: () => null };
+          const processor = new CssModulesBuildPlugin();
+          processor.cssModulesProcessor = cssModulesProcessor;
+          processor.preprocessors = [];
+          processor.filesByName = new Map();
+
+          const result = processor.compileOneFile(file);
+
+          expect('stylesheet' in result.compileResult).to.be.false;
+          done();
+        }).run();
+      });
+    });
+
+    describe('css modules processor', function() {
+      it('should process the files through the css modules processor', function z(done) {
+        Fiber(function() {
+          const file = generateFileObject('./test.css');
+
+          const cssModulesProcessor = {
+            process(fileArg) {
+              expect(fileArg).to.equal(file);
+              done();
+            }
+          };
+          const processor = new CssModulesBuildPlugin();
+          processor.cssModulesProcessor = cssModulesProcessor;
+          processor.preprocessors = [];
+          processor.filesByName = new Map();
+          processor.compileOneFile(file);
+        }).run();
+      });
+    });
+
+    describe('scss preprocessor', function() {
+
+    });
+  });
 });

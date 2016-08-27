@@ -24,6 +24,14 @@ export default function generateFileObject(filePath, rawContents, packageName = 
     return file.fileOptions;
   };
 
+  file.getContentsAsString = function() {
+    return file.rawContents;
+  };
+
+  file.getArch = function() {
+    return file.arch;
+  };
+
   file.importPath = ImportPathHelpers.getImportPathInPackage(file);
 
   return file;
