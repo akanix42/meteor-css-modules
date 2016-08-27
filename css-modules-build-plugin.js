@@ -30,10 +30,12 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     this.preprocessors = null;
     this.cssModulesProcessor = null;
     this.filesByName = null;
+
+    this.reloadOptions = reloadOptions;
   }
 
   processFilesForTarget(files) {
-    pluginOptions = reloadOptions();
+    pluginOptions = this.reloadOptions();
     this._cachePluginOptions();
     const start = profile();
 

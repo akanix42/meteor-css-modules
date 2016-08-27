@@ -4,21 +4,32 @@ import chai from 'chai';
 import ImportPathHelpers from './helpers/import-path-helpers';
 import mock from 'mock-require';
 import generateFileObject from './test-helpers/generate-file-object';
+import { reloadOptions } from './options';
+import Fiber from 'fibers';
+import Future from 'fibers/future';
 
 const expect = chai.expect;
 
 mock('meteor/meteor', {
   Meteor: {
-    wrapAsync() {
-      return {};
+    wrapAsync(fn) {
+      return function(...args) {
+        const future = new Future();
+        fn(...args, function(err, result) {
+          if (err) {
+            future.throw(err);
+          } else {
+            future.return(result);
+          }
+        });
+        return future.wait();
+      };
     }
   }
 });
 
-mock('meteor/caching-compiler', {
-  MultiFileCachingCompiler: class MultiFileCachingCompiler {
-  }
-});
+import { MultiFileCachingCompiler } from './test-helpers/multi-file-caching-compiler';
+mock('meteor/caching-compiler', { MultiFileCachingCompiler });
 
 const CssModulesBuildPlugin = require('./css-modules-build-plugin').default;
 
@@ -225,6 +236,56 @@ describe('CssModulesBuildPlugin', function() {
       const result = `${ImportPathHelpers.basePath.replace(/\\/g, '/')}/test.css`;
 
       expect(buildPlugin.getAbsoluteImportPath(file)).to.equal(result);
+    });
+  });
+
+  describe('#processFilesForTarget', function() {
+    it('should cache the plugin options', function z() {
+
+    });
+
+    it('should remove files from excluded folders', function z(done) {
+      const originalFiles = [
+        generateFileObject('./test.css'),
+        generateFileObject('./yellow.css'),
+        generateFileObject('./red.css'),
+      ];
+
+      MultiFileCachingCompiler.prototype.processFilesForTarget = function(files) {
+        expect(files.length).to.equal(2);
+        expect(files[0]).to.equal(originalFiles[0]);
+        expect(files[1]).to.equal(originalFiles[2]);
+        done();
+      };
+
+      const processor = new CssModulesBuildPlugin();
+      processor.reloadOptions = () => ({ ...reloadOptions(), ignorePaths: ['yellow'] });
+      processor.processFilesForTarget(originalFiles);
+    });
+
+    it('should add files from explicitly included folders', function z(done) {
+      Fiber(function() {
+        const originalFiles = [
+          generateFileObject('./test.css'),
+          generateFileObject('./yellow.css'),
+        ];
+
+        MultiFileCachingCompiler.prototype.processFilesForTarget = function(files) {
+          expect(files.length).to.equal(4);
+          expect(files[0]).to.equal(originalFiles[0]);
+          expect(files[1]).to.equal(originalFiles[1]);
+          expect(files[2].path).to.equal('test-helpers/explicit-includes/a.css');
+          expect(files[3].path).to.equal('test-helpers/explicit-includes/b.css');
+          done();
+        };
+
+        const processor = new CssModulesBuildPlugin();
+        processor.reloadOptions = () => ({
+          ...reloadOptions(),
+          explicitIncludes: ['./test-helpers/explicit-includes']
+        });
+        processor.processFilesForTarget(originalFiles);
+      }).run();
     });
   });
 });
