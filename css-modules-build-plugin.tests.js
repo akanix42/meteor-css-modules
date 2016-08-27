@@ -7,6 +7,8 @@ import generateFileObject from './test-helpers/generate-file-object';
 import { reloadOptions } from './options';
 import Fiber from 'fibers';
 import Future from 'fibers/future';
+import ScssProcessor from './scss-processor';
+import CssModulesProcessor from './css-modules-processor';
 
 const expect = chai.expect;
 
@@ -240,57 +242,141 @@ describe('CssModulesBuildPlugin', function() {
   });
 
   describe('#processFilesForTarget', function() {
-    it('should cache the plugin options', function z() {
+    it('should store the plugin options hash', function z() {
+      const processor = new CssModulesBuildPlugin();
+      processor.processFilesForTarget([]);
 
+      expect(processor.optionsHash).to.equal('4ff9a143d6b0b9cc0d90193e6d55cdf6577faf70');
     });
 
-    it('should remove files from excluded folders', function z(done) {
-      const originalFiles = [
-        generateFileObject('./test.css'),
-        generateFileObject('./yellow.css'),
-        generateFileObject('./red.css'),
-      ];
-
+    it('should pass the files array to MultiFileCachingCompiler#processFilesForTarget', function z(done) {
+      const filesToProcess = [];
+      const processFilesForTarget = MultiFileCachingCompiler.prototype.processFilesForTarget;
       MultiFileCachingCompiler.prototype.processFilesForTarget = function(files) {
-        expect(files.length).to.equal(2);
-        expect(files[0]).to.equal(originalFiles[0]);
-        expect(files[1]).to.equal(originalFiles[2]);
+        expect(files).to.equal(filesToProcess);
+
+        MultiFileCachingCompiler.prototype.processFilesForTarget = processFilesForTarget;
         done();
       };
-
       const processor = new CssModulesBuildPlugin();
-      processor.reloadOptions = () => ({ ...reloadOptions(), ignorePaths: ['yellow'] });
-      processor.processFilesForTarget(originalFiles);
+      processor.processFilesForTarget(filesToProcess);
     });
 
-    it('should add files from explicitly included folders', function z(done) {
-      Fiber(function() {
+    it('should reset the filesByName property', function z(done) {
+      const processFilesForTarget = MultiFileCachingCompiler.prototype.processFilesForTarget;
+      MultiFileCachingCompiler.prototype.processFilesForTarget = function() {
+        expect(this.filesByName).to.be.null;
+
+        MultiFileCachingCompiler.prototype.processFilesForTarget = processFilesForTarget;
+        done();
+      };
+      const processor = new CssModulesBuildPlugin();
+      processor.filesByName = [];
+      processor.processFilesForTarget([]);
+    });
+
+    describe('ignorePaths', function() {
+      it('should remove files from excluded folders', function z(done) {
         const originalFiles = [
           generateFileObject('./test.css'),
           generateFileObject('./yellow.css'),
+          generateFileObject('./red.css'),
         ];
-        
+
         const processFilesForTarget = MultiFileCachingCompiler.prototype.processFilesForTarget;
         MultiFileCachingCompiler.prototype.processFilesForTarget = function(files) {
-          expect(files.length).to.equal(4);
+          expect(files.length).to.equal(2);
           expect(files[0]).to.equal(originalFiles[0]);
-          expect(files[1]).to.equal(originalFiles[1]);
-          const newFiles = files.slice(2);
-          newFiles.sort();
-          expect(newFiles[0].path).to.equal('test-helpers/explicit-includes/a.css');
-          expect(newFiles[1].path).to.equal('test-helpers/explicit-includes/b.css');
+          expect(files[1]).to.equal(originalFiles[2]);
 
           MultiFileCachingCompiler.prototype.processFilesForTarget = processFilesForTarget;
           done();
         };
 
         const processor = new CssModulesBuildPlugin();
-        processor.reloadOptions = () => ({
-          ...reloadOptions(),
-          explicitIncludes: ['./test-helpers/explicit-includes']
-        });
+        processor.reloadOptions = () => ({ ...reloadOptions(), ignorePaths: ['yellow'] });
         processor.processFilesForTarget(originalFiles);
-      }).run();
+      });
+    });
+
+    describe('explicitIncludes', function() {
+      it('should add files from explicitly included folders', function z(done) {
+        Fiber(function() {
+          const originalFiles = [
+            generateFileObject('./test.css'),
+            generateFileObject('./yellow.css'),
+          ];
+
+          const processFilesForTarget = MultiFileCachingCompiler.prototype.processFilesForTarget;
+          MultiFileCachingCompiler.prototype.processFilesForTarget = function(files) {
+            expect(files.length).to.equal(4);
+            expect(files[0]).to.equal(originalFiles[0]);
+            expect(files[1]).to.equal(originalFiles[1]);
+            const newFiles = files.slice(2);
+            newFiles.sort(function(a, b) {
+              if (a.path < b.path) return -1;
+              if (a.path > b.path) return 1;
+              return 0;
+            });
+            expect(newFiles[0].path).to.equal('test-helpers/explicit-includes/a.css');
+            expect(newFiles[1].path).to.equal('test-helpers/explicit-includes/b.css');
+
+            MultiFileCachingCompiler.prototype.processFilesForTarget = processFilesForTarget;
+            done();
+          };
+
+          const processor = new CssModulesBuildPlugin();
+          processor.reloadOptions = () => ({
+            ...reloadOptions(),
+            explicitIncludes: ['./test-helpers/explicit-includes']
+          });
+          processor.processFilesForTarget(originalFiles);
+        }).run();
+      });
+    });
+
+    describe('scss preprocessor', function() {
+      it('should not setup the scss preprocessor when enableSassCompilation is false', function z() {
+        const processor = new CssModulesBuildPlugin();
+        processor.reloadOptions = () => ({ ...reloadOptions(), enableSassCompilation: false });
+        processor.processFilesForTarget([]);
+
+        expect(processor.preprocessors.length).to.equal(0);
+      });
+
+      it('should not setup the scss preprocessor when enableSassCompilation is falsy', function z() {
+        const processor = new CssModulesBuildPlugin();
+        processor.reloadOptions = () => ({ ...reloadOptions(), enableSassCompilation: null });
+        processor.processFilesForTarget([]);
+
+        expect(processor.preprocessors.length).to.equal(0);
+      });
+
+      it('should setup the scss preprocessor when enableSassCompilation is true', function z() {
+        const processor = new CssModulesBuildPlugin();
+        processor.reloadOptions = () => ({ ...reloadOptions(), enableSassCompilation: true });
+        processor.processFilesForTarget([]);
+
+        expect(processor.preprocessors[0]).to.be.an.instanceOf(ScssProcessor);
+      });
+
+      it('should setup the scss preprocessor when enableSassCompilation is truthy', function z() {
+        const processor = new CssModulesBuildPlugin();
+        processor.reloadOptions = () => ({ ...reloadOptions(), enableSassCompilation: [] });
+        processor.processFilesForTarget([]);
+
+        expect(processor.preprocessors[0]).to.be.an.instanceOf(ScssProcessor);
+      });
+    });
+
+    describe('css modules processor', function() {
+      it('should set up the cssModulesProcessor', function z() {
+        const processor = new CssModulesBuildPlugin();
+        processor.processFilesForTarget([]);
+
+        expect(processor.cssModulesProcessor).to.be.an.instanceOf(CssModulesProcessor);
+      });
     });
   });
+
 });

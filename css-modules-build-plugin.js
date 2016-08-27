@@ -30,13 +30,14 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     this.preprocessors = null;
     this.cssModulesProcessor = null;
     this.filesByName = null;
+    this.optionsHash = null;
 
     this.reloadOptions = reloadOptions;
   }
 
   processFilesForTarget(files) {
     pluginOptions = this.reloadOptions();
-    this._cachePluginOptions();
+    this.optionsHash = getPluginOptionsHash();
     const start = profile();
 
     files = removeFilesFromExcludedFolders(files);
@@ -76,16 +77,6 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
         }
       });
       return files;
-    }
-  }
-
-  _cachePluginOptions() {
-    const hash = getPluginOptionsHash();
-    /* Reset the cache whenever the plugin options change */
-    if (!this._cache.get(hash)) {
-      this._cacheDebug('Options hash not found, resetting cache.');
-      this._cache.reset();
-      this._cache.set(hash, { compileResult: {} });
     }
   }
 

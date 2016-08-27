@@ -42,7 +42,7 @@ function getDefaultOptions() {
 }
 
 export function getHash() {
-  return pluginOptions.hash;
+  return pluginOptions.options.hash;
 }
 
 function loadOptions() {
