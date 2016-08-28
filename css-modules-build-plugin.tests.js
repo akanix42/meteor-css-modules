@@ -14,6 +14,7 @@ import Fiber from 'fibers';
 import Future from 'fibers/future';
 import ScssProcessor from './scss-processor';
 import CssModulesProcessor from './css-modules-processor';
+import { stripIndent } from 'common-tags';
 
 const expect = chai.expect;
 
@@ -34,6 +35,9 @@ mock('meteor/meteor', {
     }
   }
 });
+
+const MockBabel = { compile: (code) => ({ code }) };
+mock('meteor/babel-compiler', { Babel: MockBabel });
 
 import { MultiFileCachingCompiler } from './test-helpers/multi-file-caching-compiler';
 mock('meteor/caching-compiler', { MultiFileCachingCompiler });
@@ -385,38 +389,162 @@ describe('CssModulesBuildPlugin', function() {
   });
 
   describe('#compileOneFile', function() {
-    describe('compile result', function() {
-      it('should return stylesheet code for web architecture', function z(done) {
-        Fiber(function() {
-          const file = generateFileObject('./test.css', '.test { color: red; }');
-          file.arch = 'web';
-          const cssModulesProcessor = { process: () => null };
-          const processor = new CssModulesBuildPlugin();
-          processor.cssModulesProcessor = cssModulesProcessor;
-          processor.preprocessors = [];
-          processor.filesByName = new Map();
+    describe('.compileResult', function() {
+      describe('stylesheet', function() {
+        it('should return stylesheet code for web architecture', function z(done) {
+          Fiber(function() {
+            const file = generateFileObject('./test.css', '.test { color: red; }');
+            const cssModulesProcessor = { process: noop };
+            const buildPlugin = new CssModulesBuildPlugin();
+            buildPlugin.cssModulesProcessor = cssModulesProcessor;
+            buildPlugin.preprocessors = [];
+            buildPlugin.filesByName = new Map();
 
-          const result = processor.compileOneFile(file);
+            const result = buildPlugin.compileOneFile(file);
 
-          expect(result.compileResult.stylesheet).to.equal('.test { color: red; }');
-          done();
-        }).run();
+            expect(result.compileResult.stylesheet).to.equal('.test { color: red; }');
+            done();
+          }).run();
+        });
+
+        it('should not return stylesheet code for lazy-loaded files', function z(done) {
+          Fiber(function() {
+            const file = generateFileObject('./imports/test.css', '.test { color: red; }');
+
+            const cssModulesProcessor = { process: noop };
+            const buildPlugin = new CssModulesBuildPlugin();
+            buildPlugin.cssModulesProcessor = cssModulesProcessor;
+            buildPlugin.preprocessors = [];
+            buildPlugin.filesByName = new Map();
+
+            const result = buildPlugin.compileOneFile(file);
+
+            expect('stylesheet' in result.compileResult).to.be.false;
+            done();
+          }).run();
+        });
+
+        it('should not return stylesheet code for server architecture', function z(done) {
+          Fiber(function() {
+            const file = generateFileObject('./test.css', '.test { color: red; }');
+            file.arch = 'server';
+
+            const cssModulesProcessor = { process: noop };
+            const buildPlugin = new CssModulesBuildPlugin();
+            buildPlugin.cssModulesProcessor = cssModulesProcessor;
+            buildPlugin.preprocessors = [];
+            buildPlugin.filesByName = new Map();
+
+            const result = buildPlugin.compileOneFile(file);
+
+            expect('stylesheet' in result.compileResult).to.be.false;
+            done();
+          }).run();
+        });
       });
 
-      it('should not return stylesheet code for server architecture', function z(done) {
+      describe('javascript', function() {
+        it('should include the javascript class mappings', function z(done) {
+          Fiber(function() {
+            const file = generateFileObject('./test.css', '.test { color: red; }');
+            file.tokens = { 'test': 'TEST' };
+            const cssModulesProcessor = { process: noop };
+            const buildPlugin = new CssModulesBuildPlugin();
+            buildPlugin.cssModulesProcessor = cssModulesProcessor;
+            buildPlugin.preprocessors = [];
+            buildPlugin.filesByName = new Map();
+
+            const result = buildPlugin.compileOneFile(file);
+
+            expect(result.compileResult.javascript).to.equal(stripIndent`
+                const styles = {"test":"TEST"};
+                export { styles as default, styles };
+                `);
+            done();
+          }).run();
+        });
+
+        it('should include module imports for imported files', function z(done) {
+          Fiber(function() {
+            const file = generateFileObject('./test.css', '.test { color: red; }');
+            file.imports = ['./a.css', './b/b.css'];
+            const cssModulesProcessor = { process: noop };
+            const buildPlugin = new CssModulesBuildPlugin();
+            buildPlugin.cssModulesProcessor = cssModulesProcessor;
+            buildPlugin.preprocessors = [];
+            buildPlugin.filesByName = new Map();
+
+            const result = buildPlugin.compileOneFile(file);
+
+            expect(result.compileResult.javascript).to.equal(stripIndent`
+                import './a.css';
+                import './b/b.css';
+                `);
+            done();
+          }).run();
+        });
+
+        it('should include the stylesheet for lazy-loaded files', function z(done) {
+          Fiber(function() {
+            const file = generateFileObject('./imports/test.css', '.test { color: red; }');
+            const cssModulesProcessor = { process: noop };
+            const buildPlugin = new CssModulesBuildPlugin();
+            buildPlugin.cssModulesProcessor = cssModulesProcessor;
+            buildPlugin.preprocessors = [];
+            buildPlugin.filesByName = new Map();
+
+            const result = buildPlugin.compileOneFile(file);
+
+            expect(result.compileResult.javascript).to.equal(stripIndent`
+                import modules from 'meteor/modules';
+                modules.addStyles(".test { color: red; }");
+                `);
+            done();
+          }).run();
+        });
+
+        it('should include the module imports, stylesheet, and class mapping when applicable', function z(done) {
+          Fiber(function() {
+            const file = generateFileObject('./imports/test.css', '.test { color: red; }');
+            file.tokens = { 'test': 'TEST' };
+            file.imports = ['./a.css', './b/b.css'];
+            const cssModulesProcessor = { process: noop };
+            const buildPlugin = new CssModulesBuildPlugin();
+            buildPlugin.cssModulesProcessor = cssModulesProcessor;
+            buildPlugin.preprocessors = [];
+            buildPlugin.filesByName = new Map();
+
+            const result = buildPlugin.compileOneFile(file);
+
+            expect(result.compileResult.javascript).to.equal(stripIndent`
+                import './a.css';
+                import './b/b.css';
+                import modules from 'meteor/modules';
+                modules.addStyles(".test { color: red; }");
+                const styles = {"test":"TEST"};
+                export { styles as default, styles };
+                `
+            );
+            done();
+          }).run();
+        });
+      });
+    });
+
+    describe('.referencedImportPaths', function() {
+      it('should return the referencedImportPaths', function z(done) {
         Fiber(function() {
           const file = generateFileObject('./test.css', '.test { color: red; }');
-          file.arch = 'server';
+          file.referencedImportPaths = [];
+          const cssModulesProcessor = { process: noop };
+          const buildPlugin = new CssModulesBuildPlugin();
+          buildPlugin.cssModulesProcessor = cssModulesProcessor;
+          buildPlugin.preprocessors = [];
+          buildPlugin.filesByName = new Map();
 
-          const cssModulesProcessor = { process: () => null };
-          const processor = new CssModulesBuildPlugin();
-          processor.cssModulesProcessor = cssModulesProcessor;
-          processor.preprocessors = [];
-          processor.filesByName = new Map();
+          const result = buildPlugin.compileOneFile(file);
 
-          const result = processor.compileOneFile(file);
-
-          expect('stylesheet' in result.compileResult).to.be.false;
+          expect(result.referencedImportPaths).to.equal(file.referencedImportPaths);
           done();
         }).run();
       });
@@ -433,17 +561,136 @@ describe('CssModulesBuildPlugin', function() {
               done();
             }
           };
-          const processor = new CssModulesBuildPlugin();
-          processor.cssModulesProcessor = cssModulesProcessor;
-          processor.preprocessors = [];
-          processor.filesByName = new Map();
-          processor.compileOneFile(file);
+          const buildPlugin = new CssModulesBuildPlugin();
+          buildPlugin.cssModulesProcessor = cssModulesProcessor;
+          buildPlugin.preprocessors = [];
+          buildPlugin.filesByName = new Map();
+          buildPlugin.compileOneFile(file);
         }).run();
       });
     });
 
-    describe('scss preprocessor', function() {
+    describe('preprocessor', function() {
+      it('should run the files through any matching preprocessors', function z(done) {
+        Fiber(function() {
+          const file = generateFileObject('./test.css');
 
+          let error;
+          let numberOfPreprocessorsCalled = 0;
+
+          const notMatchingPreprocessor1 = {
+            shouldProcess: returnsFalse,
+            isRoot: returnsFalse,
+            process: shouldNotBeCalled,
+          };
+
+          const notMatchingPreprocessor2 = {
+            shouldProcess: returnsFalse,
+            isRoot: returnsFalse,
+            process: shouldNotBeCalled,
+          };
+
+          const matchingPreprocessor1 = {
+            shouldProcess: returnsTrue,
+            isRoot: returnsTrue,
+            process(fileArg) {
+              expect(fileArg).to.equal(file);
+              numberOfPreprocessorsCalled++;
+            }
+          };
+          const matchingPreprocessor2 = {
+            shouldProcess: returnsTrue,
+            isRoot: returnsTrue,
+            process(fileArg) {
+              expect(fileArg).to.equal(file);
+              numberOfPreprocessorsCalled++;
+            }
+          };
+
+          const cssModulesProcessor = {
+            process() {
+              expect(numberOfPreprocessorsCalled).to.equal(2);
+              done(error);
+            }
+          };
+          const buildPlugin = new CssModulesBuildPlugin();
+          buildPlugin.cssModulesProcessor = cssModulesProcessor;
+          buildPlugin.preprocessors = [
+            notMatchingPreprocessor1,
+            matchingPreprocessor1,
+            matchingPreprocessor2,
+            notMatchingPreprocessor2,
+          ];
+          buildPlugin.filesByName = new Map();
+          buildPlugin.compileOneFile(file);
+        }).run();
+      });
+    });
+  });
+
+  describe('#addCompileResult', function() {
+    it('should add the stylesheet result', function z() {
+      const buildPlugin = new CssModulesBuildPlugin();
+      let wasCalled = false;
+
+      const compileResult = {
+        stylesheet: {},
+        filePath: './test.css',
+        sourceMap: { test: true }
+      };
+      const file = {
+        addStylesheet(stylesheet) {
+          wasCalled = true;
+          expect(stylesheet.data).to.equal(compileResult.stylesheet);
+          expect(stylesheet.path).to.equal('./test.css.css');
+          expect(stylesheet.sourcePath).to.equal('./test.css.css');
+          expect(stylesheet.sourceMap).to.equal(JSON.stringify(compileResult.sourceMap));
+          expect(stylesheet.lazy).to.be.false;
+        }
+      };
+      buildPlugin.addCompileResult(file, compileResult);
+
+      expect(wasCalled).to.be.true;
+    });
+
+    it('should add the javascript result', function z() {
+      const buildPlugin = new CssModulesBuildPlugin();
+      let wasCalled = false;
+
+      const compileResult = {
+        javascript: {},
+        filePath: './test.css',
+        sourceMap: { test: true },
+        isLazy: {},
+      };
+      const file = {
+        addJavaScript(javascript) {
+          wasCalled = true;
+          expect(javascript.data).to.equal(compileResult.javascript);
+          expect(javascript.path).to.equal('./test.css.js');
+          expect(javascript.sourcePath).to.equal('./test.css');
+          expect(javascript.lazy).to.equal(compileResult.isLazy);
+          expect(javascript.bare).to.be.false;
+        }
+      };
+      buildPlugin.addCompileResult(file, compileResult);
+
+      expect(wasCalled).to.be.true;
     });
   });
 });
+
+function noop() {
+}
+
+function returnsFalse() {
+  return false;
+}
+
+function returnsTrue() {
+  return true;
+}
+
+function shouldNotBeCalled() {
+  throw new Error('This function should not called in the tested execution path!');
+}

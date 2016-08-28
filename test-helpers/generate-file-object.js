@@ -6,6 +6,7 @@ export default function generateFileObject(filePath, rawContents, packageName = 
     fileOptions: {},
     rawContents,
     referencedImportPaths: [],
+    arch: 'web',
     getPackageName() {
       return packageName;
     },
