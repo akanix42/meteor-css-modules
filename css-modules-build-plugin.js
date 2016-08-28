@@ -1,7 +1,9 @@
-/* globals Babel, JSON */
+/* globals JSON */
 import path from 'path';
 import { MultiFileCachingCompiler } from 'meteor/caching-compiler';
 import { Meteor } from 'meteor/meteor';
+import { Babel } from 'meteor/babel-compiler';
+
 import recursiveUnwrapped from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
 // import StylusProcessor from './stylus-processor';
@@ -11,6 +13,7 @@ import pluginOptionsWrapper, { reloadOptions, getHash as getPluginOptionsHash } 
 import getOutputPath from './get-output-path';
 import profile from './helpers/profile';
 import ImportPathHelpers from './helpers/import-path-helpers';
+import { stripIndent, stripIndents } from 'common-tags';
 
 let pluginOptions = pluginOptionsWrapper.options;
 const recursive = Meteor.wrapAsync(recursiveUnwrapped);
@@ -145,17 +148,19 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       : '';
 
     const stylesheetCode = (isLazy && shouldAddStylesheet && inputFile.contents)
-      ? `import modules from 'meteor/modules';
-					 modules.addStyles(${JSON.stringify(inputFile.contents)});`
+      ? stripIndent`
+         import modules from 'meteor/modules';
+				 modules.addStyles(${JSON.stringify(inputFile.contents)});`
       : '';
 
     const tokensCode = inputFile.tokens
-      ? `const styles = ${JSON.stringify(inputFile.tokens)};
-					 export { styles as default, styles };`
+      ? stripIndent`
+         const styles = ${JSON.stringify(inputFile.tokens)};
+         export { styles as default, styles };`
       : '';
 
-    if (stylesheetCode || tokensCode) {
-      compileResult.javascript = tryBabelCompile(`
+    if (importsCode || stylesheetCode || tokensCode) {
+      compileResult.javascript = tryBabelCompile(stripIndents`
 					${importsCode}
 					${stylesheetCode}
 					${tokensCode}`

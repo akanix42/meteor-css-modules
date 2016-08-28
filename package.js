@@ -20,6 +20,7 @@ Package.registerBuildPlugin({
     'camelcase': '3.0.0',
     'cjson': '0.3.3',
     'colors': '1.1.2',
+    'common-tags': '1.3.1',
     'css-modules-loader-core': '1.0.0',
     'lru-cache': '2.6.4',
     'path-is-absolute': '1.0.0',
