@@ -40,7 +40,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
   processFilesForTarget(files) {
     pluginOptions = this.reloadOptions();
-    this.optionsHash = getPluginOptionsHash();
+    this.optionsHash = pluginOptions.hash;
     const start = profile();
 
     files = removeFilesFromExcludedFolders(files);
@@ -252,7 +252,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
   getCacheKey(inputFile) {
-    return inputFile.getSourceHash();
+    return `${this.optionsHash}...${inputFile.getSourceHash()}`;
   }
 
   getAbsoluteImportPath(inputFile) {

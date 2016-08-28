@@ -231,10 +231,13 @@ describe('CssModulesBuildPlugin', function() {
   });
 
   describe('#getCacheKey', function() {
-    it('should return the inputFile`s source hash', function z() {
+    it('should return the inputFile`s source hash combined with the plugin options hash', function z() {
+      const pluginOptions = reloadOptions();
       const buildPlugin = new CssModulesBuildPlugin();
-      const result = 'test';
-      const file = { getSourceHash: () => result };
+      buildPlugin.optionsHash = pluginOptions.hash;
+      const result = `${pluginOptions.hash}...test`;
+      const sourceHash = 'test';
+      const file = { getSourceHash: () => sourceHash };
 
       expect(buildPlugin.getCacheKey(file)).to.equal(result);
     });
@@ -252,10 +255,10 @@ describe('CssModulesBuildPlugin', function() {
 
   describe('#processFilesForTarget', function() {
     it('should store the plugin options hash', function z() {
+      const pluginOptions = reloadOptions();
       const buildPlugin = new CssModulesBuildPlugin();
       buildPlugin.processFilesForTarget([]);
-
-      expect(buildPlugin.optionsHash).to.equal('4ff9a143d6b0b9cc0d90193e6d55cdf6577faf70');
+      expect(buildPlugin.optionsHash).to.equal(pluginOptions.hash);
     });
 
     it('should pass the files array to MultiFileCachingCompiler#processFilesForTarget', function z(done) {
