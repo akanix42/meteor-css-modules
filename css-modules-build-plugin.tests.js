@@ -75,7 +75,7 @@ describe('CssModulesBuildPlugin', function() {
       const file = {};
       buildPlugin.preprocessors = [
         {
-          shouldProcess: () => true,
+          shouldProcess: returnsTrue,
           isRoot(file) {
             arg = file;
           }
@@ -89,9 +89,9 @@ describe('CssModulesBuildPlugin', function() {
     it('should return true when preprocessors[]#shouldProcess returns false', function z() {
       const buildPlugin = new CssModulesBuildPlugin();
       buildPlugin.preprocessors = [
-        { shouldProcess: () => false },
-        { shouldProcess: () => false },
-        { shouldProcess: () => false },
+        { shouldProcess: returnsFalse },
+        { shouldProcess: returnsFalse },
+        { shouldProcess: returnsFalse },
       ];
 
       expect(buildPlugin.isRoot({})).to.be.true;
@@ -100,9 +100,9 @@ describe('CssModulesBuildPlugin', function() {
     it('should return false when preprocessors[]#shouldProcess returns true and preprocessors[]#isRoot returns false', function z() {
       const buildPlugin = new CssModulesBuildPlugin();
       buildPlugin.preprocessors = [
-        { shouldProcess: () => true, isRoot: () => false },
-        { shouldProcess: () => true, isRoot: () => false },
-        { shouldProcess: () => true, isRoot: () => false },
+        { shouldProcess: returnsTrue, isRoot: returnsFalse },
+        { shouldProcess: returnsTrue, isRoot: returnsFalse },
+        { shouldProcess: returnsTrue, isRoot: returnsFalse },
       ];
 
       expect(buildPlugin.isRoot({})).to.be.false;
@@ -111,9 +111,9 @@ describe('CssModulesBuildPlugin', function() {
     it('should return true when preprocessors[]#shouldProcess returns true and preprocessors[]#isRoot returns true', function z() {
       const buildPlugin = new CssModulesBuildPlugin();
       buildPlugin.preprocessors = [
-        { shouldProcess: () => true, isRoot: () => false },
-        { shouldProcess: () => true, isRoot: () => false },
-        { shouldProcess: () => true, isRoot: () => true },
+        { shouldProcess: returnsTrue, isRoot: returnsFalse },
+        { shouldProcess: returnsTrue, isRoot: returnsFalse },
+        { shouldProcess: returnsTrue, isRoot: returnsTrue },
       ];
 
       expect(buildPlugin.isRoot({})).to.be.true;
@@ -129,9 +129,9 @@ describe('CssModulesBuildPlugin', function() {
       }
 
       buildPlugin.preprocessors = [
-        { shouldProcess: () => false, isRoot: calledIsRoot },
-        { shouldProcess: () => false, isRoot: calledIsRoot },
-        { shouldProcess: () => false, isRoot: calledIsRoot },
+        { shouldProcess: returnsFalse, isRoot: calledIsRoot },
+        { shouldProcess: returnsFalse, isRoot: calledIsRoot },
+        { shouldProcess: returnsFalse, isRoot: calledIsRoot },
       ];
 
       buildPlugin.isRoot({});
@@ -149,9 +149,9 @@ describe('CssModulesBuildPlugin', function() {
       }
 
       buildPlugin.preprocessors = [
-        { shouldProcess: () => true, isRoot: calledIsRoot },
-        { shouldProcess: () => true, isRoot: calledIsRoot },
-        { shouldProcess: () => true, isRoot: calledIsRoot },
+        { shouldProcess: returnsTrue, isRoot: calledIsRoot },
+        { shouldProcess: returnsTrue, isRoot: calledIsRoot },
+        { shouldProcess: returnsTrue, isRoot: calledIsRoot },
       ];
 
       buildPlugin.isRoot({});
@@ -191,9 +191,9 @@ describe('CssModulesBuildPlugin', function() {
       }
 
       buildPlugin.preprocessors = [
-        { shouldProcess: () => true, isRoot: incrementCallCount },
-        { shouldProcess: () => true, isRoot: incrementCallCount },
-        { shouldProcess: () => true, isRoot: incrementCallCount },
+        { shouldProcess: returnsTrue, isRoot: incrementCallCount },
+        { shouldProcess: returnsTrue, isRoot: incrementCallCount },
+        { shouldProcess: returnsTrue, isRoot: incrementCallCount },
       ];
       buildPlugin.isRoot({});
       expect(callCount).to.equal(3);
@@ -210,9 +210,9 @@ describe('CssModulesBuildPlugin', function() {
       }
 
       buildPlugin.preprocessors = [
-        { shouldProcess: () => true, isRoot: () => calledIsRoot(0, false) },
-        { shouldProcess: () => true, isRoot: () => calledIsRoot(1, true) },
-        { shouldProcess: () => true, isRoot: () => calledIsRoot(2, true) },
+        { shouldProcess: returnsTrue, isRoot: () => calledIsRoot(0, false) },
+        { shouldProcess: returnsTrue, isRoot: () => calledIsRoot(1, true) },
+        { shouldProcess: returnsTrue, isRoot: () => calledIsRoot(2, true) },
       ];
 
       buildPlugin.isRoot({});
