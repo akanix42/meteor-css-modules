@@ -3,6 +3,7 @@
 import Future from 'fibers/future';
 
 // noinspection JSUndefinedPropertyAssignment
+// noinspection JSAnnotator
 global.Npm = {
   require
 };
@@ -12,7 +13,7 @@ Promise.prototype.await = function await() {
   const future = new Future();
   this.then(function(result) {
     future.return(result);
-  }).catch(function (err){
+  }).catch(function(err) {
     future.throw(err);
   });
   return future.wait();
