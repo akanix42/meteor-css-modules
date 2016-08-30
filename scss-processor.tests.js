@@ -157,6 +157,7 @@ describe('ScssProcessor', function() {
         }
       });
     });
+    
     it('should throw an error when node-sass encounters an error', function z(done) {
       const file = generateFileObject('./test.scss', '.test { error! }');
 

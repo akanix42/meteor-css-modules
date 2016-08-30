@@ -14,10 +14,10 @@ describe('checkNpmPackage', function() {
 
   it('should output an error if the package is not installed', function(done) {
     logger.test(function() {
+      let receivedErrorMessage = '';
       logger.error.addHook(errorMessage => {
         try {
-          expect(errorMessage).to.have.string('Error checking npm module: fake-package@0.0.1 (required by nathantreid:css-modules): module not found. Please ensure you have installed the module; here is the command:\n meteor npm install fake-package --save-dev\n');
-          done();
+          receivedErrorMessage += errorMessage + '\n';
           return false;
         } catch (e) {
           done(e);
@@ -25,6 +25,8 @@ describe('checkNpmPackage', function() {
       });
 
       checkNpmPackage('fake-package@0.0.1');
+      expect(receivedErrorMessage).to.have.string('Error checking npm module: fake-package@0.0.1 (required by nathantreid:css-modules): module not found. Please ensure you have installed the module; here is the command:\n meteor npm install fake-package --save-dev\n');
+      done();
     });
   });
 
