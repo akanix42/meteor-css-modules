@@ -29,7 +29,9 @@ export default class ScssProcessor {
     return isScssFile.call(this, file);
 
     function isScssFile(file) {
-      if (typeof this.pluginOptions.enableSassCompilation === 'boolean') return this.pluginOptions.enableSassCompilation;
+      if (!this.pluginOptions.enableSassCompilation || typeof this.pluginOptions.enableSassCompilation === 'boolean') {
+        return this.pluginOptions.enableSassCompilation;
+      }
 
       const extension = path.extname(file.getPathInPackage()).substring(1);
       return this.pluginOptions.enableSassCompilation.indexOf(extension) !== -1;
