@@ -35,11 +35,13 @@ Package.registerBuildPlugin({
   },
   sources: [
     'sha1.js',
+    'logger.js',
     'text-replacer.js',
     'included-file.js',
     'get-output-path.js',
     'check-npm-package.js',
     'options.js',
+    'helpers/import-path-helpers.js',
     'helpers/profile.js',
     'postcss-plugins.js',
     'scss-processor.js',
