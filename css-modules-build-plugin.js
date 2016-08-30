@@ -9,7 +9,7 @@ import ScssProcessor from './scss-processor';
 // import StylusProcessor from './stylus-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
-import pluginOptionsWrapper, { reloadOptions, getHash as getPluginOptionsHash } from './options';
+import pluginOptionsWrapper, { reloadOptions } from './options';
 import getOutputPath from './get-output-path';
 import profile from './helpers/profile';
 import ImportPathHelpers from './helpers/import-path-helpers';
