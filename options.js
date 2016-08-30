@@ -19,6 +19,9 @@ export default pluginOptions;
 
 function getDefaultOptions() {
   return {
+    cache: {
+      enableCache: true,
+    },
     cssClassNamingConvention: {
       replacements: []
     },
