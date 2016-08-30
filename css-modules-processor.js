@@ -1,5 +1,5 @@
 /* globals Npm */
-import postcssPlugins from './postcss-plugins';
+import loadPostcssPlugins from './postcss-plugins';
 import getOutputPath from './get-output-path';
 import ImportPathHelpers from './helpers/import-path-helpers';
 
@@ -15,6 +15,7 @@ export default class CssModulesProcessor {
     this.importTreeByFile = {};
     this.filesByName = null;
     this.pluginOptions = pluginOptions;
+    this.postcssPlugins = loadPostcssPlugins(pluginOptions);
   }
 
   async process(file, filesByName) {
@@ -94,7 +95,7 @@ export default class CssModulesProcessor {
   async _transpileFile(sourceString, sourcePath, trace, pathFetcher) {
     const cssModulesParser = new Parser(pathFetcher, trace);
     sourcePath = ImportPathHelpers.getAbsoluteImportPath(sourcePath);
-    const result = await postcss(postcssPlugins.concat([cssModulesParser.plugin]))
+    const result = await postcss(this.postcssPlugins.concat([cssModulesParser.plugin]))
       .process(sourceString, {
         from: sourcePath,
         to: getOutputPath(sourcePath, this.pluginOptions.outputCssFilePath),
