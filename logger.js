@@ -14,8 +14,22 @@ const logger = {
     logFunctions.forEach(logFunction => logger[logFunction].removeAllHooks());
 
     if (result) return result;
-  }
+  },
 };
+
+logger.logException = function logException(err) {
+  logger.error(stringifyError(err, null, 2));
+
+  /* Bryan Larsen, http://stackoverflow.com/a/20405830/1090626 */
+  function stringifyError(err, filter, space) {
+    var plainObject = {};
+    Object.getOwnPropertyNames(err).forEach(function(key) {
+      plainObject[key] = err[key];
+    });
+    return JSON.stringify(plainObject, filter, space);
+  };
+};
+
 export default logger;
 
 logFunctions.forEach(logFunction => logger[logFunction] = generateOutputFunction(logFunction));
