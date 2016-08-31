@@ -56,12 +56,13 @@ export default class ScssProcessor {
   }
 
   _process(file) {
-    if (file.contents) return;
+    if (file.isPreprocessed) return;
 
     const sourceFile = this._wrapFileForNodeSass(file);
     const { css, sourceMap } = this._transpile(sourceFile);
     file.contents = css;
     file.sourceMap = sourceMap;
+    file.isPreprocessed = true;
   }
 
   _wrapFileForNodeSass(file) {

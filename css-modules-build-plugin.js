@@ -100,7 +100,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   _setupPreprocessors() {
     this.preprocessors = [];
     if (pluginOptions.enableSassCompilation) {
-      this.preprocessors.push(new ScssProcessor('./'));
+      this.preprocessors.push(new ScssProcessor(pluginOptions));
     }
     // if (pluginOptions.enableStylusCompilation) {
     //   this.preprocessors.push(new StylusProcessor('./'));
@@ -214,9 +214,8 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
   _preprocessFile(inputFile, filesByName) {
-    this.preprocessors
-      .filter(preprocessor => preprocessor.shouldProcess(inputFile))
-      .forEach(preprocessor => preprocessor.process(inputFile, filesByName));
+    if (inputFile.preprocessor)
+      inputFile.preprocessor.process(inputFile, filesByName);
   }
 
   async _transpileCssModulesToCss(file, filesByName) {
