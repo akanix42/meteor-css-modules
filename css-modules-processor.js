@@ -6,6 +6,15 @@ import ImportPathHelpers from './helpers/import-path-helpers';
 import camelcase from 'camelcase';
 import postcss from 'postcss';
 import Parser from 'css-modules-loader-core/lib/parser';
+import logger from './logger';
+
+class CssModulesError {
+  constructor(message) {
+    this.message = message;
+    this.name = 'CssModulesError';
+    this.stack = '';
+  }
+}
 
 export default class CssModulesProcessor {
   constructor(pluginOptions) {
@@ -29,12 +38,24 @@ export default class CssModulesProcessor {
       contents: file.contents
     };
 
-    const result = await this._processFile(source);
+    const result = await this._tryProcessFile(source);
     file.contents = result.css;
     file.tokens = result.tokens;
     file.sourceMap = result.sourceMap;
     file.imports = result.imports;
     file.referencedImportPaths = [...new Set([...file.referencedImportPaths, ...result.importTree])];
+  }
+
+  async _tryProcessFile(source) {
+    try {
+      return await this._processFile(source);
+    } catch (err) {
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      logger.error(`Processing Step: CSS Modules / PostCSS compilation`);
+      logger.error(`Unable to compile ${source.path}\n${err}`);
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      throw new CssModulesError(err.message);
+    }
   }
 
   async _processFile(source, trace = String.fromCharCode(this.importNumber++)) {
