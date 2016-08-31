@@ -55,7 +55,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
     super.processFilesForTarget(files);
 
-    this.profilingResults.processFilesForTarget = profile(start);
+    this.profilingResults.processFilesForTarget = profile(start, 'processFilesForTarget');
 
     function removeFilesFromExcludedFolders(files) {
       if (!pluginOptions.ignorePaths.length) {
