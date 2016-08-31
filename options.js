@@ -159,6 +159,8 @@ function processGlobalVariables(options) {
 }
 
 function processPluginOptions(plugins) {
+  if (!plugins) return;
+
   const keys = Object.keys(plugins);
   keys.forEach(key => {
     plugins[key] = getPluginOptions(plugins[key]);
