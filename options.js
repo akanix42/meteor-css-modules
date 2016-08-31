@@ -10,7 +10,7 @@ import fs from 'fs';
 import appModulePath from 'app-module-path';
 appModulePath.addPath(ImportPathHelpers.basePath + '/node_modules/');
 
-const optionsFilePath = path.join(ImportPathHelpers.basePath, 'package.json');
+const optionsFilePath = path.join(ImportPathHelpers.basePath || '', 'package.json');
 
 const pluginOptions = {};
 loadOptions();
