@@ -106,9 +106,13 @@ export default class CssModulesProcessor {
     function loadFileContents(importPath, filesByName) {
       try {
         const file = filesByName.get(importPath);
+        if (file.preprocessor && !file.isPreprocessed) {
+          file.preprocessor.process(file, filesByName);
+        }
         return file.contents;
-      } catch (e) {
-        throw new Error(`CSS Modules: unable to read file ${importPath}: ${JSON.stringify(e)}`);
+      } catch (err) {
+        throw err;
+        throw new Error(`CSS Modules: unable to read file ${importPath}: ${err}`);
       }
     }
   }

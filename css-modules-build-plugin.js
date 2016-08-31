@@ -108,20 +108,25 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
   isRoot(inputFile) {
+    if ('isRoot' in inputFile) {
+      return inputFile.isRoot;
+    }
+
     let isRoot = null;
     for (let i = 0; i < this.preprocessors.length; i++) {
       const preprocessor = this.preprocessors[i];
       if (preprocessor.shouldProcess(inputFile)) {
         if (preprocessor.isRoot(inputFile)) {
           inputFile.preprocessor = preprocessor;
+          inputFile.isRoot = true;
           return true;
         }
         isRoot = false;
       }
     }
-
+    inputFile.isRoot = isRoot === null ? true : isRoot;
     /* If no preprocessors handle this file, it's automatically considered a root file. */
-    return isRoot === null ? true : isRoot;
+    return inputFile.isRoot;
   }
 
   compileOneFile(inputFile, filesByName) {
@@ -193,6 +198,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     filesByName.get = (key) => {
       const file = filesByName._get(key);
       this._prepInputFile(file);
+      this.isRoot(file);
       return file;
     };
   }
