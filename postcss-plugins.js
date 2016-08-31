@@ -56,7 +56,9 @@ function loadPlugins(options) {
     if (options.globalVariablesJs && packageName === 'postcss-simple-vars') {
       pluginEntryOptions = R.merge({ variables: options.globalVariablesJs }, pluginEntryOptions);
     }
-
+    if (pluginEntryOptions && typeof pluginEntryOptions === 'object' && Object.keys(pluginEntryOptions).length === 0) {
+      pluginEntryOptions = undefined;
+    }
     plugin = pluginEntryOptions !== undefined ? plugin(pluginEntryOptions) : plugin;
     plugins.push(plugin);
   }, R.toPairs(postcssPluginsOptions));
