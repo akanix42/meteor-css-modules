@@ -40,8 +40,9 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
   processFilesForTarget(files) {
     pluginOptions = this.reloadOptions();
-    if (!pluginOptions.cache.enableCache)
+    if (!pluginOptions.cache.enableCache) {
       this._cache.reset();
+    }
     this.optionsHash = pluginOptions.hash;
     const start = profile();
 
@@ -220,8 +221,9 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
   _preprocessFile(inputFile, filesByName) {
-    if (inputFile.preprocessor)
+    if (inputFile.preprocessor) {
       inputFile.preprocessor.process(inputFile, filesByName);
+    }
   }
 
   async _transpileCssModulesToCss(file, filesByName) {
