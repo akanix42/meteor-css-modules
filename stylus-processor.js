@@ -1,157 +1,82 @@
 import Future from 'fibers/future';
 import path from 'path';
-import fs from 'fs';
-import IncludedFile from './included-file';
 import pluginOptions from './options';
-import ImportPathHelpers from './helpers/import-path-helpers';
+import logger from './logger';
 
 const stylus = pluginOptions.enableStylusCompilation ? require('stylus') : null;
 
 export default class StylusProcessor {
-  constructor(root, allFiles) {
-    this.root = root;
+  constructor(pluginOptions) {
     this.fileCache = {};
-    this.allFiles = allFiles;
+    this.filesByName = null;
+    this.pluginOptions = pluginOptions;
+    this.stylus = pluginOptions.enableStylusCompilation ? require('stylus') : null;
   }
 
-  process(file, _source, _relativeTo, allFiles) {
-    return processInternal.call(this, _source, _relativeTo);
-
-    function processInternal(sourceFilePath, relativeTo) {
-      relativeTo = relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
-      const sourceFile = getSourceContents(sourceFilePath, relativeTo);
-      if (!sourceFile) {
-        return '';
-      }
-
-      const cachedResult = this.fileCache[sourceFile.path];
-      if (cachedResult) {
-        return cachedResult;
-      }
-
-      const { sourceContent, sourceMap } = this.load(sourceFile);
-      return this.fileCache[sourceFile.path] = { contents: sourceContent, source: sourceContent, sourceMap: sourceMap };
+  isRoot(inputFile) {
+    const fileOptions = inputFile.getFileOptions();
+    if (fileOptions.hasOwnProperty('isImport')) {
+      return !fileOptions.isImport;
     }
 
-    function getSourceContents(source, relativeTo) {
-      if (source instanceof String || typeof source === 'string') {
-        source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
-        return importModule(source);
-      }
-      return source;
-    }
+    return !hasUnderscore(inputFile.getPathInPackage());
 
-    function importModule(importPath) {
-      try {
-        if (!path.extname(importPath)) {
-          importPath += '.styl';
-        }
-
-        let file = allFiles.get(importPath);
-        if (!file && path.basename(file).indexOf('_' === -1)) {
-          file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
-        }
-
-        return { path: importPath, contents: file.getContentsAsString(), file: file };
-      } catch (err) {
-        console.error(err);
-        file.error({
-          message: `CSS modules Stylus compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-          sourcePath: file.getDisplayPath()
-        });
-        return;
-      }
+    function hasUnderscore(file) {
+      return path.basename(file)[0] === '_';
     }
   }
 
-  load(sourceFile) {
-    const allFiles = this.allFiles;
+  shouldProcess(file) {
+    const stylusCompilationExtensions = this.pluginOptions.enableStylusCompilation;
+    if (!stylusCompilationExtensions || typeof stylusCompilationExtensions === 'boolean') {
+      return stylusCompilationExtensions;
+    }
+
+    return stylusCompilationExtensions.some((extension) => file.getPathInPackage().endsWith(extension));
+  }
+
+  process(file, filesByName) {
+    this.filesByName = filesByName;
+    try {
+      this._process(file);
+    } catch (err) {
+      const numberOfAdditionalLines = this.pluginOptions.globalVariablesTextLineCount
+        ? this.pluginOptions.globalVariablesTextLineCount + 1
+        : 0;
+      const adjustedLineNumber = err.line - numberOfAdditionalLines;
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      logger.error(`Processing Step: Stylus compilation`);
+      logger.error(`Unable to compile ${file.importPath}\nLine: ${adjustedLineNumber}, Column: ${err.column}\n${err}`);
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      throw err;
+    }
+  }
+
+  _process(file) {
+    if (file.isPreprocessed) return;
+
+    const { css, sourceMap } = this._transpile(file);
+    file.contents = css;
+    file.sourceMap = sourceMap;
+    file.isPreprocessed = true;
+  }
+
+  _transpile(sourceFile) {
     const future = new Future();
-    const resolver = future.resolver();
     const options = {
-      filename: sourceFile.path,
+      filename: sourceFile.importPath,
       sourcemap: {
         comment: false
       }
     };
 
-    stylus.render(sourceFile.contents, options, function(err, css) {
+    stylus.render(sourceFile.rawContents, options, function(err, css) {
       if (err) {
-        return resolver(err);
+        return future.throw(err);
       }
-
-      resolver(null, { sourceContent: css, sourceMap: stylus.sourcemap });
+      future.return({ css, sourceMap: stylus.sourcemap });
     });
 
     return future.wait();
-
-    function importer(sourceFilePath, relativeTo) {
-      const sourceFile = getSourceContents(this.fileCache, sourceFilePath, relativeTo);
-      if (!sourceFile) {
-        return '';
-      }
-
-      return sourceFile;
-    }
-
-    function getSourceContents(fileCache, source, relativeTo) {
-      if (source instanceof String || typeof source === 'string') {
-        const sourcePath = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
-        const cachedResult = fileCache[sourcePath];
-        if (cachedResult) {
-          return cachedResult;
-        }
-
-        return importModule(sourcePath);
-      }
-      return source;
-    }
-
-    function importModule(importPath) {
-      try {
-        const originalImportPath = importPath;
-        if (!path.extname(importPath)) {
-          importPath += '.scss';
-        }
-
-        let file = allFiles.get(importPath);
-        if (!file && path.basename(file).indexOf('_' === -1)) {
-          file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
-        }
-        if (!file) {
-          file = new IncludedFile(discoverImportPath(originalImportPath), sourceFile);
-          allFiles.set(originalImportPath, file);
-        }
-
-        return { contents: file.rawContents || file.getContentsAsString(), file: importPath };
-
-        function discoverImportPath(importPath) {
-          const potentialPaths = [importPath];
-          const potentialFileExtensions = pluginOptions.enableSassCompilation === true ? pluginOptions.extensions : pluginOptions.enableSassCompilation;
-
-          if (!path.extname(importPath)) {
-            potentialFileExtensions.forEach(extension => potentialPaths.push(`${importPath}.${extension}`));
-          }
-          if (path.basename(importPath)[0] !== '_') {
-            [].concat(potentialPaths).forEach(potentialPath => potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
-          }
-
-          for (let i = 0, potentialPath = potentialPaths[i]; i < potentialPaths.length; i++, potentialPath = potentialPaths[i]) {
-            if (fs.existsSync(potentialPaths[i])) {
-              return potentialPath;
-            }
-          }
-
-          throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths)}`);
-        }
-      } catch (err) {
-        console.error(err);
-        sourceFile.file.error({
-          message: `CSS modules Stylus compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-          sourcePath: sourceFile.file.getDisplayPath()
-        });
-        return new Error(`CSS modules Stylus compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`);
-      }
-    }
   }
 };

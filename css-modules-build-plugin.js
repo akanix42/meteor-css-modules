@@ -6,7 +6,7 @@ import { Babel } from 'meteor/babel-compiler';
 
 import recursiveUnwrapped from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
-// import StylusProcessor from './stylus-processor';
+import StylusProcessor from './stylus-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
 import pluginOptionsWrapper, { reloadOptions } from './options';
@@ -102,9 +102,9 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     if (pluginOptions.enableSassCompilation) {
       this.preprocessors.push(new ScssProcessor(pluginOptions));
     }
-    // if (pluginOptions.enableStylusCompilation) {
-    //   this.preprocessors.push(new StylusProcessor('./'));
-    // }
+    if (pluginOptions.enableStylusCompilation) {
+      this.preprocessors.push(new StylusProcessor(pluginOptions));
+    }
   }
 
   isRoot(inputFile) {
