@@ -1,63 +1,80 @@
 import path from 'path';
 import fs from 'fs';
 import sha1 from './sha1';
+import pluginOptionsWrapper from './options';
+
+const pluginOptions = pluginOptionsWrapper.options;
 
 export default class IncludedFile {
-	constructor(filePath, backingInputFile) {
-		this.path = filePath;
-		this.inputFile = backingInputFile;
-		this.extension = path.extname(this.path);
-		this.basename = path.basename(this.path);
-	}
+  constructor(filePath, backingInputFile) {
+    this.path = filePath;
+    this.inputFile = backingInputFile;
+    this.extension = path.extname(this.path);
+    this.basename = path.basename(this.path);
+  }
 
-	addJavaScript(options) {
-		this.inputFile.addJavaScript(options);
-	}
+  async prepInputFile(file) {
+    file.referencedImportPaths = [];
 
-	addStylesheet(options) {
-		this.inputFile.addStylesheet(options);
-	}
+    file.contents = await (new Promise((resolve, reject) => fs.readFile(file.path, 'utf-8', function(err, result) {
+      if (err) reject(err);
+      resolve(result);
+    })));
 
-	error(data) {
-		data.message = 'Explicitly imported file error: ' + data.message;
-		this.inputFile.error(data);
-	}
+    if (pluginOptions.globalVariablesText) {
+      file.contents = `${pluginOptions.globalVariablesText}\n\n${file.contents}`;
+    }
+    file.rawContents = file.contents;
+  }
 
-	getArch() {
-		return this.inputFile.getArch();
-	}
+  addJavaScript(options) {
+    this.inputFile.addJavaScript(options);
+  }
 
-	getBasename() {
-		return this.basename;
-	}
+  addStylesheet(options) {
+    this.inputFile.addStylesheet(options);
+  }
 
-	getContentsAsString() {
-		return this.contents || (this.contents = fs.readFileSync(this.path, 'utf-8'));
-	}
+  error(data) {
+    data.message = 'Explicitly imported file error: ' + data.message;
+    this.inputFile.error(data);
+  }
 
-	getDisplayPath() {
-		return this.path;
-	}
+  getArch() {
+    return this.inputFile.getArch();
+  }
 
-	getExtension() {
-		return this.extension;
-	}
+  getBasename() {
+    return this.basename;
+  }
 
-	getFileOptions() {
-		return {};
-	}
+  getContentsAsString() {
+    return this.contents;
+  }
 
-	getPackageName() {
-		return null;
-	}
+  getDisplayPath() {
+    return this.path;
+  }
 
-	getPathInPackage() {
-		return this.path;
-	}
+  getExtension() {
+    return this.extension;
+  }
 
-	getSourceHash() {
-		return sha1(this.getContentsAsString());
-	}
+  getFileOptions() {
+    return {};
+  }
+
+  getPackageName() {
+    return null;
+  }
+
+  getPathInPackage() {
+    return this.path;
+  }
+
+  getSourceHash() {
+    return sha1(this.getContentsAsString());
+  }
 
 };
 

@@ -49,3 +49,5 @@ crashlytics-build.properties
 
 .versions
 .npm/
+node_modules/
+meteor-css-modules/

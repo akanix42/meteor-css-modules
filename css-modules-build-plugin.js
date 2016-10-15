@@ -1,355 +1,274 @@
+/* globals JSON */
 import path from 'path';
-import LRU from 'lru-cache';
+import { MultiFileCachingCompiler } from 'meteor/caching-compiler';
 import { Meteor } from 'meteor/meteor';
+import { Babel } from 'meteor/babel-compiler';
+
 import recursiveUnwrapped from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
 import StylusProcessor from './stylus-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
-import plugins from './postcss-plugins';
 import pluginOptionsWrapper, { reloadOptions } from './options';
 import getOutputPath from './get-output-path';
 import profile from './helpers/profile';
+import ImportPathHelpers from './helpers/import-path-helpers';
+import { stripIndent, stripIndents } from 'common-tags';
 
 let pluginOptions = pluginOptionsWrapper.options;
-recursive = Meteor.wrapAsync(recursiveUnwrapped);
-// clock function thanks to NextLocal: http://stackoverflow.com/a/34970550/1090626
+const recursive = Meteor.wrapAsync(recursiveUnwrapped);
 
-export default class CssModulesBuildPlugin extends CachingCompiler {
-	constructor() {
-		super({
-			compilerName: 'mss',
-			defaultCacheSize: 1024 * 1024 * 10
-		});
+export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
+  constructor() {
+    super({
+      compilerName: 'mss',
+      defaultCacheSize: 1024 * 1024 * 10
+    });
+    this.profilingResults = {
+      processFilesForTarget: null,
+      _transpileScssToCss: null,
+      _transpileCssModulesToCss: null
+    };
 
-		this._cache = new LRU({
-			max: this._cacheSize,
-			length: (value) => this.compileResultSize(value),
-		});
-	}
+    this.preprocessors = null;
+    this.cssModulesProcessor = null;
+    this.filesByName = null;
+    this.optionsHash = null;
 
-	processFilesForTarget(files) {
-		pluginOptions = reloadOptions();
+    this.reloadOptions = reloadOptions;
+  }
 
-		const start = profile();
-		const prepStart = profile();
-		files = removeFilesFromExcludedFolders(files);
-		files = addFilesFromIncludedFolders(files);
+  processFilesForTarget(files) {
+    pluginOptions = this.reloadOptions();
+    if (!pluginOptions.cache.enableCache) {
+      this._cache.reset();
+    }
+    this.optionsHash = pluginOptions.hash;
+    const start = profile();
 
-		const allFiles = createAllFilesMap(files);
-		const uncachedFiles = processCachedFiles.call(this, files);
-		profile(prepStart, 'prep complete in');
+    files = removeFilesFromExcludedFolders(files);
+    files = addFilesFromIncludedFolders(files);
 
-		if (pluginOptions.enableSassCompilation)
-			compileScssFiles.call(this, uncachedFiles);
-		if (pluginOptions.enableStylusCompilation)
-			compileStylusFiles.call(this, uncachedFiles);
+    // this._prepInputFiles(files);
+    this._setupPreprocessors();
+    this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
+    this.filesByName = null;
 
-		const passthroughStart = profile();
-		let passthroughFiles;
-		({ files, passthroughFiles } = extractPassthroughFiles(uncachedFiles));
-		processPassthroughFiles(passthroughFiles);
-		profile(passthroughStart, 'passthrough processing complete in');
+    super.processFilesForTarget(files);
 
-		compileCssModules.call(this, files);
+    this.profilingResults.processFilesForTarget = profile(start, 'processFilesForTarget');
 
-		profile(start, 'compilation complete in');
+    function removeFilesFromExcludedFolders(files) {
+      if (!pluginOptions.ignorePaths.length) {
+        return files;
+      }
 
-		function processCachedFiles(files) {
-			const filesToProcess = [];
-			files.forEach(inputFile => {
-				filesToProcess.push(inputFile);
-			});
+      const ignoredPathsRegExps = pluginOptions.ignorePaths.map(pattern => new RegExp(pattern));
+      const shouldKeepFile = file => !ignoredPathsRegExps.some(regex => regex.test(file.getPathInPackage()));
 
-			return filesToProcess;
-		}
+      return files.filter(shouldKeepFile);
+    }
 
-		function removeFilesFromExcludedFolders(files) {
-			if (!pluginOptions.ignorePaths.length)
-				return files;
+    function addFilesFromIncludedFolders(files) {
+      pluginOptions.explicitIncludes.map(folderPath => {
+        const includedFiles = recursive(folderPath, [onlyAllowExtensionsHandledByPlugin]);
+        files = files.concat(includedFiles.map(filePath => new IncludedFile(filePath.replace(/\\/g, '/'), files[0])));
 
-			const ignoredPathsRegExps = pluginOptions.ignorePaths.map(pattern=> new RegExp(pattern));
-			const shouldKeepFile = file => !ignoredPathsRegExps.some(regex=>regex.test(file.getPathInPackage()));
+        function onlyAllowExtensionsHandledByPlugin(file, stats) {
+          let extension = path.extname(file);
+          if (extension) {
+            extension = extension.substring(1);
+          }
+          return !stats.isDirectory() && pluginOptions.extensions.indexOf(extension) === -1;
+        }
+      });
+      return files;
+    }
+  }
 
-			return files.filter(shouldKeepFile);
-		}
+  _prepInputFiles(files) {
+    files.forEach(file => {
+      file.referencedImportPaths = [];
 
-		function addFilesFromIncludedFolders(files) {
-			pluginOptions.explicitIncludes.map(folderPath=> {
+      file.contents = file.getContentsAsString() || '';
+      if (pluginOptions.globalVariablesText) {
+        file.contents = `${pluginOptions.globalVariablesText}\n\n${file.contents}`;
+      }
+      file.rawContents = file.contents;
+    });
+  }
 
-				const includedFiles = recursive(folderPath, [onlyAllowExtensionsHandledByPlugin]);
-				files = files.concat(includedFiles.map(filePath=>new IncludedFile(filePath.replace(/\\/g, '/'), files[0])));
+  _setupPreprocessors() {
+    this.preprocessors = [];
+    if (pluginOptions.enableSassCompilation) {
+      this.preprocessors.push(new ScssProcessor(pluginOptions));
+    }
+    if (pluginOptions.enableStylusCompilation) {
+      this.preprocessors.push(new StylusProcessor(pluginOptions));
+    }
+  }
 
-				function onlyAllowExtensionsHandledByPlugin(file, stats) {
-					let extension = path.extname(file);
-					if (extension)
-						extension = extension.substring(1);
-					return !stats.isDirectory() && pluginOptions.extensions.indexOf(extension) === -1;
-				}
-			});
-			return files;
-		}
+  isRoot(inputFile) {
+    if ('isRoot' in inputFile) {
+      return inputFile.isRoot;
+    }
 
-		function extractPassthroughFiles(files) {
-			const passthroughFiles = [];
-			if (!pluginOptions.passthroughPaths.length)
-				return { passthroughFiles, files };
-			const otherFiles = [];
-			const createPatternRegExp = pattern => typeof pattern === 'string' ? new RegExp(pattern) : new RegExp(pattern[0], pattern[1]);
-			const passthroughPathsRegExps = pluginOptions.passthroughPaths.map(createPatternRegExp);
+    let isRoot = null;
+    for (let i = 0; i < this.preprocessors.length; i++) {
+      const preprocessor = this.preprocessors[i];
+      if (preprocessor.shouldProcess(inputFile)) {
+        if (preprocessor.isRoot(inputFile)) {
+          inputFile.preprocessor = preprocessor;
+          inputFile.isRoot = true;
+          return true;
+        }
+        isRoot = false;
+      }
+    }
+    inputFile.isRoot = isRoot === null ? true : isRoot;
+    /* If no preprocessors handle this file, it's automatically considered a root file. */
+    return inputFile.isRoot;
+  }
 
-			files.forEach(file=> {
-				if (passthroughPathsRegExps.some(regex=>regex.test(file.getPathInPackage())))
-					passthroughFiles.push(file);
-				else
-					otherFiles.push(file);
-			});
+  compileOneFile(inputFile, filesByName) {
+    this._updateFilesByName(filesByName);
 
-			return { passthroughFiles, files: otherFiles };
-		}
+    this._prepInputFile(inputFile);
+    this._preprocessFile(inputFile, filesByName);
+    this._transpileCssModulesToCss(inputFile, filesByName).await();
 
-		function processPassthroughFiles(files) {
-			files.forEach(inputFile => {
-				inputFile.addStylesheet({
-					data: inputFile.getContentsAsString(),
-					path: inputFile.getPathInPackage()
-				});
-			});
-		}
+    const compileResult = this._generateOutput(inputFile);
+    return { compileResult, referencedImportPaths: inputFile.referencedImportPaths };
+  }
 
-		function compileScssFiles(files) {
-			const start = profile();
-			const processor = new ScssProcessor('./', allFiles);
-			const isScssRoot = (file)=>isScss(file) && isRoot(file);
-			const compileFile = compileScssFile.bind(this);
-			files.filter(isScssRoot).forEach(compileFile);
-			profile(start, 'scss compilation complete in');
+  _generateOutput(inputFile) {
+    const filePath = inputFile.getPathInPackage();
+    const isLazy = filePath.split('/').indexOf('imports') >= 0;
+    const shouldAddStylesheet = inputFile.getArch().indexOf('web') === 0;
 
-			function isScss(file) {
-				if (pluginOptions.enableSassCompilation === true)
-					return true;
+    const compileResult = { isLazy, filePath };
+    if (!isLazy && shouldAddStylesheet && inputFile.contents) {
+      compileResult.stylesheet = inputFile.contents;
+    }
 
-				const extension = path.extname(file.getPathInPackage()).substring(1);
-				return pluginOptions.enableSassCompilation.indexOf(extension) !== -1;
-			}
+    const importsCode = inputFile.imports
+      ? inputFile.imports.map(importPath => `import '${importPath}';`).join('\n')
+      : '';
 
-			function isRoot(inputFile) {
-				const fileOptions = inputFile.getFileOptions();
-				if (fileOptions.hasOwnProperty('isImport')) {
-					return !fileOptions.isImport;
-				}
-				return !hasUnderscore(inputFile.getPathInPackage());
-			}
+    const stylesheetCode = (isLazy && shouldAddStylesheet && inputFile.contents)
+      ? stripIndent`
+         import modules from 'meteor/modules';
+				 modules.addStyles(${JSON.stringify(inputFile.contents)});`
+      : '';
 
-			function compileScssFile(file) {
-				const contents = file.contents = file.getContentsAsString();
-				file.rawContents = file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
+    const tokensCode = inputFile.tokens
+      ? stripIndent`
+         const styles = ${JSON.stringify(inputFile.tokens)};
+         export { styles as default, styles };`
+      : '';
 
-				file.getContentsAsString = function getContentsAsStringWithGlobalVariables() {
-					return file.contents;
-				};
-
-				const source = {
-					path: ImportPathHelpers.getImportPathInPackage(file),
-					contents: file.getContentsAsString(),
-					file
-				};
-
-				let result;
-				try {
-					result = processor.process(file, source, './', allFiles);
-				} catch (err) {
-					const numberOfAdditionalLines = pluginOptions.globalVariablesTextLineCount
-						? pluginOptions.globalVariablesTextLineCount + 1
-						: 0;
-					const adjustedLineNumber = err.line - numberOfAdditionalLines;
-					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-					console.error(`Processing Step: SCSS compilation`);
-					console.error(`Unable to compile ${source.path}\nLine: ${adjustedLineNumber}, Column: ${err.column}\n${err}`);
-					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-					throw err;
-				}
-
-				file.getContentsAsString = function getContentsAsString() {
-					return result.source;
-				};
-			}
-		}
-
-		function compileStylusFiles(files) {
-			const start = profile();
-			const processor = new StylusProcessor('./', allFiles);
-			const isStylusRoot = (file)=>isStylus(file) && isRoot(file);
-			const compileFile = compileStylusFile.bind(this);
-			files.filter(isStylusRoot).forEach(compileFile);
-			profile(start, 'stylus compilation complete in');
-
-			function isStylus(file) {
-				if (pluginOptions.enableStylusCompilation === true)
-					return true;
-
-				return _.find(pluginOptions.enableStylusCompilation, (ext) => (
-					file.getPathInPackage().endsWith(ext)
-				))
-			}
-
-			function isRoot(inputFile) {
-				const fileOptions = inputFile.getFileOptions();
-				if (fileOptions.hasOwnProperty('isImport')) {
-					return !fileOptions.isImport;
-				}
-				return !hasUnderscore(inputFile.getPathInPackage());
-			}
-
-			function compileStylusFile(file) {
-				const contents = file.contents = file.getContentsAsString();
-				file.rawContents = file.contents = `${pluginOptions.globalVariablesText}\n\n${contents || ''}`;
-
-				file.getContentsAsString = function getContentsAsStringWithGlobalVariables() {
-					return file.contents;
-				};
-
-				const source = {
-					path: ImportPathHelpers.getImportPathInPackage(file),
-					contents: file.getContentsAsString(),
-					file
-				};
-
-				let result;
-				try {
-					result = processor.process(file, source, './', allFiles);
-				} catch (err) {
-					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-					console.error(`Processing Step: Stylus compilation`);
-					console.error(`Unable to compile ${source.path}\n${err}`);
-					console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-					throw err;
-				}
-
-				file.getContentsAsString = function getContentsAsString() {
-					return result.source;
-				};
-			}
-		}
-
-		function compileCssModules(files) {
-			const processor = new CssModulesProcessor('./');
-			const isNotScssImport = (file) => !hasUnderscore(file.getPathInPackage());
-
-			const start = profile();
-			files.filter(isNotScssImport).forEach(processFile.bind(this));
-			profile(start, 'css modules compilation complete in');
-
-			function processFile(file) {
-				const source = {
-					path: ImportPathHelpers.getImportPathInPackage(file),
-					contents: file.getContentsAsString()
-				};
-
-				return processor.process(source, './', allFiles)
-					.then(result => {
-						// Save what we've compiled.
-						this.addCompileResult(file, result);
-					}).await();
-			}
-		}
-
-		function hasUnderscore(file) {
-			return path.basename(file)[0] === '_';
-		}
-	}
-
-	addCompileResult(file, result) {
-		const filePath = file.getPathInPackage();
-		const isLazy = filePath.split('/').indexOf('imports') >= 0;
-		const shouldAddStylesheet = file.getArch().indexOf('web') === 0;
-
-		if (!isLazy && shouldAddStylesheet) {
-			if (result.source) {
-				file.addStylesheet({
-					data: result.source,
-					path: getOutputPath(filePath, pluginOptions.outputCssFilePath) + '.css',
-					sourcePath: getOutputPath(filePath, pluginOptions.outputCssFilePath) + '.css',
-					sourceMap: JSON.stringify(result.sourceMap),
-					lazy: false
-				});
-			}
-		}
-
-		const importsCode = result.imports
-			? result.imports.map(importPath=>`import '${importPath}';`).join('\n')
-			: '';
-		const stylesheetCode = (isLazy && shouldAddStylesheet && result.source)
-			? `import modules from 'meteor/modules';
-					 modules.addStyles(${JSON.stringify(result.source)});`
-			: '';
-
-		const tokensCode = result.tokens
-			? `const styles = ${JSON.stringify(result.tokens)};
-					 export { styles as default, styles };`
-			: '';
-
-		if (stylesheetCode || tokensCode) {
-			file.addJavaScript({
-				data: tryBabelCompile(`
+    if (importsCode || stylesheetCode || tokensCode) {
+      compileResult.javascript = tryBabelCompile(stripIndents`
 					${importsCode}
 					${stylesheetCode}
-					${tokensCode}`),
-				path: getOutputPath(filePath, pluginOptions.outputJsFilePath) + '.js',
-				sourcePath: getOutputPath(filePath, pluginOptions.outputJsFilePath),
-				lazy: isLazy,
-				bare: false,
-			});
-		}
+					${tokensCode}`
+      );
+    }
 
-		function tryBabelCompile(code) {
-			try {
-				return Babel.compile(code).code;
-			} catch (err) {
-				console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-				console.error(`Processing Step: Babel compilation`);
-				console.error(`Unable to compile ${filePath}\n${err}`);
-				console.error('Source: \n// <start of file>\n', code.replace(/^\s+/gm, ''))
-				console.error(`// <end of file>`);
-				console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
-				throw err;
-			}
-		}
-	}
+    return compileResult;
 
-	compileResultSize(compileResult) {
-		return compileResult.source.length + JSON.stringify(compileResult.tokens).length +
-			this.sourceMapSize(compileResult.sourceMap);
-	}
+    function tryBabelCompile(code) {
+      try {
+        return Babel.compile(code).code;
+      } catch (err) {
+        console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+        console.error(`Processing Step: Babel compilation`);
+        console.error(`Unable to compile ${filePath}\n${err}`);
+        console.error('Source: \n// <start of file>\n', code.replace(/^\s+/gm, ''));
+        console.error(`// <end of file>`);
+        console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+        throw err;
+      }
+    }
+  }
 
-	/**
-	 * modified version of implementation from caching-compiler package
-	 */
-	sourceMapSize(sm) {
-		if (!sm) return 0;
+  _updateFilesByName(filesByName) {
+    if (this.filesByName) return;
+    this.filesByName = filesByName;
+    filesByName._get = filesByName.get;
+    filesByName.get = (key) => {
+      const file = filesByName._get(key);
+      this._prepInputFile(file);
+      this.isRoot(file);
+      return file;
+    };
+  }
 
-		const mappings = sm.mappings || sm._mappings;
-		const mappingsLength = mappings ? mappings.length : 0;
-		let contentsLength = 0;
-		if ('sourcesContent' in sm)
-			(sm.sourcesContent || []).reduce((soFar, current) => soFar + (current ? current.length : 0), 0)
-		else if ('_sourceContents' in sm)
-			Object.keys(sm._sourceContents || {}).reduce((total, key) => total + sm._sourceContents[key], 0);
+  _prepInputFile(file) {
+    if (file.isPrepped) {
+      return;
+    }
 
-		return mappingsLength + contentsLength;
-	}
+    file.referencedImportPaths = [];
 
-	getCacheKey(inputFile) {
-		return inputFile.getSourceHash();
-	}
+    file.contents = file.getContentsAsString() || '';
+    if (pluginOptions.globalVariablesText) {
+      file.contents = `${pluginOptions.globalVariablesText}\n\n${file.contents}`;
+    }
+    file.rawContents = file.contents;
+
+    file.isPrepped = true;
+  }
+
+  _preprocessFile(inputFile, filesByName) {
+    if (inputFile.preprocessor) {
+      inputFile.preprocessor.process(inputFile, filesByName);
+    }
+  }
+
+  async _transpileCssModulesToCss(file, filesByName) {
+    const startedAt = profile();
+
+    await this.cssModulesProcessor.process(file, filesByName);
+
+    this.profilingResults._transpileCssModulesToCss = (this.profilingResults._transpileCssModulesToCss || 0) + startedAt;
+  }
+
+  addCompileResult(file, result) {
+    if (result.stylesheet) {
+      file.addStylesheet({
+        data: result.stylesheet,
+        path: getOutputPath(result.filePath, pluginOptions.outputCssFilePath) + '.css',
+        sourcePath: getOutputPath(result.filePath, pluginOptions.outputCssFilePath) + '.css',
+        sourceMap: JSON.stringify(result.sourceMap),
+        lazy: false
+      });
+    }
+
+    if (result.javascript) {
+      file.addJavaScript({
+        data: result.javascript,
+        path: getOutputPath(result.filePath, pluginOptions.outputJsFilePath) + '.js',
+        sourcePath: getOutputPath(result.filePath, pluginOptions.outputJsFilePath),
+        lazy: result.isLazy,
+        bare: false,
+      });
+    }
+  }
+
+  compileResultSize(compileResult) {
+    return JSON.stringify(compileResult).length;
+  }
+
+  getCacheKey(inputFile) {
+    return `${this.optionsHash}...${inputFile.getSourceHash()}`;
+  }
+
+  getAbsoluteImportPath(inputFile) {
+    const importPath = ImportPathHelpers.getImportPathInPackage(inputFile);
+    inputFile.importPath = importPath;
+    return importPath;
+  }
 
 };
 
-function createAllFilesMap(files) {
-	const allFiles = new Map();
-	files.forEach((inputFile) => {
-		const importPath = ImportPathHelpers.getImportPathInPackage(inputFile);
-		allFiles.set(importPath, inputFile);
-	});
-	return allFiles;
-}

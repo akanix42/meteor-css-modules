@@ -1,149 +1,139 @@
 import path from 'path';
 import fs from 'fs';
 import IncludedFile from './included-file';
-import pluginOptionsWrapper from './options';
-
-const pluginOptions = pluginOptionsWrapper.options;
-
-const sass = pluginOptions.enableSassCompilation ? require('node-sass') : null;
+import ImportPathHelpers from './helpers/import-path-helpers';
+import logger from './logger';
 
 export default class ScssProcessor {
-	constructor(root, allFiles) {
-		this.root = root;
-		this.fileCache = {};
-		this.allFiles = allFiles;
-	}
+  constructor(pluginOptions) {
+    this.fileCache = {};
+    this.filesByName = null;
+    this.pluginOptions = pluginOptions;
+    this.sass = pluginOptions.enableSassCompilation ? require('node-sass') : null;
+  }
 
-	process(file, _source, _relativeTo) {
-		return processInternal.call(this, _source, _relativeTo);
+  isRoot(inputFile) {
+    const fileOptions = inputFile.getFileOptions();
+    if (fileOptions.hasOwnProperty('isImport')) {
+      return !fileOptions.isImport;
+    }
 
-		function processInternal(sourceFilePath, relativeTo) {
-			relativeTo = relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
-			const sourceFile = getSourceContents(sourceFilePath, relativeTo);
-			if (!sourceFile)
-				return '';
+    return !hasUnderscore(inputFile.getPathInPackage());
 
-			const cachedResult = this.fileCache[sourceFile.path];
-			if (cachedResult)
-				return cachedResult;
+    function hasUnderscore(file) {
+      return path.basename(file)[0] === '_';
+    }
+  }
 
-			const { sourceContent, sourceMap } = this.load(sourceFile);
-			return this.fileCache[sourceFile.path] = {contents: sourceContent, source: sourceContent, sourceMap: sourceMap};
-		}
+  shouldProcess(file) {
+    return isScssFile.call(this, file);
 
-		function getSourceContents(source, relativeTo) {
-			if (source instanceof String || typeof source === "string") {
-				source = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
-				return importModule(source);
-			}
-			return source;
-		}
+    function isScssFile(file) {
+      if (!this.pluginOptions.enableSassCompilation || typeof this.pluginOptions.enableSassCompilation === 'boolean') {
+        return this.pluginOptions.enableSassCompilation;
+      }
 
-		function importModule(importPath) {
-			try {
-				if (!path.extname(importPath))
-					importPath += '.scss';
+      const extension = path.extname(file.getPathInPackage()).substring(1);
+      return this.pluginOptions.enableSassCompilation.indexOf(extension) !== -1;
+    }
+  }
 
-				let file = allFiles.get(importPath);
-				if (!file && path.basename(file).indexOf('_' === -1))
-					file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
+  process(file, filesByName) {
+    this.filesByName = filesByName;
+    try {
+      this._process(file);
+    } catch (err) {
+      const numberOfAdditionalLines = this.pluginOptions.globalVariablesTextLineCount
+        ? this.pluginOptions.globalVariablesTextLineCount + 1
+        : 0;
+      const adjustedLineNumber = err.line - numberOfAdditionalLines;
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      logger.error(`Processing Step: SCSS compilation`);
+      logger.error(`Unable to compile ${file.importPath}\nLine: ${adjustedLineNumber}, Column: ${err.column}\n${err}`);
+      logger.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
+      throw err;
+    }
+  }
 
-				return {path: importPath, contents: file.getContentsAsString(), file: file};
-			} catch (err) {
-				console.error(err);
-				file.error({
-					message: `CSS modules SCSS compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-					sourcePath: file.getDisplayPath()
-				});
-				return;
-			}
-		}
+  _process(file) {
+    if (file.isPreprocessed) return;
 
-	}
+    const sourceFile = this._wrapFileForNodeSass(file);
+    const { css, sourceMap } = this._transpile(sourceFile);
+    file.contents = css;
+    file.sourceMap = sourceMap;
+    file.isPreprocessed = true;
+  }
 
-	load(sourceFile) {
-		const allFiles = this.allFiles;
-		const options = {
-			sourceMap: true,
-			sourceMapContents: true,
-			sourceMapEmbed: false,
-			sourceComments: false,
-			sourceMapRoot: '.',
-			indentedSyntax: sourceFile.file.getExtension() === 'sass',
-			outFile: `.${sourceFile.file.getBasename()}`,
-			importer: importer.bind(this),
-			includePaths: [],
-			file: sourceFile.path,
-			data: sourceFile.contents
-		};
+  _wrapFileForNodeSass(file) {
+    return { path: file.importPath, contents: file.rawContents, file: file };
+  }
 
-		// Empty options.data workaround from fourseven:scss
-		if (!options.data.trim())
-			options.data = '$fakevariable : blue;';
+  _discoverImportPath(importPath) {
+    const potentialPaths = [importPath];
+    const potentialFileExtensions = this.pluginOptions.enableSassCompilation === true ? this.pluginOptions.extensions : this.pluginOptions.enableSassCompilation;
 
-		const output = sass.renderSync(options);
-		return {sourceContent: output.css.toString('utf-8'), sourceMap: output.map};
+    if (!path.extname(importPath)) {
+      potentialFileExtensions.forEach(extension => potentialPaths.push(`${importPath}.${extension}`));
+    }
+    if (path.basename(importPath)[0] !== '_') {
+      [].concat(potentialPaths).forEach(potentialPath => potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
+    }
 
-		function importer(sourceFilePath, relativeTo) {
-			const sourceFile = getSourceContents(this.fileCache, sourceFilePath, relativeTo);
-			if (!sourceFile)
-				return '';
+    for (let i = 0, potentialPath = potentialPaths[i]; i < potentialPaths.length; i++, potentialPath = potentialPaths[i]) {
+      if (this.filesByName.has(potentialPath) || (fs.existsSync(potentialPaths[i]) && fs.lstatSync(potentialPaths[i]).isFile())) {
+        return potentialPath;
+      }
+    }
 
-			return sourceFile;
-		}
+    throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths)}`);
+  }
 
-		function getSourceContents(fileCache, source, relativeTo) {
-			if (source instanceof String || typeof source === "string") {
-				const sourcePath = ImportPathHelpers.getImportPathRelativeToFile(source, relativeTo);
-				const cachedResult = fileCache[sourcePath];
-				if (cachedResult)
-					return cachedResult;
+  _transpile(sourceFile) {
+    const sassOptions = {
+      sourceMap: true,
+      sourceMapContents: true,
+      sourceMapEmbed: false,
+      sourceComments: false,
+      sourceMapRoot: '.',
+      indentedSyntax: sourceFile.file.getExtension() === 'sass',
+      outFile: `.${sourceFile.file.getBasename()}`,
+      importer: this._importFile.bind(this, sourceFile),
+      includePaths: [],
+      file: sourceFile.path,
+      data: sourceFile.contents
+    };
 
-				return importModule(sourcePath);
-			}
-			return source;
-		}
+    /* Empty options.data workaround from fourseven:scss */
+    if (!sassOptions.data.trim()) {
+      sassOptions.data = '$fakevariable : blue;';
+    }
 
-		function importModule(importPath) {
-			try {
-				const originalImportPath = importPath;
-				if (!path.extname(importPath))
-					importPath += '.scss';
+    const output = this.sass.renderSync(sassOptions);
+    return { css: output.css.toString('utf-8'), sourceMap: JSON.parse(output.map.toString('utf-8')) };
+  }
 
-				let file = allFiles.get(importPath);
-				if (!file && path.basename(file).indexOf('_') === -1)
-					file = allFiles.get(`${path.dirname(importPath)}/_${path.basename(importPath)}`);
-				if (!file) {
-					file = new IncludedFile(discoverImportPath(originalImportPath), sourceFile);
-					allFiles.set(originalImportPath, file);
-				}
+  _importFile(rootFile, sourceFilePath, relativeTo) {
+    let importPath = ImportPathHelpers.getImportPathRelativeToFile(sourceFilePath, relativeTo);
+    importPath = this._discoverImportPath(importPath);
+    let inputFile = this.filesByName.get(importPath);
+    if (inputFile) {
+      rootFile.file.referencedImportPaths.push(importPath);
+    } else {
+      this._createIncludedFile(importPath, rootFile);
+    }
 
-				return {contents: file.rawContents || file.getContentsAsString(), file: importPath};
-				return {contents: file.getContentsAsString(), file: importPath};
+    return this._wrapFileForNodeSassImport(inputFile);
+  }
 
-				function discoverImportPath(importPath) {
-					const potentialPaths = [importPath];
-					const potentialFileExtensions = pluginOptions.enableSassCompilation === true ? pluginOptions.extensions : pluginOptions.enableSassCompilation;
+  _createIncludedFile(importPath, rootFile) {
+    const file = new IncludedFile(importPath, rootFile);
+    file.prepInputFile().await();
+    this.filesByName.set(importPath, file);
+  }
 
-					if (!path.extname(importPath))
-						potentialFileExtensions.forEach(extension=>potentialPaths.push(`${importPath}.${extension}`));
-					if (path.basename(importPath)[0] !== '_')
-						[].concat(potentialPaths).forEach(potentialPath=>potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
+  _wrapFileForNodeSassImport(file) {
+    return { contents: file.rawContents, file: file.importPath };
+  }
 
-					for (let i = 0, potentialPath = potentialPaths[i]; i < potentialPaths.length; i++, potentialPath = potentialPaths[i])
-						if (fs.existsSync(potentialPaths[i]) && fs.lstatSync(potentialPaths[i]).isFile())
-							return potentialPath;
-
-					throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths)}`);
-				}
-			} catch (err) {
-				console.error(err);
-				sourceFile.file.error({
-					message: `CSS modules SCSS compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`,
-					sourcePath: sourceFile.file.getDisplayPath()
-				});
-				return new Error(`CSS modules SCSS compiler error: file not found: (${importPath}): ${JSON.stringify(err, Object.getOwnPropertyNames(err))}\n`);
-			}
-		}
-	}
 };
