@@ -2,11 +2,13 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [2.3.0] - 2016-10-15
+### Added
+- Implemented caching to speed up performance, especially for large projects.
 
 ## [2.2.2] - 2016-07-29
 ### Fixed
-- Strip surrounding single quotes when importing CSS modules (previously only strippped double quotes).
+- Strip surrounding single quotes when importing CSS modules (previously only stripped double quotes).
 
 ## [2.2.1] - 2016-07-29
 ### Fixed
@@ -63,7 +65,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.2...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.3.0...HEAD
+[2.3.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.2...v2.3.0
 [2.2.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.1...v2.2.2
 [2.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.1.4...v2.2.0
