@@ -10,10 +10,10 @@ Package.describe({
 Package.registerBuildPlugin({
   name: 'mss',
   use: [
-    'babel-compiler@6.8.2',
-    'ecmascript@0.4.5',
-    'caching-compiler@1.0.5',
-    'underscore@1.0.7',
+    'babel-compiler@6.9.1_1',
+    'ecmascript@0.5.8_1',
+    'caching-compiler@1.1.7_1',
+    'underscore@1.0.9',
   ],
   npmDependencies: {
     'app-module-path': '1.0.4',
