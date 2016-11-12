@@ -27,6 +27,7 @@ function getDefaultOptions() {
     },
     enableProfiling: false,
     enableSassCompilation: ['scss', 'sass'],
+    enableLessCompilation: ['less'],
     enableStylusCompilation: ['styl', 'm.styl'],
     explicitIncludes: [],
     extensions: ['css', 'm.css', 'mss'],
@@ -68,6 +69,7 @@ function loadOptions() {
   processCssClassNamingConventionReplacements(options);
   processPassthroughPathExpressions(options);
   checkSassCompilation(options);
+  checkLessCompilation(options);
   checkStylusCompilation(options);
 
   return pluginOptions.options = options;
@@ -96,6 +98,18 @@ function checkSassCompilation(options) {
     if (result === true) return;
   }
   options.enableSassCompilation = false;
+}
+
+function checkLessCompilation(options) {
+  if (!options.enableLessCompilation) return;
+
+  if (options.enableLessCompilation === true ||
+    (Array.isArray(options.enableLessCompilation) && R.intersection(options.enableLessCompilation, options.extensions).length)) {
+    const result = checkNpmPackage('less@2.x');
+    if (result === true) return;
+  }
+
+  options.enableLessCompilation = false;
 }
 
 function checkStylusCompilation(options) {
