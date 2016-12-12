@@ -45,6 +45,7 @@ Package.registerBuildPlugin({
     'helpers/profile.js',
     'postcss-plugins.js',
     'scss-processor.js',
+    'less-processor.js',
     'stylus-processor.js',
     'css-modules-processor.js',
     'css-modules-build-plugin.js',

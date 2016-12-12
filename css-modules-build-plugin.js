@@ -6,6 +6,7 @@ import { Babel } from 'meteor/babel-compiler';
 
 import recursiveUnwrapped from 'recursive-readdir';
 import ScssProcessor from './scss-processor';
+import LessProcessor from './less-processor';
 import StylusProcessor from './stylus-processor';
 import CssModulesProcessor from './css-modules-processor';
 import IncludedFile from './included-file';
@@ -105,6 +106,9 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     }
     if (pluginOptions.enableStylusCompilation) {
       this.preprocessors.push(new StylusProcessor(pluginOptions));
+    }
+    if (pluginOptions.enableLessCompilation) {
+      this.preprocessors.push(new LessProcessor(pluginOptions));
     }
   }
 
@@ -271,4 +275,3 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
 };
-
