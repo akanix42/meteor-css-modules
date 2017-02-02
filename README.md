@@ -237,6 +237,9 @@ To enable server-side processing, set "specificArchitecture": false in your cssM
 
 You can also use any archMatching option (the default is 'web', or client-side only processing). To only allow server-side processing, set `"specificArchitecture": "os"`.
 
+## Setting up Development
+
+If you opt to develop with this package, note that Meteor will likely throw errors if you attempt to directly place this package in the packages folder. Instead, run the prepare.cmd (on Windows, or make a similar script for Linux/Mac) to copy only the package files to a new directory and symlink that into your packages folder. If you don't, Meteor may freak out about the test files that are included with this repository.
 
 ## History
 
