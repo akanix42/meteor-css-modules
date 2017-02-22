@@ -275,3 +275,4 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
 };
+

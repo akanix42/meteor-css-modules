@@ -2,9 +2,15 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.4.0] - 2016-02-22
+### Added
+ - Support for Less (#78 - thanks @StGeass!)
+
 ## [2.3.1] - 2016-11-08
 ### Fixed
 - Published correctly.
+### Changed
+- Updated Atmosphere package dependencies (actually included in 2.3.1).
 
 ### Changed
 - Updated Atmoshpere dependencies
