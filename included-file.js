@@ -11,20 +11,21 @@ export default class IncludedFile {
     this.inputFile = backingInputFile;
     this.extension = path.extname(this.path);
     this.basename = path.basename(this.path);
+    this.contents = null;
   }
 
-  async prepInputFile(file) {
-    file.referencedImportPaths = [];
+  async prepInputFile() {
+    this.referencedImportPaths = [];
 
-    file.contents = await (new Promise((resolve, reject) => fs.readFile(file.path, 'utf-8', function(err, result) {
-      if (err) reject(err);
-      resolve(result);
-    })));
+    if (!this.contents) {
+      console.log('load contents', this.path);
 
-    if (pluginOptions.globalVariablesText) {
-      file.contents = `${pluginOptions.globalVariablesText}\n\n${file.contents}`;
+      this.contents = fs.readFileSync(this.path, 'utf-8');
     }
-    file.rawContents = file.contents;
+    if (pluginOptions.globalVariablesText) {
+      this.contents = `${pluginOptions.globalVariablesText}\n\n${this.contents}`;
+    }
+    this.rawContents = this.contents;
   }
 
   addJavaScript(options) {

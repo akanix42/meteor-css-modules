@@ -12,7 +12,8 @@ if (pluginOptions.extensions.indexOf('css') === -1) {
 } else {
   monkeyPatchToHandleCssExtension();
 }
-
+global.cssModules = global.cssModules || {};
+global.cssModules.compiler = new CssModulesBuildPlugin(Plugin);
 function registerCompiler() {
   Plugin.registerCompiler({
     extensions: pluginOptions.extensions,

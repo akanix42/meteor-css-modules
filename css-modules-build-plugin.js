@@ -139,32 +139,59 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
     this._prepInputFile(inputFile);
     this._preprocessFile(inputFile, filesByName);
-    this._transpileCssModulesToCss(inputFile, filesByName).await();
+    if (inputFile.transpileCssModules !== false) {
+      this._transpileCssModulesToCss(inputFile, filesByName).await();
+    }
 
     const compileResult = this._generateOutput(inputFile);
     return { compileResult, referencedImportPaths: inputFile.referencedImportPaths };
   }
 
+  compileFromSource(source, backingInputFile, { transpileCssModules = false }) {
+    pluginOptions = this.reloadOptions();
+    if (!pluginOptions.cache.enableCache) {
+      this._cache.reset();
+    }
+    this.optionsHash = pluginOptions.hash;
+    this._setupPreprocessors();
+    this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
+
+    this._updateFilesByName(new Map());
+    const inputFile = this._createIncludedFile(backingInputFile.getPathInPackage(), backingInputFile, source);
+
+    inputFile.transpileCssModules = transpileCssModules;
+    return this.compileOneFile(inputFile, this.filesByName);
+  }
+
+  _createIncludedFile(importPath, rootFile, contents) {
+    const file = new IncludedFile(importPath, rootFile);
+    this.getAbsoluteImportPath(file);
+    file.contents = contents;
+    file.prepInputFile().await();
+    this.filesByName.set(importPath, file);
+
+    return file;
+  }
+
   _generateOutput(inputFile) {
     const filePath = inputFile.getPathInPackage();
     const isLazy = filePath.split('/').indexOf('imports') >= 0;
-    const shouldAddStylesheet = inputFile.getArch().indexOf('web') === 0;
 
-    const compileResult = { isLazy, filePath };
-    if (!isLazy && shouldAddStylesheet && inputFile.contents) {
+    const compileResult = { isLazy, filePath, imports: inputFile.imports, absoluteImports: inputFile.absoluteImports };
       compileResult.stylesheet = inputFile.contents;
-    }
 
     const importsCode = inputFile.imports
       ? inputFile.imports.map(importPath => `import '${importPath}';`).join('\n')
       : '';
 
+    const shouldAddStylesheet = inputFile.getArch().indexOf('web') === 0;
     const stylesheetCode = (isLazy && shouldAddStylesheet && inputFile.contents)
       ? stripIndent`
          import modules from 'meteor/modules';
 				 modules.addStyles(${JSON.stringify(inputFile.contents)});`
       : '';
 
+    compileResult.tokens = inputFile.tokens;
     const tokensCode = inputFile.tokens
       ? stripIndent`
          const styles = ${JSON.stringify(inputFile.tokens)};
@@ -202,6 +229,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     filesByName._get = filesByName.get;
     filesByName.get = (key) => {
       const file = filesByName._get(key);
+      if (!file) { return; }
       this._prepInputFile(file);
       this.isRoot(file);
       return file;
@@ -239,7 +267,8 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
   addCompileResult(file, result) {
-    if (result.stylesheet) {
+    const shouldAddStylesheet = file.getArch().indexOf('web') === 0 && !result.isLazy;
+    if (result.stylesheet && shouldAddStylesheet) {
       file.addStylesheet({
         data: result.stylesheet,
         path: getOutputPath(result.filePath, pluginOptions.outputCssFilePath) + '.css',

@@ -2,6 +2,7 @@
 import loadPostcssPlugins from './postcss-plugins';
 import getOutputPath from './get-output-path';
 import ImportPathHelpers from './helpers/import-path-helpers';
+import IncludedFile from './included-file';
 
 import camelcase from 'camelcase';
 import postcss from 'postcss';
@@ -105,7 +106,7 @@ export default class CssModulesProcessor {
 
     function loadFileContents(importPath, filesByName) {
       try {
-        const file = filesByName.get(importPath);
+        const file = filesByName.get(importPath) || createIncludedFile(importPath, parent, filesByName);
         if (file.preprocessor && !file.isPreprocessed) {
           file.preprocessor.process(file, filesByName);
         }
@@ -115,8 +116,17 @@ export default class CssModulesProcessor {
         throw new Error(`CSS Modules: unable to read file ${importPath}: ${err}`);
       }
     }
-  }
 
+    function createIncludedFile(importPath, rootFile, filesByName) {
+      console.log('ip', importPath)
+      const file = new IncludedFile(importPath, rootFile);
+      file.importPath = ImportPathHelpers.getImportPathInPackage(file);
+      file.prepInputFile();
+      filesByName.set(importPath, file);
+
+      return file;
+    }
+  }
   async _transpileFile(sourceString, sourcePath, trace, pathFetcher) {
     const cssModulesParser = new Parser(pathFetcher, trace);
     sourcePath = ImportPathHelpers.getAbsoluteImportPath(sourcePath);
