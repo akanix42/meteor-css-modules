@@ -5,6 +5,9 @@ import cjson from 'cjson';
 import path from 'path';
 import R from 'ramda';
 import ImportPathHelpers from './helpers/import-path-helpers';
+import applyTemplateString from 'es6-template-strings';
+import hasha from 'hasha';
+import shorthash from 'shorthash';
 
 const corePlugins = {
   'postcss-modules-local-by-default': require('postcss-modules-local-by-default'),
@@ -17,7 +20,23 @@ corePlugins['postcss-modules-scope'].generateScopedName = function generateScope
   let sanitisedPath = path.relative(ImportPathHelpers.basePath, filePath).replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
   const filename = path.basename(filePath).replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
   sanitisedPath = sanitisedPath.replace(new RegExp(`_(${filename})$`), '__$1');
-  return runReplacers(`_${sanitisedPath}__${exportedName}`);
+  console.log(global.cssModules.generateScopedName)
+  if (global.cssModules && global.cssModules.generateScopedName && typeof global.cssModules.generateScopedName === 'function') {
+    return global.cssModules.generateScopedName(exportedName, filePath, sanitisedPath);
+  }
+  let scopedName = `_${sanitisedPath}__${exportedName}`;
+  if (pluginOptions.cssClassNamingConvention && pluginOptions.cssClassNamingConvention.template) {
+    let templateString = pluginOptions.cssClassNamingConvention.template;
+    scopedName = applyTemplateString(templateString, {
+      hasha,
+      originalPath: filePath,
+      name: exportedName,
+      path: sanitisedPath,
+      scopedName,
+      shorthash,
+    });
+  }
+  return runReplacers(scopedName);
 };
 
 function runReplacers(name) {

@@ -1,7 +1,7 @@
 /* globals Package */
 Package.describe({
   name: 'nathantreid:css-modules',
-  version: '2.4.0',
+  version: '2.5.0-beta.1',
   summary: 'CSS modules implementation. CSS for components!',
   git: 'https://github.com/nathantreid/meteor-css-modules.git',
   documentation: 'README.md'
@@ -22,6 +22,8 @@ Package.registerBuildPlugin({
     'colors': '1.1.2',
     'common-tags': '1.3.1',
     'css-modules-loader-core': '1.0.0',
+    'es6-template-strings': '2.0.1',
+    'hasha': '2.2.0',
     'lru-cache': '2.6.4',
     'path-is-absolute': '1.0.0',
     'postcss': '5.1.2',
@@ -31,6 +33,7 @@ Package.registerBuildPlugin({
     'postcss-modules-values': '1.2.2',
     'ramda': '0.19.0',
     'recursive-readdir': '1.3.0',
+    'shorthash': '0.0.2',
     'string-template': '1.0.0',
   },
   sources: [
