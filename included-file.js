@@ -18,8 +18,6 @@ export default class IncludedFile {
     this.referencedImportPaths = [];
 
     if (!this.contents) {
-      console.log('load contents', this.path);
-
       this.contents = await (new Promise((resolve, reject) => fs.readFile(this.path, 'utf-8', function(err, result) {
         if (err) reject(err);
         resolve(result);
