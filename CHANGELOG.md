@@ -2,7 +2,11 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [2.4.0] - 2016-02-22
+## [2.5.0] - 2017-03-18
+### Added
+ - Integration with akryum:vue-component via nathantreid:vue-css-modules!
+
+## [2.4.0] - 2017-02-22
 ### Added
  - Support for Less (#78 - thanks @StGeass!)
 
@@ -10,10 +14,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - Published correctly.
 ### Changed
-- Updated Atmosphere package dependencies (actually included in 2.3.1).
-
-### Changed
-- Updated Atmoshpere dependencies
+- Updated Atmosphere package dependencies
 
 ## [2.3.0] - 2016-10-15
 ### Added
@@ -78,7 +79,9 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.1...HEAD
+[2.5.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.4.0...v2.5.0
+[2.4.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.3.1...v2.4.0
 [2.3.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.2...v2.3.0
 [2.2.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.2.1...v2.2.2
