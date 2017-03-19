@@ -73,7 +73,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     function addFilesFromIncludedFolders(files) {
       pluginOptions.explicitIncludes.map(folderPath => {
         const includedFiles = recursive(folderPath, [onlyAllowExtensionsHandledByPlugin]);
-        files = files.concat(includedFiles.map(filePath => new IncludedFile(filePath.replace(/\\/g, '/'), files[0])));
+        files = files.concat(includedFiles.map(filePath => { const file = new IncludedFile(filePath.replace(/\\/g, '/'), files[0]); Promise.await(file.prepInputFile(file)); return file;}));
 
         function onlyAllowExtensionsHandledByPlugin(file, stats) {
           let extension = path.extname(file);

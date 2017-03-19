@@ -25,6 +25,7 @@ export default class IncludedFile {
       file.contents = `${pluginOptions.globalVariablesText}\n\n${file.contents}`;
     }
     file.rawContents = file.contents;
+    file.isPrepped = true;
   }
 
   addJavaScript(options) {
