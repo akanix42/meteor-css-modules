@@ -20,7 +20,10 @@ export default class IncludedFile {
     if (!this.contents) {
       console.log('load contents', this.path);
 
-      this.contents = fs.readFileSync(this.path, 'utf-8');
+      this.contents = await (new Promise((resolve, reject) => fs.readFile(this.path, 'utf-8', function(err, result) {
+        if (err) reject(err);
+        resolve(result);
+      })));
     }
     if (pluginOptions.globalVariablesText) {
       this.contents = `${pluginOptions.globalVariablesText}\n\n${this.contents}`;
