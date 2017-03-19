@@ -147,7 +147,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     return { compileResult, referencedImportPaths: inputFile.referencedImportPaths };
   }
 
-  compileFromSource(source, backingInputFile, { transpileCssModules = false }) {
+  compileFromSource(source, backingInputFile, { transpileCssModules = true} = {}) {
     pluginOptions = this.reloadOptions();
     if (!pluginOptions.cache.enableCache) {
       this._cache.reset();
