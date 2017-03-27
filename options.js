@@ -94,7 +94,7 @@ function checkSassCompilation(options) {
 
   if (options.enableSassCompilation === true ||
     (Array.isArray(options.enableSassCompilation) && R.intersection(options.enableSassCompilation, options.extensions).length)) {
-    const result = checkNpmPackage('node-sass@3.x');
+    const result = checkNpmPackage('node-sass@>=3.x <=4.x');
     if (result === true) return;
   }
   options.enableSassCompilation = false;
