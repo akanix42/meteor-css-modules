@@ -3,8 +3,6 @@ import path from 'path';
 import pluginOptions from './options';
 import logger from './logger';
 
-const stylus = pluginOptions.enableStylusCompilation ? require('stylus') : null;
-
 export default class StylusProcessor {
   constructor(pluginOptions) {
     this.fileCache = {};
@@ -70,11 +68,11 @@ export default class StylusProcessor {
       }
     };
 
-    stylus.render(sourceFile.rawContents, options, function(err, css) {
+    this.stylus.render(sourceFile.rawContents, options, (err, css) => {
       if (err) {
         return future.throw(err);
       }
-      future.return({ css, sourceMap: stylus.sourcemap });
+      future.return({ css, sourceMap: this.stylus.sourcemap });
     });
 
     return future.wait();
