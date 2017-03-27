@@ -1,7 +1,7 @@
 /* globals Package */
 Package.describe({
   name: 'nathantreid:css-modules',
-  version: '2.5.2',
+  version: '2.5.3',
   summary: 'CSS modules implementation. CSS for components!',
   git: 'https://github.com/nathantreid/meteor-css-modules.git',
   documentation: 'README.md'

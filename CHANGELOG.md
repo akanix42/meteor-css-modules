@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.5.3] - 2017-03-27
+### Fixed
+ - stylus processing is working again
+
 ## [2.5.2] - 2017-03-27
 ### Changed
  - node-sass v4.x is now a supported version (no more warnings).
@@ -87,7 +91,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.2...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.3...HEAD
+[2.5.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.2...v2.5.3
 [2.5.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.4.0...v2.5.0
