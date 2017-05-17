@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v.NEXT
+### Fixed
+ - npm package in node_modules are now lazy loaded (no more red backgrounds after installing node-sass!)
+ - Importing files that meteor hasn't already picked up will no longer lock up the build process
+ - When importing a file that has been ignored, it will no longer be read from disk if Meteor has already loaded the file
+
 ## [2.5.3] - 2017-03-27
 ### Fixed
  - stylus processing is working again
