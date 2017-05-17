@@ -56,7 +56,6 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     files = removeFilesFromExcludedFolders(files);
     files = addFilesFromIncludedFolders(files);
 
-    // this._prepInputFiles(files);
     this._setupPreprocessors();
     this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
     
