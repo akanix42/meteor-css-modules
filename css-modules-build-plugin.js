@@ -175,7 +175,11 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
   _generateOutput(inputFile) {
     const filePath = inputFile.getPathInPackage();
-    const isLazy = filePath.split('/').indexOf('imports') >= 0;
+    const checkIfLazy = (filePath) => {
+      let splitPath = filePath.split('/');
+      return splitPath.indexOf('imports') >= 0 || splitPath.indexOf('node_modules') >= 0;
+    };
+    const isLazy = checkIfLazy(filePath);
 
     const compileResult = { isLazy, filePath, imports: inputFile.imports, absoluteImports: inputFile.absoluteImports };
       compileResult.stylesheet = inputFile.contents;
