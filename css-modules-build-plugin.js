@@ -47,14 +47,19 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     this.optionsHash = pluginOptions.hash;
     const start = profile();
 
+    this.filesByName = new Map;
+    files.forEach((inputFile) => {
+      const importPath = this.getAbsoluteImportPath(inputFile);
+      this.filesByName.set(importPath, inputFile);
+    });
+      
     files = removeFilesFromExcludedFolders(files);
     files = addFilesFromIncludedFolders(files);
 
     // this._prepInputFiles(files);
     this._setupPreprocessors();
     this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
-    this.filesByName = null;
-
+    
     super.processFilesForTarget(files);
 
     this.profilingResults.processFilesForTarget = profile(start, 'processFilesForTarget');
@@ -134,7 +139,8 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     return inputFile.isRoot;
   }
 
-  compileOneFile(inputFile, filesByName) {
+  compileOneFile(inputFile) {
+    const filesByName = this.filesByName;
     this._updateFilesByName(filesByName);
 
     this._prepInputFile(inputFile);
