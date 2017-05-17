@@ -120,7 +120,7 @@ export default class ScssProcessor {
     if (inputFile) {
       rootFile.file.referencedImportPaths.push(importPath);
     } else {
-      this._createIncludedFile(importPath, rootFile);
+      inputFile = this._createIncludedFile(importPath, rootFile);
     }
 
     return this._wrapFileForNodeSassImport(inputFile);
@@ -128,8 +128,9 @@ export default class ScssProcessor {
 
   _createIncludedFile(importPath, rootFile) {
     const file = new IncludedFile(importPath, rootFile);
-    file.prepInputFile().await();
+    file.prepInputFile();
     this.filesByName.set(importPath, file);
+    return file;
   }
 
   _wrapFileForNodeSassImport(file) {

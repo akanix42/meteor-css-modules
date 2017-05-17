@@ -167,7 +167,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     const file = new IncludedFile(importPath, rootFile);
     this.getAbsoluteImportPath(file);
     file.contents = contents;
-    file.prepInputFile().await();
+    file.prepInputFile();
     this.filesByName.set(importPath, file);
 
     return file;

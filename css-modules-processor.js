@@ -123,7 +123,7 @@ export default class CssModulesProcessor {
       }
       const file = new IncludedFile(importPath, rootFile);
       file.importPath = ImportPathHelpers.getImportPathInPackage(file);
-      await file.prepInputFile();
+      file.prepInputFile();
       filesByName.set(importPath, file);
 
       return file;
