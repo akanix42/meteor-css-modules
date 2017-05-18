@@ -68,8 +68,9 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
         return files;
       }
 
-      const ignoredPathsRegExps = pluginOptions.ignorePaths.map(pattern => new RegExp(pattern));
-      const shouldKeepFile = file => !ignoredPathsRegExps.some(regex => regex.test(file.getPathInPackage()));
+      const testRegex = (file, regex) => regex.test(file.getPathInPackage());
+      const testFile = file => testRegex.bind(this, file);
+      const shouldKeepFile = file => pluginOptions.includePaths.some(testFile(file)) || !pluginOptions.ignorePaths.some(testFile(file));
 
       return files.filter(shouldKeepFile);
     }

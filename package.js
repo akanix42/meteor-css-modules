@@ -22,6 +22,7 @@ Package.registerBuildPlugin({
     'colors': '1.1.2',
     'common-tags': '1.3.1',
     'css-modules-loader-core': '1.0.0',
+    'json-to-regex': '0.0.2',
     'lru-cache': '2.6.4',
     'path-is-absolute': '1.0.0',
     'postcss': '5.1.2',

@@ -4,6 +4,7 @@ import { createReplacer } from './text-replacer';
 import sha1 from './sha1';
 import cjson from 'cjson';
 import ImportPathHelpers from './helpers/import-path-helpers';
+import jsonToRegex from 'json-to-regex';
 
 import path from 'path';
 import fs from 'fs';
@@ -25,6 +26,7 @@ function getDefaultOptions() {
     cssClassNamingConvention: {
       replacements: []
     },
+    defaultIgnorePath: 'node_modules/.*/(examples|docs|test|tests)/',
     enableProfiling: false,
     enableSassCompilation: ['scss', 'sass'],
     enableLessCompilation: ['less'],
@@ -34,6 +36,7 @@ function getDefaultOptions() {
     filenames: [],
     globalVariablesText: '',
     ignorePaths: [],
+    includePaths: [],
     jsClassNamingConvention: {
       camelCase: false
     },
@@ -67,17 +70,15 @@ function loadOptions() {
   }
 
   processCssClassNamingConventionReplacements(options);
-  processPassthroughPathExpressions(options);
+  options.passthroughPaths = options.passthroughPaths.map(jsonToRegex);
+  options.includePaths = options.includePaths.map(jsonToRegex);
+  options.ignorePaths = [options.defaultIgnorePath, ...options.ignorePaths].map(jsonToRegex);
+
   checkSassCompilation(options);
   checkLessCompilation(options);
   checkStylusCompilation(options);
 
   return pluginOptions.options = options;
-}
-
-function processPassthroughPathExpressions(options) {
-  const createPatternRegExp = pattern => typeof pattern === 'string' ? new RegExp(pattern) : new RegExp(pattern[0], pattern[1]);
-  options.passthroughPaths = options.passthroughPaths.map(createPatternRegExp);
 }
 
 function processCssClassNamingConventionReplacements(options) {
