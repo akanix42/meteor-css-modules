@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## v.NEXT
+## [2.7.0] - 2017-05-18
 ### Added
  - Support for custom CSS class naming templates. This allows you to easily customize the generated CSS names to be anything you want, including built-in support for hashed classes. See [the docs](https://github.com/nathantreid/meteor-css-modules/wiki/Custom-CSS-Class-Names) for more info.
 
@@ -113,7 +113,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.6.0...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.4...v2.6.0
 [2.5.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.3...v2.5.4
 [2.5.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.2...v2.5.3
