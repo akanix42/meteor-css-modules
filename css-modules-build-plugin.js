@@ -187,33 +187,25 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     const isLazy = checkIfLazy(filePath);
 
     const compileResult = { isLazy, filePath, imports: inputFile.imports, absoluteImports: inputFile.absoluteImports };
-      compileResult.stylesheet = inputFile.contents;
+    compileResult.stylesheet = inputFile.contents;
 
-    const importsCode = inputFile.imports
-      ? inputFile.imports.map(importPath => `import '${importPath}';`).join('\n')
+    compileResult.importsCode = inputFile.imports
+      ? tryBabelCompile(inputFile.imports.map(importPath => `import '${importPath}';`).join('\n'))
       : '';
 
     const shouldAddStylesheet = inputFile.getArch().indexOf('web') === 0;
-    const stylesheetCode = (isLazy && shouldAddStylesheet && inputFile.contents)
-      ? stripIndent`
+    compileResult.stylesheetCode = (isLazy && shouldAddStylesheet && inputFile.contents)
+      ? tryBabelCompile(stripIndent`
          import modules from 'meteor/modules';
-				 modules.addStyles(${JSON.stringify(inputFile.contents)});`
+				 modules.addStyles(${JSON.stringify(inputFile.contents)});`)
       : '';
 
     compileResult.tokens = inputFile.tokens;
-    const tokensCode = inputFile.tokens
-      ? stripIndent`
+    compileResult.tokensCode = inputFile.tokens
+      ? tryBabelCompile(stripIndent`
          const styles = ${JSON.stringify(inputFile.tokens)};
-         export { styles as default, styles };`
+         export { styles as default, styles };`)
       : '';
-
-    if (importsCode || stylesheetCode || tokensCode) {
-      compileResult.javascript = tryBabelCompile(stripIndents`
-					${importsCode}
-					${stylesheetCode}
-					${tokensCode}`
-      );
-    }
 
     return compileResult;
 
@@ -276,7 +268,8 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
   addCompileResult(file, result) {
-    const shouldAddStylesheet = file.getArch().indexOf('web') === 0 && !result.isLazy;
+    const isWebArchitecture = file.getArch().indexOf('web') === 0;
+    const shouldAddStylesheet = isWebArchitecture && !result.isLazy;
     if (result.stylesheet && shouldAddStylesheet) {
       file.addStylesheet({
         data: result.stylesheet,
@@ -287,9 +280,17 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       });
     }
 
-    if (result.javascript) {
+
+    const js = (result.importsCode || result.stylesheetCode || result.tokensCode)
+      ? stripIndents`
+					${result.importsCode}
+					${isWebArchitecture ? result.stylesheetCode : ''}
+					${result.tokensCode}`
+      : '';
+
+    if (js) {
       file.addJavaScript({
-        data: result.javascript,
+        data: js,
         path: getOutputPath(result.filePath, pluginOptions.outputJsFilePath) + '.js',
         sourcePath: getOutputPath(result.filePath, pluginOptions.outputJsFilePath),
         lazy: result.isLazy,
