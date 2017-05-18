@@ -52,13 +52,13 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       const importPath = this.getAbsoluteImportPath(inputFile);
       this.filesByName.set(importPath, inputFile);
     });
-      
+
     files = removeFilesFromExcludedFolders(files);
     files = addFilesFromIncludedFolders(files);
 
     this._setupPreprocessors();
     this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
-    
+
     super.processFilesForTarget(files);
 
     this.profilingResults.processFilesForTarget = profile(start, 'processFilesForTarget');
