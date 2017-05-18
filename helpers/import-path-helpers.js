@@ -19,6 +19,14 @@ function getBasePath(directory) {
   return getBasePath(pathAbove);
 }
 
+function getAbsoluteImportPath(relativePath) {
+  if (path.isAbsolute(relativePath)) {
+    return relativePath.replace(/\\/g, '/');
+  }
+
+  return path.join(basePath, relativePath).replace(/\\/g, '/');
+}
+
 export default {
   init: function() {
   },
@@ -38,13 +46,7 @@ export default {
     return path.join(basePath, 'packages', inputFile.getPackageName().replace(':', '_'), inputFile.getPathInPackage()).replace(/\\/g, '/');
   },
 
-  getAbsoluteImportPath: function getAbsoluteImportPath(relativePath) {
-    if (path.isAbsolute(relativePath)) {
-      return relativePath.replace(/\\/g, '/');
-    }
-
-    return path.join(basePath, relativePath).replace(/\\/g, '/');
-  },
+  getAbsoluteImportPath,
 
   getAppRelativeImportPath: function getAppRelativeImportPath(absolutePath) {
     return '/' + path.relative(basePath, absolutePath).replace(/\\/g, '/');
@@ -55,6 +57,10 @@ export default {
     var relativePath = relativeTo.replace(/(.*)\/.*/, '$1');
     if (importPath[0] === '~') {
       return getModulePath(importPath.substring(1));
+    }
+
+    if (importPath[0] === '/') {
+      return getAbsoluteImportPath(importPath.substring(1))
     }
 
     // Fix relative paths that don't start with ./
