@@ -2,6 +2,17 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.6.0] - 2017-05-17
+### Fixed
+ - Files within NPM package docs, examples, and tests directories are automatically excluded, as these files aren't intended to be loaded and tend to cause strange errors or crashes. This behavior can be customized via the `defaultIgnorePath` option.
+### Added
+ - `defaultIgnorePath` option, which defaults to `node_modules/.*/(examples|docs|test|tests)/` (see Fixed section above).
+ - `includePaths` option, which takes precedence over the `ignorePaths` option. Uses [json-to-regex](https://www.npmjs.com/package/json-to-regex) for parsing.
+### Changed
+ - The `ignorePaths` option has been updated to use [json-to-regex](https://www.npmjs.com/package/json-to-regex) for parsing. This doesn't break existing functionality but adds the capability for passing in regex options.
+### Deprecated
+ - The `explicitIncludes` option has been deprecated. Its primary use was to load files from NPM packages in Meteor 1.2, which is no longer required in Meteor 1.3+.
+
 ## [2.5.4] - 2017-05-17
 ### Fixed
  - npm package in node_modules are now lazy loaded (no more red backgrounds after installing node-sass!) (#84)
@@ -98,7 +109,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.4...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.6.0...HEAD
+[2.6.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.4...v2.6.0
 [2.5.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.3...v2.5.4
 [2.5.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.2...v2.5.3
 [2.5.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.1...v2.5.2
