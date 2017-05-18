@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v.NEXT
+### Added
+ - Support for custom CSS class naming templates. This allows you to easily customize the generated CSS names to be anything you want, including built-in support for hashed classes. See [the docs](https://github.com/nathantreid/meteor-css-modules/wiki/Custom-CSS-Class-Names) for more info.
+
 ## [2.6.0] - 2017-05-17
 ### Fixed
  - Files within NPM package docs, examples, and tests directories are automatically excluded, as these files aren't intended to be loaded and tend to cause strange errors or crashes. This behavior can be customized via the `defaultIgnorePath` option.

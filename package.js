@@ -23,6 +23,8 @@ Package.registerBuildPlugin({
     'common-tags': '1.3.1',
     'css-modules-loader-core': '1.0.0',
     'json-to-regex': '0.0.2',
+    'es6-template-strings': '2.0.1',
+    'hasha': '3.0.0',
     'lru-cache': '2.6.4',
     'path-is-absolute': '1.0.0',
     'postcss': '5.1.2',
@@ -32,6 +34,7 @@ Package.registerBuildPlugin({
     'postcss-modules-values': '1.2.2',
     'ramda': '0.19.0',
     'recursive-readdir': '1.3.0',
+    'shorthash': '0.0.2',
     'string-template': '1.0.0',
   },
   sources: [
