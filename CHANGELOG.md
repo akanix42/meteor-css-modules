@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.7.1] - 2017-05-18
+### Fixed
+ - Importing SASS files via absolute paths (e.g. `@import '/imports/file.scss';`) is now working (instead of causing a silent crash).
+
 ## [2.7.0] - 2017-05-18
 ### Added
  - Support for custom CSS class naming templates. This allows you to easily customize the generated CSS names to be anything you want, including built-in support for hashed classes. See [the docs](https://github.com/nathantreid/meteor-css-modules/wiki/Custom-CSS-Class-Names) for more info.
