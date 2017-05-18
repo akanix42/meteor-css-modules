@@ -2,11 +2,12 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## v.NEXT
+## [2.5.4] - 2017-05-17
 ### Fixed
- - npm package in node_modules are now lazy loaded (no more red backgrounds after installing node-sass!)
- - Importing files that meteor hasn't already picked up will no longer lock up the build process
- - When importing a file that has been ignored, it will no longer be read from disk if Meteor has already loaded the file
+ - npm package in node_modules are now lazy loaded (no more red backgrounds after installing node-sass!) (#84)
+ - Importing files that meteor hasn't already picked up will no longer lock up the build process (#100)
+ - When importing a file that has been ignored, it will no longer be read from disk if Meteor has already loaded the file (#100)
+ - SSR no longer breaks on lazy-loaded files that are used on both the web and server architectures (#99)
 
 ## [2.5.3] - 2017-03-27
 ### Fixed
@@ -97,7 +98,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.3...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.4...HEAD
+[2.5.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.3...v2.5.4
 [2.5.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.2...v2.5.3
 [2.5.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.0...v2.5.1
