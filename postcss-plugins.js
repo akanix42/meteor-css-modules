@@ -20,7 +20,6 @@ corePlugins['postcss-modules-scope'].generateScopedName = function generateScope
   let sanitisedPath = path.relative(ImportPathHelpers.basePath, filePath).replace(/.*\{}[/\\]/, '').replace(/.*\{.*?}/, 'packages').replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
   const filename = path.basename(filePath).replace(/\.[^\.\/\\]+$/, '').replace(/[\W_]+/g, '_').replace(/^_|_$/g, '');
   sanitisedPath = sanitisedPath.replace(new RegExp(`_(${filename})$`), '__$1');
-  console.log(global.cssModules.generateScopedName)
   if (global.cssModules && global.cssModules.generateScopedName && typeof global.cssModules.generateScopedName === 'function') {
     return global.cssModules.generateScopedName(exportedName, filePath, sanitisedPath);
   }
