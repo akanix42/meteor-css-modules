@@ -15,7 +15,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [2.5.4] - 2017-05-17
 ### Fixed
- - npm package in node_modules are now lazy loaded (no more red backgrounds after installing node-sass!) (#84)
+ - NPM packages in node_modules are now lazy loaded (no more red backgrounds after installing node-sass!) (#84)
  - Importing files that meteor hasn't already picked up will no longer lock up the build process (#100)
  - When importing a file that has been ignored, it will no longer be read from disk if Meteor has already loaded the file (#100)
  - SSR no longer breaks on lazy-loaded files that are used on both the web and server architectures (#99)
