@@ -19,6 +19,21 @@ import { stripIndent, stripIndents } from 'common-tags';
 let pluginOptions = pluginOptionsWrapper.options;
 const recursive = Meteor.wrapAsync(recursiveUnwrapped);
 
+class FileMap extends Map {
+  constructor(compiler) {
+    super();
+    this.compiler = compiler;
+  }
+
+  get(key) {
+    const file = super.get(key);
+    if (!file) { return; }
+    this.compiler._prepInputFile(file);
+    this.compiler.isRoot(file);
+    return file;
+  }
+}
+
 export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   constructor() {
     super({
@@ -47,7 +62,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     this.optionsHash = pluginOptions.hash;
     const start = profile();
 
-    this.filesByName = new Map;
+    this.filesByName = new FileMap(this);
     files.forEach((inputFile) => {
       const importPath = this.getAbsoluteImportPath(inputFile);
       this.filesByName.set(importPath, inputFile);
@@ -141,8 +156,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
   compileOneFile(inputFile) {
     const filesByName = this.filesByName;
-    this._updateFilesByName(filesByName);
-
+    
     this._prepInputFile(inputFile);
     this._preprocessFile(inputFile, filesByName);
     if (inputFile.transpileCssModules !== false) {
@@ -223,19 +237,6 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
         throw err;
       }
     }
-  }
-
-  _updateFilesByName(filesByName) {
-    if (this.filesByName) return;
-    this.filesByName = filesByName;
-    filesByName._get = filesByName.get;
-    filesByName.get = (key) => {
-      const file = filesByName._get(key);
-      if (!file) { return; }
-      this._prepInputFile(file);
-      this.isRoot(file);
-      return file;
-    };
   }
 
   _prepInputFile(file) {
