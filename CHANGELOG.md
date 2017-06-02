@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.7.3] - 2017-05-31
+### Fixed
+ - Replaced reference to remove function `_updateFilesByName`.
+
+## [2.7.2] - 2017-05-31
+### Fixed
+ - Importing files before they have been processed separately no longer results in an error (#101).
+
 ## [2.7.1] - 2017-05-18
 ### Fixed
  - Importing SASS files via absolute paths (e.g. `@import '/imports/file.scss';`) is now working (instead of causing a silent crash).
@@ -117,7 +125,10 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.0...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.3...HEAD
+[2.7.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.2...v2.7.3
+[2.7.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.1...v2.7.2
+[2.7.1]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.4...v2.6.0
 [2.5.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.5.3...v2.5.4
