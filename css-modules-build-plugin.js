@@ -219,7 +219,8 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     compileResult.tokensCode = inputFile.tokens
       ? tryBabelCompile(stripIndent`
          const styles = ${JSON.stringify(inputFile.tokens)};
-         export { styles as default, styles };`)
+         export { styles as default, styles };
+         exports.__esModule = true;`)
       : '';
 
     return compileResult;
