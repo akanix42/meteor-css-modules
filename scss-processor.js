@@ -26,16 +26,12 @@ export default class ScssProcessor {
   }
 
   shouldProcess(file) {
-    return isScssFile.call(this, file);
-
-    function isScssFile(file) {
-      if (!this.pluginOptions.enableSassCompilation || typeof this.pluginOptions.enableSassCompilation === 'boolean') {
-        return this.pluginOptions.enableSassCompilation;
-      }
-
-      const extension = path.extname(file.getPathInPackage()).substring(1);
-      return this.pluginOptions.enableSassCompilation.indexOf(extension) !== -1;
+    const sassCompilationExtensions = this.pluginOptions.enableSassCompilation;
+    if (!sassCompilationExtensions || typeof sassCompilationExtensions === 'boolean') {
+      return sassCompilationExtensions;
     }
+
+    return sassCompilationExtensions.some((extension) => file.getPathInPackage().endsWith(extension));
   }
 
   process(file, filesByName) {
