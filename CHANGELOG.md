@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## v.NEXT
+### Fixed
+ - Support for Meteor 1.6 rc
+
 ## [2.7.4] - 2017-09-07
 ### Fixed
  - Multi-dot file extensions now work with the `enableSassCompilation` option
