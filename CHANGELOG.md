@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [2.8.0] - 2017-10-30
+### Fixed
+ - Support for Meteor 1.6!
+
 ## [2.7.4] - 2017-09-07
 ### Fixed
  - Multi-dot file extensions now work with the `enableSassCompilation` option
@@ -129,7 +133,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.4...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v2.8.0...HEAD
+[2.8.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.4...v2.8.0
 [2.7.4]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.3...v2.7.4
 [2.7.3]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.2...v2.7.3
 [2.7.2]: https://github.com/nathantreid/meteor-css-modules/compare/v2.7.1...v2.7.2
