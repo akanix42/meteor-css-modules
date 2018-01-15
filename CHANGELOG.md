@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.0.0] - 2017-11-19
+### Fixed
+ - Support for Meteor 1.6 (sort of)
+
+## [2.8.1] - 2017-11-19
+### Fixed
+ - Works on Meteor 1.5 again
+
 ## [2.8.0] - 2017-10-30
 ### Fixed
  - Support for Meteor 1.6!
