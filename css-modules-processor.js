@@ -136,7 +136,10 @@ export default class CssModulesProcessor {
       .process(sourceString, {
         from: sourcePath,
         to: getOutputPath(sourcePath, this.pluginOptions.outputCssFilePath),
-        map: { inline: false },
+        map: {
+          inline: false,
+          annotation: false,
+        },
         parser: this.pluginOptions.parser ? require(this.pluginOptions.parser) : undefined
       });
 
