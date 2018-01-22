@@ -27,7 +27,9 @@ class FileMap extends Map {
 
   get(key) {
     const file = super.get(key);
-    if (!file) { return; }
+    if (!file) {
+      return;
+    }
     this.compiler._prepInputFile(file);
     this.compiler.isRoot(file);
     return file;
@@ -156,7 +158,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
 
   compileOneFile(inputFile) {
     const filesByName = this.filesByName;
-    
+
     this._prepInputFile(inputFile);
     this._preprocessFile(inputFile, filesByName);
     if (inputFile.transpileCssModules !== false) {
@@ -167,7 +169,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     return { compileResult, referencedImportPaths: inputFile.referencedImportPaths };
   }
 
-  compileFromSource(source, backingInputFile, { transpileCssModules = true} = {}) {
+  compileFromSource(source, backingInputFile, { transpileCssModules = true } = {}) {
     pluginOptions = this.reloadOptions();
     if (!pluginOptions.cache.enableCache) {
       this._cache.reset();
@@ -283,7 +285,6 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       });
     }
 
-
     const js = (result.importsCode || result.stylesheetCode || result.tokensCode)
       ? stripIndents`
 					${result.importsCode}
@@ -317,4 +318,3 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
 };
-
