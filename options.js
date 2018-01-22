@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 
 import R from 'ramda';
+import intersect from 'intersect';
 import checkNpmPackage from './check-npm-package';
 import { createReplacer } from './text-replacer';
 import sha1 from './sha1';
@@ -63,7 +64,7 @@ function loadOptions() {
   options = options || {};
 
   options = processGlobalVariables(options);
-  options = R.merge(getDefaultOptions(), options || {});
+  options = { ...getDefaultOptions(), ...(options || {})};
 
   processPluginOptions(options.postcssPlugins);
 
@@ -97,7 +98,7 @@ function checkSassCompilation(options) {
   }
 
   if (options.enableSassCompilation === true ||
-    (Array.isArray(options.enableSassCompilation) && R.intersection(options.enableSassCompilation, options.extensions).length)) {
+    (Array.isArray(options.enableSassCompilation) && intersect(options.enableSassCompilation, options.extensions).length)) {
     const result = checkNpmPackage('node-sass@>=3.x <=4.x');
     if (result === true) return;
   }
@@ -108,7 +109,7 @@ function checkLessCompilation(options) {
   if (!options.enableLessCompilation) return;
 
   if (options.enableLessCompilation === true ||
-    (Array.isArray(options.enableLessCompilation) && R.intersection(options.enableLessCompilation, options.extensions).length)) {
+    (Array.isArray(options.enableLessCompilation) && intersect(options.enableLessCompilation, options.extensions).length)) {
     const result = checkNpmPackage('less@2.x');
     if (result === true) return;
   }
@@ -120,7 +121,7 @@ function checkStylusCompilation(options) {
   if (!options.enableStylusCompilation) return;
 
   if (options.enableStylusCompilation === true ||
-    (Array.isArray(options.enableStylusCompilation) && R.intersection(options.enableStylusCompilation, options.extensions).length)) {
+    (Array.isArray(options.enableStylusCompilation) && intersect(options.enableStylusCompilation, options.extensions).length)) {
     const result = checkNpmPackage('stylus@0.x');
     if (result === true) return;
   }
@@ -134,12 +135,12 @@ function processGlobalVariables(options) {
   const globalVariablesText = [];
   const globalVariablesJs = [];
   options.globalVariables.forEach(entry => {
-    switch (R.type(entry)) {
-      case 'Object':
+    switch (typeof entry) {
+      case 'object':
         globalVariablesJs.push(entry);
         globalVariablesText.push(convertJsonVariablesToScssVariables(entry));
         break;
-      case 'String':
+      case 'string':
         const fileContents = fs.readFileSync(entry, 'utf-8');
         if (path.extname(entry) === '.json') {
           const jsonVariables = cjson.parse(fileContents);
@@ -153,8 +154,10 @@ function processGlobalVariables(options) {
     }
   });
 
-  options.globalVariablesJs = R.mergeAll(globalVariablesJs);
-  options.globalVariablesText = R.join('\n', globalVariablesText);
+  options.globalVariablesJs = globalVariablesJs.reduce((result, element) => {
+    return { ...result, ...element };
+  }, {});
+  options.globalVariablesText = globalVariablesText.join('\n');
   options.globalVariablesTextLineCount = options.globalVariablesText.split(/\r\n|\r|\n/).length;
 
   return options;
