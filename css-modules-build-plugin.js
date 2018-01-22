@@ -218,9 +218,10 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       : '';
 
     compileResult.tokens = inputFile.tokens;
+    compileResult.stylesCode = inputFile.tokens ? addMissingStylesHandler(JSON.stringify(inputFile.tokens), filePath) : '';
     compileResult.tokensCode = inputFile.tokens
       ? tryBabelCompile(stripIndent`
-         const styles = ${JSON.stringify(inputFile.tokens)};
+         const styles = ${compileResult.stylesCode};
          export { styles as default, styles };
          exports.__esModule = true;`)
       : '';
@@ -239,6 +240,20 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
         console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
         throw err;
       }
+    }
+
+    function addMissingStylesHandler(stylesJson, filePath) {
+      if (pluginOptions.missingClassErrorLevel) {
+        const logFunction = `console.${pluginOptions.missingClassErrorLevel}`;
+        return `new Proxy(${stylesJson}, { 
+          get: function(target, name) { 
+            return name in target 
+              ? target[name]
+              : ${logFunction}(name, ': CSS module class not found in ${filePath}');
+          }
+        })`;
+      }
+      return stylesJson;
     }
   }
 

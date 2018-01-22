@@ -1,3 +1,5 @@
+import { Meteor } from 'meteor/meteor';
+
 import R from 'ramda';
 import checkNpmPackage from './check-npm-package';
 import { createReplacer } from './text-replacer';
@@ -40,6 +42,7 @@ function getDefaultOptions() {
     jsClassNamingConvention: {
       camelCase: false
     },
+    missingClassErrorLevel: Meteor.isDevelopment ? 'warn' : false,
     outputJsFilePath: '{dirname}/{basename}{extname}',
     outputCssFilePath: '{dirname}/{basename}{extname}',
     passthroughPaths: [],
