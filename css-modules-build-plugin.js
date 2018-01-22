@@ -279,7 +279,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
         path: getOutputPath(result.filePath, pluginOptions.outputCssFilePath) + '.css',
         sourcePath: getOutputPath(result.filePath, pluginOptions.outputCssFilePath) + '.css',
         sourceMap: JSON.stringify(result.sourceMap),
-        lazy: false
+        lazy: result.isLazy
       });
     }
 
