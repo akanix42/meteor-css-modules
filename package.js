@@ -10,8 +10,8 @@ Package.describe({
 Package.registerBuildPlugin({
   name: 'mss',
   use: [
-    'babel-compiler@6.9.1_1',
-    'ecmascript@0.5.8_1',
+    'babel-compiler@7.0.0',
+    'ecmascript@0.10.0',
     'caching-compiler@1.1.7_1',
     'underscore@1.0.9',
   ],
