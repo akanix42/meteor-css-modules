@@ -5,6 +5,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [3.0.1] - 2017-01-22
 ### Fixed
  - Support for Meteor 1.6.1
+ - PostCSS no longer outputs the sourcemap comment, which should fix the "DevTools failed to parse SourceMap" errors in the Chrome console (#104)
+ - The compiled JS output is now lazy-loaded if located in the imports folder
 
 ## [3.0.0] - 2017-11-19
 ### Fixed
