@@ -2,6 +2,11 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.0] - 2017-01-24
+### Added
+ - `missingClassErrorLevel`: Display a helpful warning in the browser console when referencing a nonexistent style. Only enabled in development.
+ This option accepts the name of any console logging function (`log`, `error`, `warn`, etc). Defaults to `warn`.
+
 ## [3.0.1] - 2017-01-22
 ### Fixed
  - Support for Meteor 1.6.1
