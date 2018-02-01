@@ -1,4 +1,5 @@
 /* globals JSON */
+import fs from 'fs';
 import path from 'path';
 import { MultiFileCachingCompiler } from 'meteor/caching-compiler';
 import { Meteor } from 'meteor/meteor';
@@ -226,6 +227,10 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
          exports.__esModule = true;`)
       : '';
 
+    if (pluginOptions.emitTypeScriptDeclaration && inputFile.tokens) {
+      compileResult.partialTypescriptDeclaration = Object.keys(inputFile.tokens).map(key => `${key}: string`).join('\n  ');
+    }
+
     return compileResult;
 
     function tryBabelCompile(code) {
@@ -315,6 +320,19 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
         lazy: result.isLazy,
         bare: false,
       });
+    }
+
+    if (result.partialTypescriptDeclaration) {
+      const declarationPath = `${ImportPathHelpers.getAbsoluteImportPath(result.filePath)}.d.ts`;
+      const output = stripIndent`
+        interface IStyles {
+          ${result.partialTypescriptDeclaration}
+        }
+        declare const styles: IStyles;
+        export default styles;
+        export { styles };
+      `;
+      fs.writeFile(declarationPath, output);
     }
   }
 
