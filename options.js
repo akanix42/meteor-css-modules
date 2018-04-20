@@ -68,6 +68,10 @@ function loadOptions() {
 
   processPluginOptions(options.postcssPlugins);
 
+  if (!Meteor.isDevelopment) {
+    options.missingClassErrorLevel = false;
+  }
+
   options.hash = sha1(JSON.stringify(options));
   if (options.hash === pluginOptions.hash) {
     return pluginOptions.options;

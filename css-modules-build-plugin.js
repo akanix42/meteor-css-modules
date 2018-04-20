@@ -243,7 +243,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     }
 
     function addMissingStylesHandler(stylesJson, filePath) {
-      if (Meteor.isDevelopment && pluginOptions.missingClassErrorLevel) {
+      if (pluginOptions.missingClassErrorLevel) {
         const logFunction = `console.${pluginOptions.missingClassErrorLevel}`;
         return `new Proxy(${stylesJson}, { 
           get: function(target, name) {
