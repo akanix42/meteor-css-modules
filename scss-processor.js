@@ -90,6 +90,7 @@ export default class ScssProcessor {
       sourceMapEmbed: false,
       sourceComments: false,
       sourceMapRoot: '.',
+      omitSourceMapUrl: true,
       indentedSyntax: sourceFile.file.getExtension() === 'sass',
       outFile: `.${sourceFile.file.getBasename()}`,
       importer: this._importFile.bind(this, sourceFile),
