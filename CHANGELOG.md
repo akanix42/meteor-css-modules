@@ -2,6 +2,26 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.2] - 2017-04-20
+### Fixed
+ - No longer outputs SCSS source map annotations, which had been causing a flood of warnings in the Chrome dev console
+ - Fix #No longer outputs Symbol.toStringMap error messages in the development browser console. Other properties accessed by
+  Vue dev tools are also ignored:  'toJSON',  'state', '_isVue', 'render', '@@toStringTag', Symbol.toStringTag. Additional
+  properties can be ignored by setting the `missingClassIgnoreList` option, which takes an array:
+  ```
+    "cssModules": {
+      missingClassIgnoreList: [
+        "foo",
+        "bar"
+      ]
+    }
+  ```
+ - Fix issue where the development proxies were cached and therefore included when running in production mode
+
+## [3.1.1] - 2017-04-20
+### Fixed
+ - No longer crashes when composing from SCSS files
+
 ## [3.1.0] - 2017-01-24
 ### Added
  - `missingClassErrorLevel`: Display a helpful warning in the browser console when referencing a nonexistent style. Only enabled in development.
