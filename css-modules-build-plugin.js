@@ -246,10 +246,22 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       if (Meteor.isDevelopment && pluginOptions.missingClassErrorLevel) {
         const logFunction = `console.${pluginOptions.missingClassErrorLevel}`;
         return `new Proxy(${stylesJson}, { 
-          get: function(target, name) { 
+          get: function(target, name) {
+            var ignoredProperties = [
+              'toJSON',
+              'state',
+              '_isVue',
+              'render',
+              '@@toStringTag',
+              Symbol.toStringTag,
+              ${(pluginOptions.missingClassIgnoreList).map(JSON.stringify).join(',')}
+            ];
+            
             return name in target 
               ? target[name]
-              : ${logFunction}(name, ': CSS module class not found in ${filePath}');
+              : ignoredProperties.indexOf(name) === -1
+                ? ${logFunction}(name, ': CSS module class not found in ${filePath}')
+                : undefined;
           }
         })`;
       }

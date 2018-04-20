@@ -43,6 +43,7 @@ function getDefaultOptions() {
       camelCase: false
     },
     missingClassErrorLevel: 'warn',
+    missingClassIgnoreList: [],
     outputJsFilePath: '{dirname}/{basename}{extname}',
     outputCssFilePath: '{dirname}/{basename}{extname}',
     passthroughPaths: [],
