@@ -74,7 +74,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     files = addFilesFromIncludedFolders(files);
 
     this._setupPreprocessors();
-    this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
+    this.cssModulesProcessor = new CssModulesProcessor(pluginOptions, this);
 
     super.processFilesForTarget(files);
 
@@ -176,7 +176,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     }
     this.optionsHash = pluginOptions.hash;
     this._setupPreprocessors();
-    this.cssModulesProcessor = new CssModulesProcessor(pluginOptions);
+    this.cssModulesProcessor = new CssModulesProcessor(pluginOptions, this);
 
     this.filesByName = new FileMap(this);
     const inputFile = this._createIncludedFile(backingInputFile.getPathInPackage(), backingInputFile, source);
