@@ -40,6 +40,10 @@ export default {
   },
 
   getImportPathInPackage: function getImportPathInPackage(inputFile) {
+    if (inputFile.getPathInPackage().indexOf(basePath) === 0) {
+      return inputFile.getPathInPackage();
+    }
+
     if (inputFile.getPackageName() === null) {
       return path.join(basePath, inputFile.getPathInPackage()).replace(/\\/g, '/');
     }
