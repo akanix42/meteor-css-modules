@@ -69,7 +69,9 @@ export default class ScssProcessor {
     const potentialPaths = [importPath];
     const potentialFileExtensions = this.pluginOptions.enableSassCompilation === true ? this.pluginOptions.extensions : this.pluginOptions.enableSassCompilation;
 
+    if (!path.extname(importPath)) {
       potentialFileExtensions.forEach(extension => potentialPaths.push(`${importPath}.${extension}`));
+    }
     if (path.basename(importPath)[0] !== '_') {
       [].concat(potentialPaths).forEach(potentialPath => potentialPaths.push(`${path.dirname(potentialPath)}/_${path.basename(potentialPath)}`));
     }
