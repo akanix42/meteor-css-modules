@@ -18,7 +18,7 @@ class CssModulesError {
 }
 
 export default class CssModulesProcessor {
-  constructor(pluginOptions, compiler) {
+  constructor(pluginOptions) {
     this.importNumber = 0;
     this.resultsByFile = {};
     this.importsByFile = {};
@@ -26,7 +26,6 @@ export default class CssModulesProcessor {
     this.filesByName = null;
     this.pluginOptions = pluginOptions;
     this.postcssPlugins = loadPostcssPlugins(pluginOptions);
-    this.compiler = compiler;
   }
 
   async process(file, filesByName) {
@@ -81,7 +80,7 @@ export default class CssModulesProcessor {
 
   async _importFile(parent, source, relativeTo, trace) {
     relativeTo = fixRelativePath(relativeTo);
-    source = await loadFile(source, relativeTo, this.filesByName, this.compiler);
+    source = await loadFile(source, relativeTo, this.filesByName);
     const parentImports = this.importsByFile[parent.path] = (this.importsByFile[parent.path] || []);
     parentImports.push({ relativePath: source.originalPath, absolutePath: source.path });
 
@@ -91,7 +90,7 @@ export default class CssModulesProcessor {
       return relativeTo.replace(/.*(\{.*)/, '$1').replace(/\\/g, '/');
     }
 
-    async function loadFile(source, relativeTo, filesByName, compiler) {
+    async function loadFile(source, relativeTo, filesByName) {
       if (source instanceof Object) {
         return source;
       }
@@ -101,13 +100,13 @@ export default class CssModulesProcessor {
       return {
         path: source,
         originalPath,
-        contents: await loadFileContents(source, filesByName, compiler)
+        contents: await loadFileContents(source, filesByName)
       };
     }
 
-    async function loadFileContents(importPath, filesByName, compiler) {
+    async function loadFileContents(importPath, filesByName) {
       try {
-        const file = filesByName.get(importPath) || await createIncludedFile(importPath, parent, filesByName, compiler);
+        const file = filesByName.get(importPath) || await createIncludedFile(importPath, parent, filesByName);
         if (file.preprocessor && !file.isPreprocessed) {
           file.preprocessor.process(file, filesByName);
         }
@@ -118,14 +117,13 @@ export default class CssModulesProcessor {
       }
     }
 
-    async function createIncludedFile(importPath, rootFile, filesByName, compiler) {
+    async function createIncludedFile(importPath, rootFile, filesByName) {
       if (importPath.indexOf(ImportPathHelpers.basePath) === -1) {
         importPath = ImportPathHelpers.basePath + importPath;
       }
       const file = new IncludedFile(importPath, rootFile);
       file.importPath = ImportPathHelpers.getImportPathInPackage(file);
       file.prepInputFile();
-      compiler.isRoot(file);
       filesByName.set(importPath, file);
 
       return file;
