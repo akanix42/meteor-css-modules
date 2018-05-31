@@ -58,7 +58,6 @@ export default {
 
   getImportPathRelativeToFile: function getRealImportPath(importPath, relativeTo) {
     importPath = importPath.replace(/^["']|["']$/g, '');
-    var relativePath = relativeTo.replace(/(.*)\/.*/, '$1');
     if (importPath[0] === '~') {
       return getModulePath(importPath.substring(1));
     }
@@ -73,7 +72,7 @@ export default {
     }
 
     if (importPath[0] === '.') {
-      importPath = path.join(relativePath, importPath);
+      importPath = path.join(path.dirname(relativeTo), importPath);
     }
 
     importPath = convertCurlySyntaxToAbsolutePath(importPath);
