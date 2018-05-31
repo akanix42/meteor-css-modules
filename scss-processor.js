@@ -80,7 +80,7 @@ export default class ScssProcessor {
       }
     }
 
-    throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths)}`);
+    throw new Error(`File '${importPath}' not found at any of the following paths: ${JSON.stringify(potentialPaths, null, 2)}`);
   }
 
   _transpile(sourceFile) {
@@ -109,16 +109,20 @@ export default class ScssProcessor {
   }
 
   _importFile(rootFile, sourceFilePath, relativeTo) {
-    let importPath = ImportPathHelpers.getImportPathRelativeToFile(sourceFilePath, relativeTo);
-    importPath = this._discoverImportPath(importPath);
-    let inputFile = this.filesByName.get(importPath);
-    if (inputFile) {
-      rootFile.file.referencedImportPaths.push(importPath);
-    } else {
-      inputFile = this._createIncludedFile(importPath, rootFile);
-    }
+    try {
+      let importPath = ImportPathHelpers.getImportPathRelativeToFile(sourceFilePath, relativeTo);
+      importPath = this._discoverImportPath(importPath);
+      let inputFile = this.filesByName.get(importPath);
+      if (inputFile) {
+        rootFile.file.referencedImportPaths.push(importPath);
+      } else {
+        inputFile = this._createIncludedFile(importPath, rootFile);
+      }
 
-    return this._wrapFileForNodeSassImport(inputFile);
+      return this._wrapFileForNodeSassImport(inputFile);
+    } catch (err) {
+      return err;
+    }
   }
 
   _createIncludedFile(importPath, rootFile) {
