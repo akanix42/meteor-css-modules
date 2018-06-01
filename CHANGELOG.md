@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+## [3.1.4] - 2017-06-01
+### Fixed
+  - No longer fails when importing relative paths from SCSS files
+
 ## [3.1.3] - 2017-05-31
 ### Fixed
   - No longer fails when importing relative paths from SCSS files
@@ -177,7 +181,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.3...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.4...HEAD
+[3.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.4...v3.1.3
 [3.1.3]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.3...v3.1.2
 [3.1.2]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.2...v3.1.0
 [3.1.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.0...v3.0.1
