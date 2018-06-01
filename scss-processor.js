@@ -119,7 +119,7 @@ export default class ScssProcessor {
         inputFile = this._createIncludedFile(importPath, rootFile);
       }
 
-      return this._wrapFileForNodeSassImport(inputFile);
+      return this._wrapFileForNodeSassImport(inputFile, importPath);
     } catch (err) {
       return err;
     }
@@ -132,8 +132,8 @@ export default class ScssProcessor {
     return file;
   }
 
-  _wrapFileForNodeSassImport(file) {
-    return { contents: file.rawContents, file: file.importPath };
+  _wrapFileForNodeSassImport(file, importPath) {
+    return { contents: file.rawContents, file: file.importPath || importPath };
   }
 
 };
