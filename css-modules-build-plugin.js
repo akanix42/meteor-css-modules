@@ -235,7 +235,8 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       : '';
 
     compileResult.tokens = inputFile.tokens;
-    compileResult.stylesCode = inputFile.tokens ? addMissingStylesHandler(JSON.stringify(inputFile.tokens), filePath) : '';
+    const isLegacy = inputFile.getArch() === 'web.browser.legacy';
+    compileResult.stylesCode = inputFile.tokens ? addMissingStylesHandler(JSON.stringify(inputFile.tokens), filePath, isLegacy) : '';
     compileResult.tokensCode = inputFile.tokens
       ? tryBabelCompile(stripIndent`
          const styles = ${compileResult.stylesCode};
@@ -259,8 +260,8 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       }
     }
 
-    function addMissingStylesHandler(stylesJson, filePath) {
-      if (pluginOptions.missingClassErrorLevel) {
+    function addMissingStylesHandler(stylesJson, filePath, isLegacy) {
+      if (!isLegacy && pluginOptions.missingClassErrorLevel) {
         const logFunction = `console.${pluginOptions.missingClassErrorLevel}`;
         return `new Proxy(${stylesJson}, { 
           get: function(target, name) {
