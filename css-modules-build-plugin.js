@@ -198,9 +198,26 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   _generateOutput(inputFile) {
     const filePath = inputFile.getPathInPackage();
     const checkIfLazy = (filePath) => {
+      const fileOptions = inputFile.getFileOptions();
+      /**
+       * If the mainModule property exists, then the mainModule config in package.json is in use, and all files should
+       * be lazy-loaded.
+       **/
+      if (fileOptions.hasOwnProperty('mainModule')) {
+        return true;
+      }
+      /**
+       * If the lazy is true, then the it has been explicitly set in a package's addFiles command and the file should
+       * be lazy-loaded.
+       **/
+      if (fileOptions.hasOwnProperty('lazy') && fileOptions.lazy) {
+        return true;
+      }
+
       let splitPath = filePath.split('/');
       return splitPath.indexOf('imports') >= 0 || splitPath.indexOf('node_modules') >= 0;
     };
+
     const isLazy = checkIfLazy(filePath);
 
     const compileResult = { isLazy, filePath, imports: inputFile.imports, absoluteImports: inputFile.absoluteImports };
