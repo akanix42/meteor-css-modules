@@ -174,6 +174,10 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     if (!pluginOptions.cache.enableCache) {
       this._cache.reset();
     }
+    if (this.pluginOptions.enableDebugLog) {
+      console.log(`***\nCompile from source: ${source}\n filename: ${backingInputFile.getPathInPackage()}`);
+    }
+
     this.optionsHash = pluginOptions.hash;
     this._setupPreprocessors();
     this.cssModulesProcessor = new CssModulesProcessor(pluginOptions, this);

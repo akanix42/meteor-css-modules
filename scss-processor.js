@@ -54,6 +54,9 @@ export default class ScssProcessor {
   _process(file) {
     if (file.isPreprocessed) return;
 
+    if (this.pluginOptions.enableDebugLog) {
+      console.log(`***\nSCSS process: ${file.importPath}`);
+    }
     const sourceFile = this._wrapFileForNodeSass(file);
     const { css, sourceMap } = this._transpile(sourceFile);
     file.contents = css;
@@ -110,6 +113,9 @@ export default class ScssProcessor {
 
   _importFile(rootFile, sourceFilePath, relativeTo) {
     try {
+      if (this.pluginOptions.enableDebugLog) {
+        console.log(`***\nImport: ${sourceFilePath}\n rootFile: ${rootFile}`);
+      }
       let importPath = ImportPathHelpers.getImportPathRelativeToFile(sourceFilePath, relativeTo);
       importPath = this._discoverImportPath(importPath);
       let inputFile = this.filesByName.get(importPath);

@@ -29,6 +29,7 @@ function getDefaultOptions() {
       replacements: []
     },
     defaultIgnorePath: 'node_modules/.*/(examples|docs|test|tests)/',
+    enableDebugLog: false,
     enableProfiling: false,
     enableSassCompilation: ['scss', 'sass'],
     enableLessCompilation: ['less'],
