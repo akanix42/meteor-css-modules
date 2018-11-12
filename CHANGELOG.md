@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+### [3.2.2] - 2018-10-13
+### Fixed
+  - New build because the 3.2.1 build was corrupt and caused the error "No compatible binary build found for this package"
+
 ### [3.2.1] - 2018-10-13
 ### Fixed
   - No longer errors when checkin debug logging option
@@ -192,7 +196,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.1...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.2...HEAD
+[3.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.2...v3.2.1
 [3.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.1...v3.2.0
 [3.2.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.0...v3.1.4
 [3.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.4...v3.1.3
