@@ -68,7 +68,7 @@ export default class LessProcessor {
       }
     };
 
-    this.less .render(sourceFile.rawContents, options)
+    this.less.render(sourceFile.rawContents, options)
       .then(output => future.return(output), error => future.throw(error));
 
     return future.wait();
