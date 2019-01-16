@@ -200,6 +200,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
   }
 
   _generateOutput(inputFile) {
+    const diskCache = this._diskCache;
     const filePath = inputFile.getPathInPackage();
     const checkIfLazy = (filePath) => {
       const fileOptions = inputFile.getFileOptions();
@@ -245,14 +246,14 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
       ? tryBabelCompile(stripIndent`
          const styles = ${compileResult.stylesCode};
          export { styles as default, styles };
-         exports.__esModule = true;`)
+         exports.__esModule = true;`, diskCache)
       : '';
 
     return compileResult;
 
     function tryBabelCompile(code) {
       try {
-        return Babel.compile(code).code;
+        return Babel.compile(code, null,  { cacheDirectory: diskCache }).code;
       } catch (err) {
         console.error(`\n/~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`);
         console.error(`Processing Step: Babel compilation`);
