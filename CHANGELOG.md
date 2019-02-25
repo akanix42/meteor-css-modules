@@ -2,6 +2,16 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+### [4.0.0] - 2019-02-25
+### Fixed
+  - Built with Meteor 1.8 (causes a Babel error when run on <1.8)
+
+### [3.2.3] - 2019-02-25
+### Fixed
+  - No longer outputs the "Compiling undefined with meteor-babel without a cache" error #124
+  - Works with Meteor 1.8 - #125
+  - Built with Meteor 1.7 (causes a Babel error when run on 1.8)
+
 ### [3.2.2] - 2018-10-13
 ### Fixed
   - New build because the 3.2.1 build was corrupt and caused the error "No compatible binary build found for this package"
@@ -196,14 +206,16 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.2...HEAD
-[3.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.2...v3.2.1
-[3.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.1...v3.2.0
-[3.2.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.0...v3.1.4
-[3.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.4...v3.1.3
-[3.1.3]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.3...v3.1.2
-[3.1.2]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.2...v3.1.0
-[3.1.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.0...v3.0.1
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v4.0.0...HEAD
+[4.0.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.3...v4.0.0
+[3.2.3]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.2...v3.2.3
+[3.2.2]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.0...v3.2.1
+[3.2.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.4...v3.2.0
+[3.1.4]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.3...v3.1.4
+[3.1.3]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.2...v3.1.3
+[3.1.2]: https://github.com/nathantreid/meteor-css-modules/compare/v3.1.0...v3.1.2
+[3.1.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.0.0...v3.1.0
 [3.0.1]: https://github.com/nathantreid/meteor-css-modules/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.8.1...v3.0.0
 [3.0.0]: https://github.com/nathantreid/meteor-css-modules/compare/v2.8.0...v2.8.1
