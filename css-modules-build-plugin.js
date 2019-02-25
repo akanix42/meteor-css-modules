@@ -56,7 +56,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     this.reloadOptions = reloadOptions;
   }
 
-  processFilesForTarget(files) {
+  async processFilesForTarget(files) {
     pluginOptions = this.reloadOptions();
     if (!pluginOptions.cache.enableCache) {
       this._cache.reset();
@@ -76,7 +76,7 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     this._setupPreprocessors();
     this.cssModulesProcessor = new CssModulesProcessor(pluginOptions, this);
 
-    super.processFilesForTarget(files);
+    await super.processFilesForTarget(files);
 
     this.profilingResults.processFilesForTarget = profile(start, 'processFilesForTarget');
 
