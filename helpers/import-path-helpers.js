@@ -67,7 +67,7 @@ export default {
     }
 
     // Fix relative paths that don't start with ./
-    if (['.', '/', '~', '{'].indexOf(importPath[0]) === -1 && !importPath.match(/^[A-Za-z]:/)) {
+    if (['.', '/', '~', '{'].indexOf(importPath[0]) === -1 && !importPath.match(/^([A-Za-z]:|meteor\/)/)) {
       importPath = './' + importPath;
     }
 
@@ -76,6 +76,7 @@ export default {
     }
 
     importPath = convertCurlySyntaxToAbsolutePath(importPath);
+    importPath = convertMeteorPackageSyntaxToAbsolutePath(importPath);
 
     return importPath.replace(/\\/g, '/');
 
@@ -102,6 +103,18 @@ export default {
       }
 
       return path.join(basePath, 'packages/' + importPath.replace(/\{(.*?):(.*?)}/, '$1_$2').replace(/\{(.*?)}/, '$1'));
+    }
+
+    function convertMeteorPackageSyntaxToAbsolutePath(importPath) {
+      const packageNameMatch = importPath.match(/^meteor\/(.*?)\//);
+      if (!packageNameMatch) {
+        return importPath;
+      }
+
+      const packageName = packageNameMatch[1];
+      const packageOnDisk = packageName.replace(':', '_');
+      const pathInPackage = importPath.substring(packageNameMatch[0].length);
+      return path.join(basePath, `packages/${packageOnDisk}/${pathInPackage}`);
     }
   }
 };
