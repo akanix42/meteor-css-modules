@@ -270,6 +270,10 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
         const logFunction = `console.${pluginOptions.missingClassErrorLevel}`;
         return `new Proxy(${stylesJson}, { 
           get: function(target, name) {
+            if (typeof name === 'symbol') {
+              return;
+            }
+            
             var ignoredProperties = [
               'toJSON',
               'state',
