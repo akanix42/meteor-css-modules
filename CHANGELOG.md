@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file (starting from version 2.0.0).
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+### [4.1.0] - 2019-05-15
+### Fixed
+  - Ignore all `symbol`s when checking for calls to nonexistent CSS class names
+### Added
+  - Support meteor/package:name syntax for importing files from other packages
+
 ### [4.0.0] - 2019-02-25
 ### Fixed
   - Built with Meteor 1.8 (causes a Babel error when run on <1.8)
@@ -206,7 +212,8 @@ Once installed, their behavior is unchanged: Sass and Stylus compilation require
 See [the wiki] for more details.
 - Stylus now supports both .styl and m.styl extensions by default (the previous default was m.styl)
 
-[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v4.0.0...HEAD
+[Unreleased]: https://github.com/nathantreid/meteor-css-modules/compare/v4.1.0...HEAD
+[4.1.0]: https://github.com/nathantreid/meteor-css-modules/compare/v4.0.0...v4.1.0
 [4.0.0]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.3...v4.0.0
 [3.2.3]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.2...v3.2.3
 [3.2.2]: https://github.com/nathantreid/meteor-css-modules/compare/v3.2.1...v3.2.2
