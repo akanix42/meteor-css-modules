@@ -9,7 +9,7 @@ export default class ScssProcessor {
     this.fileCache = {};
     this.filesByName = null;
     this.pluginOptions = pluginOptions;
-    this.sass = pluginOptions.enableSassCompilation ? require('node-sass') : null;
+    this.sass = pluginOptions.enableSassCompilation ? require('sass') : null;
   }
 
   isRoot(inputFile) {

@@ -1,4 +1,3 @@
-import Future from 'fibers/future';
 import path from 'path';
 import pluginOptions from './options';
 import logger from './logger';
@@ -50,17 +49,16 @@ export default class StylusProcessor {
     }
   }
 
-  _process(file) {
+  async _process(file) {
     if (file.isPreprocessed) return;
 
-    const { css, sourceMap } = this._transpile(file);
+    const { css, sourceMap } = await this._transpile(file);
     file.contents = css;
     file.sourceMap = sourceMap;
     file.isPreprocessed = true;
   }
 
-  _transpile(sourceFile) {
-    const future = new Future();
+  async _transpile(sourceFile) {
     const options = {
       filename: sourceFile.importPath,
       sourcemap: {
@@ -68,13 +66,16 @@ export default class StylusProcessor {
       }
     };
 
-    this.stylus.render(sourceFile.rawContents, options, (err, css) => {
-      if (err) {
-        return future.throw(err);
-      }
-      future.return({ css, sourceMap: this.stylus.sourcemap });
+    const p = new Promise((resolve, reject) => {
+      this.stylus.render(sourceFile.rawContents, options, (err, css) => {
+        if (err) {
+          reject(err);
+        }
+        resolve(css);
+      });
     });
+    const css = await p
 
-    return future.wait();
+    return { css, sourceMap: this.stylus.sourcemap }
   }
 };
