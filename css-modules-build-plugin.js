@@ -156,13 +156,13 @@ export default class CssModulesBuildPlugin extends MultiFileCachingCompiler {
     return inputFile.isRoot;
   }
 
-  compileOneFile(inputFile) {
+  async compileOneFile(inputFile) {
     const filesByName = this.filesByName;
 
     this._prepInputFile(inputFile);
     this._preprocessFile(inputFile, filesByName);
     if (inputFile.transpileCssModules !== false) {
-      this._transpileCssModulesToCss(inputFile, filesByName).await();
+      await this._transpileCssModulesToCss(inputFile, filesByName);
     }
 
     const compileResult = this._generateOutput(inputFile);

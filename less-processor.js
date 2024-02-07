@@ -1,4 +1,3 @@
-import Future from 'fibers/future';
 import path from 'path';
 import logger from './logger';
 
@@ -49,18 +48,18 @@ export default class LessProcessor {
     }
   }
 
-  _process(file) {
+  async _process(file) {
     if (file.isPreprocessed) return;
 
-    const {css, map} = this._transpile(file);
+    const { css, map } = await this._transpile(file);
 
     file.contents = css;
     file.sourceMap = map;
     file.isPreprocessed = true;
   }
 
-  _transpile(sourceFile) {
-    const future = new Future();
+  async _transpile(sourceFile) {
+    const promise = new Promise();
     const options = {
       filename: sourceFile.importPath,
       sourceMap: {
@@ -68,9 +67,6 @@ export default class LessProcessor {
       }
     };
 
-    this.less.render(sourceFile.rawContents, options)
-      .then(output => future.return(output), error => future.throw(error));
-
-    return future.wait();
+    return await this.less.render(sourceFile.rawContents, options)
   }
 };
